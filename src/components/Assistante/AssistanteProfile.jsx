@@ -99,7 +99,6 @@ export default function AssistanteProfile() {
         formData.code_postal,
         formData.ville
       )
-      console.log('Coordinates:', coords)
 
       // 2. Créer ou mettre à jour le profil assistante
       const assistantePayload = {
@@ -143,7 +142,6 @@ export default function AssistanteProfile() {
       }
 
       // 3. Gérer les jours ouvrables
-      console.log('Updating jours ouvrables...')
       
       // Supprimer les anciens
       await supabase
@@ -165,7 +163,6 @@ export default function AssistanteProfile() {
         if (joursError) throw joursError
       }
 
-      console.log('Jours ouvrables updated')
       setMessage('✅ Profil sauvegardé avec succès !')
       
       // Scroll to top to see message

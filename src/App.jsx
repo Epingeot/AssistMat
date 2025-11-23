@@ -21,8 +21,6 @@ function ProtectedRoute({ children }) {
 function AppRoutes() {
   const { user, profile, loading } = useAuth()
 
-  console.log('User:', user?.email, 'Role:', profile?.role)
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
