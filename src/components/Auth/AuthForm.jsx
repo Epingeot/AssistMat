@@ -20,18 +20,24 @@ export default function AuthForm() {
     setMessage(null)
     setLoading(true)
 
+    console.log('🔐 AuthForm: Starting authentication...')
+
     try {
       if (isLogin) {
-        await signIn(email, password)
+        console.log('🔐 AuthForm: Calling signIn...')
+        const result = await signIn(email, password)
+        console.log('🔐 AuthForm: signIn result:', result)
         setMessage('Connexion réussie !')
       } else {
         await signUp(email, password, role, nom, prenom)
         setMessage('Inscription réussie ! Vérifiez votre email.')
       }
     } catch (err) {
+      console.error('🔐 AuthForm: Error:', err)
       setError(err.message)
     } finally {
       setLoading(false)
+      console.log('🔐 AuthForm: Done')
     }
   }
 

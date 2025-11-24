@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useRef } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 
 const AuthContext = createContext({})
@@ -15,20 +15,14 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
-  const mounted = useRef(false)
 
   useEffect(() => {
-    // Empêcher les doubles exécutions en Strict Mode
-    if (mounted.current) return
-    mounted.current = true
-
-    let subscription = null
-
     // Initialiser l'authentification
     const initAuth = async () => {
       try {
-        console.log('Initializing auth...')
         const { data: { session } } = await supabase.auth.getSession()
+        
+        console.log('🔄 Init: Session retrieved:', session?.user?.email)
         
         if (session?.user) {
           setUser(session.user)
@@ -37,15 +31,15 @@ export const AuthProvider = ({ children }) => {
           setLoading(false)
         }
       } catch (error) {
-        console.error('Auth initialization error:', error)
+        console.error('❌ Init error:', error)
         setLoading(false)
       }
     }
 
     // Écouter les changements d'auth
-    const setupAuthListener = () => {
-      const { data } = supabase.auth.onAuthStateChange(async (event, session) => {
-        console.log('Auth state changed:', event)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('🔔 Auth changed:', event, session?.user?.email)
         
         setUser(session?.user ?? null)
         
@@ -55,25 +49,21 @@ export const AuthProvider = ({ children }) => {
           setProfile(null)
           setLoading(false)
         }
-      })
-      
-      subscription = data.subscription
-    }
+      }
+    )
 
     initAuth()
-    setupAuthListener()
 
-    // Cleanup
     return () => {
-      if (subscription) {
-        subscription.unsubscribe()
-      }
+      console.log('🧹 Cleaning up subscription')
+      subscription.unsubscribe()
     }
   }, [])
 
   const loadProfile = async (userId) => {
     try {
-      console.log('Loading profile for user:', userId)
+      console.log('📥 Loading profile for:', userId)
+      
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -81,18 +71,19 @@ export const AuthProvider = ({ children }) => {
         .single()
 
       if (error) throw error
+      
+      console.log('✅ Profile loaded:', data.role)
       setProfile(data)
     } catch (error) {
-      console.error('Error loading profile:', error)
+      console.error('❌ Profile error:', error)
     } finally {
       setLoading(false)
     }
   }
 
   const signUp = async (email, password, role, nom, prenom) => {
-    console.log('Signing up user', email, role)
-
-    // Créer l'utilisateur
+    console.log('📝 Signing up:', email, role)
+    
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -125,22 +116,46 @@ export const AuthProvider = ({ children }) => {
   }
 
   const signIn = async (email, password) => {
-    console.log('Signing in user', email)
+    console.log('🔑 Signing in user', email)
+    console.log('👤 AuthContext: signIn called')
+    
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
+    
+    console.log('👤 AuthContext: signIn response:', { 
+      user: data?.user?.email, 
+      error 
+    })
+    
     if (error) throw error
+    
+    // Forcer la mise à jour immédiate (au cas où onAuthStateChange est lent)
+    if (data.user) {
+      console.log('🔄 Forcing user update immediately')
+      setUser(data.user)
+      await loadProfile(data.user.id)
+    }
+    
     return data
   }
 
   const signOut = async () => {
-    console.log('Signing out user...')
+    console.log('👋 Signing out')
+    
     const { error } = await supabase.auth.signOut()
     if (error) throw error
+    
     setUser(null)
     setProfile(null)
   }
+
+  console.log('🎨 AuthProvider render:', { 
+    user: user?.email, 
+    role: profile?.role, 
+    loading 
+  })
 
   return (
     <AuthContext.Provider value={{ user, profile, loading, signUp, signIn, signOut }}>
