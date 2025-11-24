@@ -9,13 +9,17 @@ function ProtectedRoute({ children }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Chargement...</div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-xl font-semibold text-gray-600">Chargement...</div>
       </div>
     )
   }
 
-  return user ? children : <Navigate to="/login" />
+  if (!user) {
+    return <Navigate to="/login" replace />
+  }
+
+  return children
 }
 
 function AppRoutes() {
@@ -33,7 +37,7 @@ function AppRoutes() {
     <Routes>
       <Route 
         path="/login" 
-        element={user ? <Navigate to="/" /> : <AuthForm />} 
+        element={user ? <Navigate to="/" replace /> : <AuthForm />} 
       />
       <Route
         path="/"
@@ -47,6 +51,7 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }

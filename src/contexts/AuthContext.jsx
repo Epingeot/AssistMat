@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 
 const AuthContext = createContext({})
@@ -15,14 +15,38 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
+  const mounted = useRef(false)
 
   useEffect(() => {
-    // Initialiser l'authentification
-    initAuth()
+    // Empêcher les doubles exécutions en Strict Mode
+    if (mounted.current) return
+    mounted.current = true
 
-    // Écouter les changements
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+    let subscription = null
+
+    // Initialiser l'authentification
+    const initAuth = async () => {
+      try {
+        console.log('Initializing auth...')
+        const { data: { session } } = await supabase.auth.getSession()
+        
+        if (session?.user) {
+          setUser(session.user)
+          await loadProfile(session.user.id)
+        } else {
+          setLoading(false)
+        }
+      } catch (error) {
+        console.error('Auth initialization error:', error)
+        setLoading(false)
+      }
+    }
+
+    // Écouter les changements d'auth
+    const setupAuthListener = () => {
+      const { data } = supabase.auth.onAuthStateChange(async (event, session) => {
+        console.log('Auth state changed:', event)
+        
         setUser(session?.user ?? null)
         
         if (session?.user) {
@@ -31,26 +55,25 @@ export const AuthProvider = ({ children }) => {
           setProfile(null)
           setLoading(false)
         }
-      }
-    )
-
-    return () => subscription.unsubscribe()
-  }, [])
-
-  const initAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-    
-    setUser(session?.user ?? null)
-    
-    if (session?.user) {
-      await loadProfile(session.user.id)
-    } else {
-      setLoading(false)
+      })
+      
+      subscription = data.subscription
     }
-  }
+
+    initAuth()
+    setupAuthListener()
+
+    // Cleanup
+    return () => {
+      if (subscription) {
+        subscription.unsubscribe()
+      }
+    }
+  }, [])
 
   const loadProfile = async (userId) => {
     try {
+      console.log('Loading profile for user:', userId)
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -67,6 +90,8 @@ export const AuthProvider = ({ children }) => {
   }
 
   const signUp = async (email, password, role, nom, prenom) => {
+    console.log('Signing up user', email, role)
+
     // Créer l'utilisateur
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -100,6 +125,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   const signIn = async (email, password) => {
+    console.log('Signing in user', email)
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -109,6 +135,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   const signOut = async () => {
+    console.log('Signing out user...')
     const { error } = await supabase.auth.signOut()
     if (error) throw error
     setUser(null)
