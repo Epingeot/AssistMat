@@ -17,6 +17,9 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    let subscription = null
+    let isMounted = true
+
     // Initialiser l'authentification
     const initAuth = async () => {
       try {
@@ -24,6 +27,8 @@ export const AuthProvider = ({ children }) => {
         
         console.log('🔄 Init: Session retrieved:', session?.user?.email)
         
+        if (!isMounted) return
+
         if (session?.user) {
           setUser(session.user)
           await loadProfile(session.user.id)
@@ -32,31 +37,41 @@ export const AuthProvider = ({ children }) => {
         }
       } catch (error) {
         console.error('❌ Init error:', error)
-        setLoading(false)
+        if (isMounted) setLoading(false)
       }
     }
 
     // Écouter les changements d'auth
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('🔔 Auth changed:', event, session?.user?.email)
-        
-        setUser(session?.user ?? null)
-        
-        if (session?.user) {
-          await loadProfile(session.user.id)
-        } else {
-          setProfile(null)
-          setLoading(false)
+    const setupListener = () => {
+      const { data } = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          console.log('🔔 Auth changed:', event, session?.user?.email)
+          
+          if (!isMounted) return
+          
+          setUser(session?.user ?? null)
+          
+          if (session?.user) {
+            await loadProfile(session.user.id)
+          } else {
+            setProfile(null)
+            setLoading(false)
+          }
         }
-      }
-    )
+      )
+    
+      subscription = data.subscription
+    }
 
     initAuth()
+    setupListener()
 
     return () => {
       console.log('🧹 Cleaning up subscription')
-      subscription.unsubscribe()
+      isMounted = false
+      if (subscription) {
+        subscription.unsubscribe()
+      }
     }
   }, [])
 
@@ -68,15 +83,27 @@ export const AuthProvider = ({ children }) => {
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single()
+        .maybeSingle()  // ← Changé de .single() à .maybeSingle()
 
-      if (error) throw error
+      console.log('📦 Profile query result:', { data, error })
+
+      if (error) {
+        console.error('❌ Profile error:', error)
+        throw error
+      }
       
-      console.log('✅ Profile loaded:', data.role)
-      setProfile(data)
+      if (data) {
+        console.log('✅ Profile loaded:', data.role)
+        setProfile(data)
+      } else {
+        console.warn('⚠️ No profile found')
+        setProfile(null)
+      }
     } catch (error) {
-      console.error('❌ Profile error:', error)
+      console.error('❌ Profile loading failed:', error)
+      setProfile(null)
     } finally {
+      console.log('🏁 Setting loading to false')
       setLoading(false)
     }
   }
