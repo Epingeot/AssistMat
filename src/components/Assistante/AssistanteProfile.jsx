@@ -1,17 +1,18 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
-import { useGeocoding } from '../../hooks/useGeocoding'
 import JoursSemaine from './JoursSemaine'
+import AddressAutocomplete from './AddressAutocomplete'
+
 
 export default function AssistanteProfile() {
   const { user, profile } = useAuth()
-  const { geocodeAddress } = useGeocoding()
 
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState(null)
   const [error, setError] = useState(null)
+  const [validatedAddress, setValidatedAddress] = useState(null)
 
   // Données du profil
   const [assistanteData, setAssistanteData] = useState(null)
@@ -87,32 +88,37 @@ export default function AssistanteProfile() {
     e.preventDefault()
     setError(null)
     setMessage(null)
+    
+    // Vérification
+    if (!validatedAddress) {
+      setError('⚠️ Veuillez sélectionner une adresse dans les suggestions')
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      return
+    }
+
     setSaving(true)
 
     try {
-      console.log('Submitting profile...')
-      
-      // 1. Géocoder l'adresse
-      console.log('Geocoding address...')
-      const coords = await geocodeAddress(
-        formData.adresse,
-        formData.code_postal,
-        formData.ville
-      )
+      console.log('📝 Saving profile with validated address:', validatedAddress)
 
-      // 2. Créer ou mettre à jour le profil assistante
+      // Payload avec les coordonnées DÉJÀ VALIDÉES
       const assistantePayload = {
         user_id: user.id,
-        adresse: formData.adresse,
-        ville: formData.ville,
-        code_postal: formData.code_postal,
+        adresse: validatedAddress.street,
+        ville: validatedAddress.city,
+        code_postal: validatedAddress.postcode,
         places_totales: parseInt(formData.places_totales),
         places_disponibles: parseInt(formData.places_disponibles),
         tarif_journalier: parseFloat(formData.tarif_journalier),
         description: formData.description,
         agrement: formData.agrement,
-        location: `POINT(${coords.longitude} ${coords.latitude})`
+        location: `POINT(${validatedAddress.longitude} ${validatedAddress.latitude})`
       }
+
+      console.log('📍 Using coordinates:', {
+        lat: validatedAddress.latitude,
+        lon: validatedAddress.longitude
+      })
 
       let assistanteId = assistanteData?.id
 
@@ -141,15 +147,14 @@ export default function AssistanteProfile() {
         console.log('Profile created:', newAssistante)
       }
 
-      // 3. Gérer les jours ouvrables
+      // Gérer les jours ouvrables
+      console.log('Updating jours ouvrables...')
       
-      // Supprimer les anciens
       await supabase
         .from('jours_ouvrables')
         .delete()
         .eq('assistante_id', assistanteId)
 
-      // Insérer les nouveaux
       if (joursOuvrables.length > 0) {
         const joursData = joursOuvrables.map(jour => ({
           assistante_id: assistanteId,
@@ -163,13 +168,12 @@ export default function AssistanteProfile() {
         if (joursError) throw joursError
       }
 
+      console.log('✅ Everything saved successfully')
       setMessage('✅ Profil sauvegardé avec succès !')
-      
-      // Scroll to top to see message
       window.scrollTo({ top: 0, behavior: 'smooth' })
       
     } catch (err) {
-      console.error('Error saving profile:', err)
+      console.error('❌ Error saving profile:', err)
       setError(`Erreur : ${err.message}`)
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } finally {
@@ -214,54 +218,32 @@ export default function AssistanteProfile() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Adresse */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Adresse *
-            </label>
-            <input
-              type="text"
-              name="adresse"
-              value={formData.adresse}
-              onChange={handleChange}
-              required
-              placeholder="12 rue de la République"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Code postal *
-              </label>
-              <input
-                type="text"
-                name="code_postal"
-                value={formData.code_postal}
-                onChange={handleChange}
-                required
-                placeholder="75001"
-                pattern="[0-9]{5}"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
+          {/* Autocomplétion d'adresse */}
+          <AddressAutocomplete 
+            initialValue={formData.adresse}
+            onSelectAddress={(address) => {
+              console.log('✅ Address selected:', address)
+              
+              setValidatedAddress(address)
+              setFormData(prev => ({
+                ...prev,
+                adresse: address.street,
+                ville: address.city,
+                code_postal: address.postcode
+              }))
+            }}
+          />
+          {/* Afficher l'adresse validée */}
+          {validatedAddress && (
+            <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-sm font-semibold text-green-800 mb-1">
+                ✅ Adresse validée
+              </p>
+              <p className="text-sm text-green-700">
+                {validatedAddress.fullAddress}
+              </p>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Ville *
-              </label>
-              <input
-                type="text"
-                name="ville"
-                value={formData.ville}
-                onChange={handleChange}
-                required
-                placeholder="Paris"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-            </div>
-          </div>
-
+          )}
           {/* Places */}
           <div className="grid grid-cols-2 gap-4">
             <div>

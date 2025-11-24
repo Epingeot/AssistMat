@@ -83,8 +83,8 @@ export default function MapView({ assistantes, onSelectAssistante }) {
               <Popup>
                 <div className="text-sm">
                   <p className="font-bold">{assistante.prenom} {assistante.nom}</p>
-                  <p className="text-gray-600">{assistante.adresse}</p>
-                  <p className="text-gray-600">{assistante.code_postal} {assistante.ville}</p>
+                  <div className="text-gray-600 text-xs">{assistante.adresse}</div>
+                  <div className="text-gray-600 text-xs">{assistante.code_postal} {assistante.ville}</div>
                   <p className="text-purple-600 font-semibold mt-2">
                     {assistante.places_disponibles} places disponibles
                   </p>
