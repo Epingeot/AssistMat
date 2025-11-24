@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { supabase } from '../lib/supabase'
 import { useGeocoding } from '../hooks/useGeocoding'
@@ -6,6 +6,8 @@ import MapView from '../components/Parent/MapView'
 import AssistanteCard from '../components/Parent/AssistanteCard'
 import SearchBar from '../components/Parent/SearchBar'
 import ReservationModal from '../components/Parent/ReservationModal'
+import ReservationsList from '../components/Parent/ReservationsList'
+
 
 export default function ParentDashboard() {
   const { profile, signOut } = useAuth()
@@ -19,6 +21,8 @@ export default function ParentDashboard() {
   // reservation modal state and handlers
   const [showReservationModal, setShowReservationModal] = useState(false)
   const [assistanteToBook, setAssistanteToBook] = useState(null)
+
+  const [activeTab, setActiveTab] = useState('recherche') // 'recherche' ou 'reservations'
 
   const handleSearch = async ({ ville, codePostal, rayon }) => {
     if (!ville && !codePostal) {
@@ -117,61 +121,96 @@ export default function ParentDashboard() {
         </div>
       </nav>
 
-      {/* Contenu */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <SearchBar onSearch={handleSearch} />
-
-        {error && (
-          <div className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-            {error}
-          </div>
-        )}
-
-        {loading && (
-          <div className="mt-8 text-center">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            <p className="mt-4 text-gray-600">Recherche en cours...</p>
-          </div>
-        )}
-
-        {!loading && assistantes.length > 0 && (
-          <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Liste */}
-            <div className="lg:col-span-1 space-y-4 max-h-screen overflow-y-auto">
-              <h2 className="text-xl font-bold text-gray-800 sticky top-0 bg-blue-50 py-2">
-                {assistantes.length} résultat{assistantes.length > 1 ? 's' : ''}
-              </h2>
-              {assistantes.map(assistante => (
-                <AssistanteCard
-                  key={assistante.id}
-                  assistante={assistante}
-                  onSelect={handleSelectAssistante}
-                />
-              ))}
-            </div>
-
-            {/* Carte */}
-            <div className="lg:col-span-2 h-[600px]">
-              <MapView
-                assistantes={assistantes}
-                onSelectAssistante={setSelectedAssistante}
-              />
-            </div>
-          </div>
-        )}
-
-        {!loading && assistantes.length === 0 && !error && (
-          <div className="mt-12 text-center">
-            <div className="text-6xl mb-4">🔍</div>
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">
-              Lancez une recherche
-            </h3>
-            <p className="text-gray-600">
-              Entrez une ville ou un code postal pour trouver des assistantes maternelles
-            </p>
-          </div>
-        )}
+      {/* Onglets */}
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        <div className="flex gap-4 mb-6">
+          <button
+            onClick={() => setActiveTab('recherche')}
+            className={`px-6 py-3 rounded-lg font-semibold transition ${
+              activeTab === 'recherche'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            🔍 Rechercher
+          </button>
+          <button
+            onClick={() => setActiveTab('reservations')}
+            className={`px-6 py-3 rounded-lg font-semibold transition ${
+              activeTab === 'reservations'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            📅 Mes réservations
+          </button>
+        </div>
       </div>
+      
+      {/* Contenu */}
+      {activeTab === 'recherche' && (
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <SearchBar onSearch={handleSearch} />
+
+          {error && (
+            <div className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+              {error}
+            </div>
+          )}
+
+          {loading && (
+            <div className="mt-8 text-center">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <p className="mt-4 text-gray-600">Recherche en cours...</p>
+            </div>
+          )}
+
+          {!loading && assistantes.length > 0 && (
+            <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Liste */}
+              <div className="lg:col-span-1 space-y-4 max-h-screen overflow-y-auto">
+                <h2 className="text-xl font-bold text-gray-800 sticky top-0 bg-blue-50 py-2">
+                  {assistantes.length} résultat{assistantes.length > 1 ? 's' : ''}
+                </h2>
+                {assistantes.map(assistante => (
+                  <AssistanteCard
+                    key={assistante.id}
+                    assistante={assistante}
+                    onSelect={handleSelectAssistante}
+                  />
+                ))}
+              </div>
+
+              {/* Carte */}
+              <div className="lg:col-span-2 h-[600px]">
+                <MapView
+                  assistantes={assistantes}
+                  onSelectAssistante={setSelectedAssistante}
+                />
+              </div>
+            </div>
+          )}
+
+          {!loading && assistantes.length === 0 && !error && (
+            <div className="mt-12 text-center">
+              <div className="text-6xl mb-4">🔍</div>
+              <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                Lancez une recherche
+              </h3>
+              <p className="text-gray-600">
+                Entrez une ville ou un code postal pour trouver des assistantes maternelles
+              </p>
+            </div>
+          )}
+
+        </div>
+      )}
+      
+      {activeTab === 'reservations' && (
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <ReservationsList />
+        </div>
+      )}
 
       {/* Modal de réservation */}
       {showReservationModal && assistanteToBook && (
