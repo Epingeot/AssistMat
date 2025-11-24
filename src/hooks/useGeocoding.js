@@ -10,30 +10,40 @@ export function useGeocoding() {
     setError(null)
 
     try {
-      // Utiliser l'API Nominatim (OpenStreetMap) - gratuite
-      const fullAddress = `${adresse}, ${codePostal} ${ville}, France`
-      const response = await axios.get('https://nominatim.openstreetmap.org/search', {
+      const query = adresse 
+        ? `${adresse} ${codePostal} ${ville}`
+        : `${codePostal} ${ville}`
+      
+      console.log('Geocoding query:', query)
+      
+      const response = await axios.get('https://api-adresse.data.gouv.fr/search/', {
         params: {
-          q: fullAddress,
-          format: 'json',
+          q: query,
           limit: 1,
-          countrycodes: 'fr'
-        },
-        headers: {
-          'User-Agent': 'AssistMat-App'
+          autocomplete: 0
         }
       })
 
-      if (response.data && response.data.length > 0) {
-        const { lat, lon } = response.data[0]
-        return {
-          latitude: parseFloat(lat),
-          longitude: parseFloat(lon)
-        }
-      } else {
-        throw new Error('Adresse non trouvée')
+      if (!response.data.features || response.data.features.length === 0) {
+        throw new Error('Adresse non trouvée. Vérifiez l\'orthographe.')
+      }
+
+      const feature = response.data.features[0]
+      const coords = feature.geometry.coordinates
+      
+      console.log('Geocoding result:', {
+        label: feature.properties.label,
+        lat: coords[1],
+        lon: coords[0],
+        score: feature.properties.score
+      })
+
+      return {
+        longitude: coords[0],
+        latitude: coords[1]
       }
     } catch (err) {
+      console.error('Geocoding error:', err)
       setError(err.message)
       throw err
     } finally {
