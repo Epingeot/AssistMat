@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { supabase } from '../../lib/supabase'
+import { supabase } from '../../Lib/Supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { format, differenceInMonths } from 'date-fns'
 import { fr } from 'date-fns/locale'
