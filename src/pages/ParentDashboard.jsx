@@ -7,6 +7,7 @@ import AssistanteCard from '../components/Parent/AssistanteCard'
 import SearchBar from '../components/Parent/SearchBar'
 import ReservationModal from '../components/Parent/ReservationModal'
 import ReservationsList from '../components/Parent/ReservationsList'
+import { logger } from '../utils/logger'
 
 
 export default function ParentDashboard() {
@@ -41,7 +42,7 @@ export default function ParentDashboard() {
         ville || ''
       )
 
-      console.log('Search coordinates:', coords)
+      logger.log('Search coordinates:', coords)
 
       // Rechercher les assistantes dans un rayon
       const { data, error: searchError } = await supabase.rpc(
@@ -55,7 +56,7 @@ export default function ParentDashboard() {
 
       if (searchError) throw searchError
 
-      console.log('Assistantes trouvées:', data)
+      logger.log('Assistantes trouvées:', data)
 
       // Enrichir avec les jours ouvrables
       const enrichedData = await Promise.all(
@@ -81,7 +82,7 @@ export default function ParentDashboard() {
         setError('Aucune assistante maternelle trouvée dans ce secteur')
       }
     } catch (err) {
-      console.error('Search error:', err)
+      logger.error('Search error:', err)
       setError(err.message)
     } finally {
       setLoading(false)

@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
+import { logger } from '../../utils/logger'
 
 export default function ReservationsList() {
   const { user } = useAuth()
@@ -40,7 +41,7 @@ export default function ReservationsList() {
       if (error) throw error
       setReservations(reservations || [])
     } catch (err) {
-      console.error('Error loading reservations:', err)
+      logger.error('Error loading reservations:', err)
     } finally {
       setLoading(false)
     }
@@ -58,7 +59,7 @@ export default function ReservationsList() {
       // Recharger
       loadReservations()
     } catch (err) {
-      console.error('Error updating status:', err)
+      logger.error('Error updating status:', err)
       alert('Erreur lors de la mise à jour')
     }
   }

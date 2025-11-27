@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
+import { logger } from '../../utils/logger'
 
 export default function AuthForm() {
   const [isLogin, setIsLogin] = useState(true)
@@ -20,24 +21,24 @@ export default function AuthForm() {
     setMessage(null)
     setLoading(true)
 
-    console.log('🔐 AuthForm: Starting authentication...')
+    logger.log('🔐 AuthForm: Starting authentication...')
 
     try {
       if (isLogin) {
-        console.log('🔐 AuthForm: Calling signIn...')
+        logger.log('🔐 AuthForm: Calling signIn...')
         const result = await signIn(email, password)
-        console.log('🔐 AuthForm: signIn result:', result)
+        logger.log('🔐 AuthForm: signIn result:', result)
         setMessage('Connexion réussie !')
       } else {
         await signUp(email, password, role, nom, prenom)
         setMessage('Inscription réussie ! Vérifiez votre email.')
       }
     } catch (err) {
-      console.error('🔐 AuthForm: Error:', err)
+      logger.error('🔐 AuthForm: Error:', err)
       setError(err.message)
     } finally {
       setLoading(false)
-      console.log('🔐 AuthForm: Done')
+      logger.log('🔐 AuthForm: Done')
     }
   }
 

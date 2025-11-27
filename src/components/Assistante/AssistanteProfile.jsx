@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import JoursSemaine from './JoursSemaine'
 import AddressAutocomplete from './AddressAutocomplete'
+import { logger } from '../../utils/logger'
 
 
 export default function AssistanteProfile() {
@@ -99,7 +100,7 @@ export default function AssistanteProfile() {
     setSaving(true)
 
     try {
-      console.log('📝 Saving profile with validated address:', validatedAddress)
+      logger.log('📝 Saving profile with validated address:', validatedAddress)
 
       // Payload avec les coordonnées DÉJÀ VALIDÉES
       const assistantePayload = {
@@ -115,7 +116,7 @@ export default function AssistanteProfile() {
         location: `POINT(${validatedAddress.longitude} ${validatedAddress.latitude})`
       }
 
-      console.log('📍 Using coordinates:', {
+      logger.log('📍 Using coordinates:', {
         lat: validatedAddress.latitude,
         lon: validatedAddress.longitude
       })
@@ -124,17 +125,17 @@ export default function AssistanteProfile() {
 
       if (assistanteData) {
         // Mise à jour
-        console.log('Updating existing profile...')
+        logger.log('Updating existing profile...')
         const { error: updateError } = await supabase
           .from('assistantes_maternelles')
           .update(assistantePayload)
           .eq('id', assistanteData.id)
 
         if (updateError) throw updateError
-        console.log('Profile updated')
+        logger.log('Profile updated')
       } else {
         // Création
-        console.log('Creating new profile...')
+        logger.log('Creating new profile...')
         const { data: newAssistante, error: insertError } = await supabase
           .from('assistantes_maternelles')
           .insert([assistantePayload])
@@ -144,11 +145,11 @@ export default function AssistanteProfile() {
         if (insertError) throw insertError
         assistanteId = newAssistante.id
         setAssistanteData(newAssistante)
-        console.log('Profile created:', newAssistante)
+        logger.log('Profile created:', newAssistante)
       }
 
       // Gérer les jours ouvrables
-      console.log('Updating jours ouvrables...')
+      logger.log('Updating jours ouvrables...')
       
       await supabase
         .from('jours_ouvrables')
@@ -168,12 +169,12 @@ export default function AssistanteProfile() {
         if (joursError) throw joursError
       }
 
-      console.log('✅ Everything saved successfully')
+      logger.log('✅ Everything saved successfully')
       setMessage('✅ Profil sauvegardé avec succès !')
       window.scrollTo({ top: 0, behavior: 'smooth' })
       
     } catch (err) {
-      console.error('❌ Error saving profile:', err)
+      logger.error('❌ Error saving profile:', err)
       setError(`Erreur : ${err.message}`)
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } finally {
@@ -222,7 +223,7 @@ export default function AssistanteProfile() {
           <AddressAutocomplete 
             initialValue={formData.adresse}
             onSelectAddress={(address) => {
-              console.log('✅ Address selected:', address)
+              logger.log('✅ Address selected:', address)
               
               setValidatedAddress(address)
               setFormData(prev => ({

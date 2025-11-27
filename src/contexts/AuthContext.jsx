@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { logger } from '../utils/logger'
 
 const AuthContext = createContext({})
 
@@ -25,7 +26,7 @@ export const AuthProvider = ({ children }) => {
       try {
         const { data: { session } } = await supabase.auth.getSession()
         
-        console.log('🔄 Init: Session retrieved:', session?.user?.email)
+        logger.log('🔄 Init: Session retrieved:', session?.user?.email)
         
         if (!isMounted) return
 
@@ -36,7 +37,7 @@ export const AuthProvider = ({ children }) => {
           setLoading(false)
         }
       } catch (error) {
-        console.error('❌ Init error:', error)
+        logger.error('❌ Init error:', error)
         if (isMounted) setLoading(false)
       }
     }
@@ -45,7 +46,7 @@ export const AuthProvider = ({ children }) => {
     const setupListener = () => {
       const { data } = supabase.auth.onAuthStateChange(
         async (event, session) => {
-          console.log('🔔 Auth changed:', event, session?.user?.email)
+          logger.log('🔔 Auth changed:', event, session?.user?.email)
           
           if (!isMounted) return
           
@@ -67,7 +68,7 @@ export const AuthProvider = ({ children }) => {
     setupListener()
 
     return () => {
-      console.log('🧹 Cleaning up subscription')
+      logger.log('🧹 Cleaning up subscription')
       isMounted = false
       if (subscription) {
         subscription.unsubscribe()
@@ -77,7 +78,7 @@ export const AuthProvider = ({ children }) => {
 
   const loadProfile = async (userId) => {
     try {
-      console.log('📥 Loading profile for:', userId)
+      logger.log('📥 Loading profile for:', userId)
       
       const { data, error } = await supabase
         .from('profiles')
@@ -85,31 +86,31 @@ export const AuthProvider = ({ children }) => {
         .eq('id', userId)
         .maybeSingle()  // ← Changé de .single() à .maybeSingle()
 
-      console.log('📦 Profile query result:', { data, error })
+      logger.log('📦 Profile query result:', { data, error })
 
       if (error) {
-        console.error('❌ Profile error:', error)
+        logger.error('❌ Profile error:', error)
         throw error
       }
       
       if (data) {
-        console.log('✅ Profile loaded:', data.role)
+        logger.log('✅ Profile loaded:', data.role)
         setProfile(data)
       } else {
-        console.warn('⚠️ No profile found')
+        logger.warn('⚠️ No profile found')
         setProfile(null)
       }
     } catch (error) {
-      console.error('❌ Profile loading failed:', error)
+      logger.error('❌ Profile loading failed:', error)
       setProfile(null)
     } finally {
-      console.log('🏁 Setting loading to false')
+      logger.log('🏁 Setting loading to false')
       setLoading(false)
     }
   }
 
   const signUp = async (email, password, role, nom, prenom) => {
-    console.log('📝 Signing up:', email, role)
+    logger.log('📝 Signing up:', email, role)
     
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -143,15 +144,15 @@ export const AuthProvider = ({ children }) => {
   }
 
   const signIn = async (email, password) => {
-    console.log('🔑 Signing in user', email)
-    console.log('👤 AuthContext: signIn called')
+    logger.log('🔑 Signing in user', email)
+    logger.log('👤 AuthContext: signIn called')
     
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
     
-    console.log('👤 AuthContext: signIn response:', { 
+    logger.log('👤 AuthContext: signIn response:', { 
       user: data?.user?.email, 
       error 
     })
@@ -160,7 +161,7 @@ export const AuthProvider = ({ children }) => {
     
     // Forcer la mise à jour immédiate (au cas où onAuthStateChange est lent)
     if (data.user) {
-      console.log('🔄 Forcing user update immediately')
+      logger.log('🔄 Forcing user update immediately')
       setUser(data.user)
       await loadProfile(data.user.id)
     }
@@ -169,7 +170,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   const signOut = async () => {
-    console.log('👋 Signing out')
+    logger.log('👋 Signing out')
     
     const { error } = await supabase.auth.signOut()
     if (error) throw error
@@ -178,7 +179,7 @@ export const AuthProvider = ({ children }) => {
     setProfile(null)
   }
 
-  console.log('🎨 AuthProvider render:', { 
+  logger.log('🎨 AuthProvider render:', { 
     user: user?.email, 
     role: profile?.role, 
     loading 

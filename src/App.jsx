@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext'
 import AuthForm from './components/Auth/AuthForm'
 import AssistanteDashboard from './pages/AssistanteDashboard'
 import ParentDashboard from './pages/ParentDashboard'
+import { logger } from './utils/logger'
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
@@ -25,21 +26,21 @@ function ProtectedRoute({ children }) {
 function AppRoutes() {
   const { user, profile, loading } = useAuth()
 
-  console.log('🚦 AppRoutes:', { 
+  logger.log('🚦 AppRoutes:', { 
     user: user?.email, 
     role: profile?.role, 
     loading 
   })
 
   if (loading) {
-    console.log('🚦 AppRoutes: Showing loading screen')
+    logger.log('🚦 AppRoutes: Showing loading screen')
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-xl font-semibold text-gray-600">Chargement...</div>
       </div>
     )
   }
-  console.log('🚦 AppRoutes: Rendering routes')
+  logger.log('🚦 AppRoutes: Rendering routes')
 
   return (
     <Routes>
@@ -48,12 +49,12 @@ function AppRoutes() {
         element={
           user ? (
             <>
-              {console.log('🚦 Login route: User exists, redirecting to /')}
+              {logger.log('🚦 Login route: User exists, redirecting to /')}
               <Navigate to="/" replace />
             </>
           ) : (
             <>
-              {console.log('🚦 Login route: No user, showing AuthForm')}
+              {logger.log('🚦 Login route: No user, showing AuthForm')}
               <AuthForm />
             </>
           )
@@ -63,7 +64,7 @@ function AppRoutes() {
         path="/"
         element={
           <ProtectedRoute>
-            {console.log('🚦 Home route: Showing dashboard for role:', profile?.role)}
+            {logger.log('🚦 Home route: Showing dashboard for role:', profile?.role)}
             {profile?.role === 'assistante' ? (
               <AssistanteDashboard />
             ) : (

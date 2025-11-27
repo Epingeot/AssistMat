@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { format, differenceInMonths } from 'date-fns'
 import { fr } from 'date-fns/locale'
+import { logger } from '../../utils/logger'
 
 export default function ReservationsList() {
   const { user } = useAuth()
@@ -34,10 +35,10 @@ export default function ReservationsList() {
 
       if (error) throw error
       
-      console.log('Reservations loaded:', data)
+      logger.log('Reservations loaded:', data)
       setReservations(data || [])
     } catch (err) {
-      console.error('Error loading reservations:', err)
+      logger.error('Error loading reservations:', err)
     } finally {
       setLoading(false)
     }
@@ -56,7 +57,7 @@ export default function ReservationsList() {
       
       await loadReservations()
     } catch (err) {
-      console.error('Error canceling reservation:', err)
+      logger.error('Error canceling reservation:', err)
       alert('Erreur lors de l\'annulation')
     }
   }

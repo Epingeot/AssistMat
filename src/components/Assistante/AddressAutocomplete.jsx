@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
+import { logger } from '../../utils/logger'
 
 export default function AddressAutocomplete({ onSelectAddress, initialValue = '' }) {
   const [query, setQuery] = useState(initialValue)
@@ -43,7 +44,7 @@ export default function AddressAutocomplete({ onSelectAddress, initialValue = ''
           setShowSuggestions(true)
         }
       } catch (err) {
-        console.error('Autocomplete error:', err)
+        logger.error('Autocomplete error:', err)
       } finally {
         setLoading(false)
       }

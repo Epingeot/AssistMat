@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { addMonths, format, differenceInMonths } from 'date-fns'
 import { fr } from 'date-fns/locale'
+import { logger } from '../../utils/logger'
 
 export default function ReservationModal({ assistante, onClose, onSuccess }) {
   const { user } = useAuth()
@@ -75,7 +76,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
 
       onSuccess(data)
     } catch (err) {
-      console.error('Reservation error:', err)
+      logger.error('Reservation error:', err)
       setError(err.message)
     } finally {
       setLoading(false)

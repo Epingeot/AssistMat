@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import axios from 'axios'
+import { logger } from '../utils/logger'
 
 export function useGeocoding() {
   const [loading, setLoading] = useState(false)
@@ -14,7 +15,7 @@ export function useGeocoding() {
         ? `${adresse} ${codePostal} ${ville}`
         : `${codePostal} ${ville}`
       
-      console.log('Geocoding query:', query)
+      logger.log('Geocoding query:', query)
       
       const response = await axios.get('https://api-adresse.data.gouv.fr/search/', {
         params: {
@@ -31,7 +32,7 @@ export function useGeocoding() {
       const feature = response.data.features[0]
       const coords = feature.geometry.coordinates
       
-      console.log('Geocoding result:', {
+      logger.log('Geocoding result:', {
         label: feature.properties.label,
         lat: coords[1],
         lon: coords[0],
@@ -43,7 +44,7 @@ export function useGeocoding() {
         latitude: coords[1]
       }
     } catch (err) {
-      console.error('Geocoding error:', err)
+      logger.error('Geocoding error:', err)
       setError(err.message)
       throw err
     } finally {
