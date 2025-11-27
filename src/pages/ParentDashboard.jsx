@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
-import { supabase } from '../Lib/Supabase'
+import { supabase } from '../lib/supabase'
 import { useGeocoding } from '../hooks/useGeocoding'
 import MapView from '../components/Parent/MapView'
 import AssistanteCard from '../components/Parent/AssistanteCard'
