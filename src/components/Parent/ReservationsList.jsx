@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { format, differenceInMonths } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { logger } from '../../utils/logger'
+import toast from 'react-hot-toast'
 
 export default function ReservationsList() {
   const { user } = useAuth()
@@ -58,7 +59,7 @@ export default function ReservationsList() {
       await loadReservations()
     } catch (err) {
       logger.error('Error canceling reservation:', err)
-      alert('Erreur lors de l\'annulation')
+      toast.error('Erreur lors de l\'annulation')
     }
   }
 

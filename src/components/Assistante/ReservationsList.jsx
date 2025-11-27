@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { logger } from '../../utils/logger'
+import toast from 'react-hot-toast'
 
 export default function ReservationsList() {
   const { user } = useAuth()
@@ -60,7 +61,7 @@ export default function ReservationsList() {
       loadReservations()
     } catch (err) {
       logger.error('Error updating status:', err)
-      alert('Erreur lors de la mise à jour')
+      toast.error('Erreur lors de la mise à jour')
     }
   }
 

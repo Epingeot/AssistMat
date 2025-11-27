@@ -9,6 +9,7 @@ import ReservationModal from '../components/Parent/ReservationModal'
 import ReservationsList from '../components/Parent/ReservationsList'
 import { logger } from '../utils/logger'
 import ErrorBoundary from '../components/ErrorBoundary'
+import toast from 'react-hot-toast'
 
 
 export default function ParentDashboard() {
@@ -97,7 +98,7 @@ export default function ParentDashboard() {
 
   const handleReservationSuccess = (reservation) => {
     setShowReservationModal(false)
-    alert('✅ Demande de réservation envoyée avec succès !')
+    toast.success('Demande de réservation envoyée avec succès !')
   }
 
   return (
