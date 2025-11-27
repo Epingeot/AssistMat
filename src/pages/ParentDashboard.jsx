@@ -8,6 +8,7 @@ import SearchBar from '../components/Parent/SearchBar'
 import ReservationModal from '../components/Parent/ReservationModal'
 import ReservationsList from '../components/Parent/ReservationsList'
 import { logger } from '../utils/logger'
+import ErrorBoundary from '../components/ErrorBoundary'
 
 
 export default function ParentDashboard() {
@@ -150,8 +151,13 @@ export default function ParentDashboard() {
       
       {/* Contenu */}
       {activeTab === 'recherche' && (
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <SearchBar onSearch={handleSearch} />
+        <ErrorBoundary
+          name="Parent Search Tab"
+          title="Erreur de recherche"
+          message="La recherche d'assistantes maternelles a rencontré un problème."
+        >
+          <div className="max-w-7xl mx-auto px-4 py-8">
+            <SearchBar onSearch={handleSearch} />
 
           {error && (
             <div className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
@@ -184,10 +190,27 @@ export default function ParentDashboard() {
 
               {/* Carte */}
               <div className="lg:col-span-2 h-[600px]">
-                <MapView
-                  assistantes={assistantes}
-                  onSelectAssistante={setSelectedAssistante}
-                />
+                <ErrorBoundary
+                  name="Parent MapView"
+                  fallback={() => (
+                    <div className="h-full bg-yellow-50 border-2 border-yellow-300 rounded-lg flex items-center justify-center p-8">
+                      <div className="text-center">
+                        <div className="text-6xl mb-4">🗺️</div>
+                        <h3 className="text-xl font-bold text-yellow-900 mb-2">
+                          Carte temporairement indisponible
+                        </h3>
+                        <p className="text-yellow-800">
+                          Utilisez la liste à gauche pour voir les résultats.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                >
+                  <MapView
+                    assistantes={assistantes}
+                    onSelectAssistante={setSelectedAssistante}
+                  />
+                </ErrorBoundary>
               </div>
             </div>
           )}
@@ -204,13 +227,20 @@ export default function ParentDashboard() {
             </div>
           )}
 
-        </div>
+          </div>
+        </ErrorBoundary>
       )}
-      
+
       {activeTab === 'reservations' && (
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <ReservationsList />
-        </div>
+        <ErrorBoundary
+          name="Parent Reservations Tab"
+          title="Erreur de réservations"
+          message="Impossible de charger vos réservations."
+        >
+          <div className="max-w-7xl mx-auto px-4 py-8">
+            <ReservationsList />
+          </div>
+        </ErrorBoundary>
       )}
 
       {/* Modal de réservation */}

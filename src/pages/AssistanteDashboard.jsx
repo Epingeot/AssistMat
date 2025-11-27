@@ -2,6 +2,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { useState } from 'react'
 import AssistanteProfile from '../components/Assistante/AssistanteProfile'
 import ReservationsList from '../components/Assistante/ReservationsList'
+import ErrorBoundary from '../components/ErrorBoundary'
 
 export default function AssistanteDashboard() {
   const { profile, signOut } = useAuth()
@@ -57,8 +58,24 @@ export default function AssistanteDashboard() {
         </div>
 
         {/* Contenu des onglets */}
-        {activeTab === 'profil' && <AssistanteProfile />}
-        {activeTab === 'reservations' && <ReservationsList />}
+        {activeTab === 'profil' && (
+          <ErrorBoundary
+            name="Assistante Profile Tab"
+            title="Erreur de profil"
+            message="Impossible de charger votre profil professionnel."
+          >
+            <AssistanteProfile />
+          </ErrorBoundary>
+        )}
+        {activeTab === 'reservations' && (
+          <ErrorBoundary
+            name="Assistante Reservations Tab"
+            title="Erreur de réservations"
+            message="Impossible de charger les demandes de réservation."
+          >
+            <ReservationsList />
+          </ErrorBoundary>
+        )}
       </div>
     </div>
   )

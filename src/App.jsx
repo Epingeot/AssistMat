@@ -4,6 +4,7 @@ import AuthForm from './components/Auth/AuthForm'
 import AssistanteDashboard from './pages/AssistanteDashboard'
 import ParentDashboard from './pages/ParentDashboard'
 import { logger } from './utils/logger'
+import ErrorBoundary from './components/ErrorBoundary'
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
@@ -26,11 +27,14 @@ function ProtectedRoute({ children }) {
 function AppRoutes() {
   const { user, profile, loading } = useAuth()
 
-  logger.log('🚦 AppRoutes:', { 
-    user: user?.email, 
-    role: profile?.role, 
-    loading 
+  logger.log('🚦 AppRoutes:', {
+    user: user?.email,
+    role: profile?.role,
+    loading
   })
+
+  // 🧪 TEST: Uncomment to simulate router error (caught by root Error Boundary)
+  // throw new Error('TEST: Simulated router/app error')
 
   if (loading) {
     logger.log('🚦 AppRoutes: Showing loading screen')
@@ -80,10 +84,17 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
-    </BrowserRouter>
+    <ErrorBoundary
+      name="App Root"
+      title="Erreur Critique"
+      message="L'application a rencontré une erreur inattendue. Veuillez réessayer."
+      showHomeButton
+    >
+      <BrowserRouter>
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   )
 }

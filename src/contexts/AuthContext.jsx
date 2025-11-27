@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { logger } from '../utils/logger'
+import ErrorBoundary from '../components/ErrorBoundary'
 
 const AuthContext = createContext({})
 
@@ -179,15 +180,58 @@ export const AuthProvider = ({ children }) => {
     setProfile(null)
   }
 
-  logger.log('🎨 AuthProvider render:', { 
-    user: user?.email, 
-    role: profile?.role, 
-    loading 
+  logger.log('🎨 AuthProvider render:', {
+    user: user?.email,
+    role: profile?.role,
+    loading
   })
 
+  // 🧪 TEST: Uncomment to simulate auth error
+  // throw new Error('TEST: Simulated authentication error')
+
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signUp, signIn, signOut }}>
-      {children}
-    </AuthContext.Provider>
+    <ErrorBoundary
+      name="Auth Provider"
+      fallback={({ error }) => (
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+          <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+            <div className="text-center mb-6">
+              <div className="text-red-500 text-6xl mb-4">🔒</div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Erreur d'authentification
+              </h2>
+              <p className="text-gray-600">
+                Impossible de charger votre session. Votre profil est peut-être corrompu ou votre session a expiré.
+              </p>
+            </div>
+
+            {import.meta.env.DEV && (
+              <details className="mb-6 text-xs">
+                <summary className="cursor-pointer text-gray-600 hover:text-gray-900">
+                  Détails de l'erreur
+                </summary>
+                <pre className="mt-2 p-3 bg-gray-100 rounded overflow-auto text-red-600 max-h-32">
+                  {error?.toString()}
+                </pre>
+              </details>
+            )}
+
+            <button
+              onClick={async () => {
+                await supabase.auth.signOut()
+                window.location.href = '/login'
+              }}
+              className="w-full bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition font-medium"
+            >
+              Se déconnecter et réessayer
+            </button>
+          </div>
+        </div>
+      )}
+    >
+      <AuthContext.Provider value={{ user, profile, loading, signUp, signIn, signOut }}>
+        {children}
+      </AuthContext.Provider>
+    </ErrorBoundary>
   )
 }
