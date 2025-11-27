@@ -111,6 +111,7 @@ export default function AuthForm() {
                     value={prenom}
                     onChange={(e) => setPrenom(e.target.value)}
                     required
+                    autoComplete="given-name"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
@@ -123,6 +124,7 @@ export default function AuthForm() {
                     value={nom}
                     onChange={(e) => setNom(e.target.value)}
                     required
+                    autoComplete="family-name"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
@@ -139,6 +141,7 @@ export default function AuthForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              autoComplete="email"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="vous@exemple.com"
             />
@@ -154,6 +157,7 @@ export default function AuthForm() {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
+              autoComplete={isLogin ? "current-password" : "new-password"}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="••••••••"
             />

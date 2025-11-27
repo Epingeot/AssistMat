@@ -86,6 +86,7 @@ export default function AddressAutocomplete({ onSelectAddress, initialValue = ''
         onChange={(e) => setQuery(e.target.value)}
         onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
         placeholder="Commencez à taper votre adresse..."
+        autoComplete="street-address"
         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
         required
       />

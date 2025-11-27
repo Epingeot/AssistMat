@@ -314,6 +314,7 @@ export default function AssistanteProfile() {
               value={formData.agrement}
               onChange={handleChange}
               placeholder="Ex: 075123456"
+              autoComplete="off"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
           </div>
