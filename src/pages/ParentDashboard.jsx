@@ -17,6 +17,7 @@ export default function ParentDashboard() {
   const { geocodeAddress } = useGeocoding()
 
   const [assistantes, setAssistantes] = useState([])
+  const [searchCenter, setSearchCenter] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [selectedAssistante, setSelectedAssistante] = useState(null)
@@ -46,6 +47,9 @@ export default function ParentDashboard() {
 
       logger.log('Search coordinates:', coords)
 
+      // Store search center for map
+      setSearchCenter([coords.latitude, coords.longitude])
+
       // Rechercher les assistantes dans un rayon
       const { data, error: searchError } = await supabase.rpc(
         'rechercher_assistantes_par_distance',
@@ -70,10 +74,7 @@ export default function ParentDashboard() {
 
           return {
             ...assistante,
-            jours_ouvrables: jours?.map(j => j.jour) || [],
-            // Extraire lat/lon depuis location
-            latitude: coords.latitude, // TODO: extraire depuis la géographie
-            longitude: coords.longitude
+            jours_ouvrables: jours?.map(j => j.jour) || []
           }
         })
       )
@@ -209,6 +210,7 @@ export default function ParentDashboard() {
                 >
                   <MapView
                     assistantes={assistantes}
+                    searchCenter={searchCenter}
                     onSelectAssistante={setSelectedAssistante}
                   />
                 </ErrorBoundary>

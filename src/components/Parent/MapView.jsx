@@ -37,14 +37,12 @@ function MapUpdater({ center, assistantes }) {
   return null
 }
 
-export default function MapView({ assistantes, onSelectAssistante }) {
+export default function MapView({ assistantes, searchCenter, onSelectAssistante }) {
   // Centre par défaut : Paris
   const defaultCenter = [48.8566, 2.3522]
 
-  // Calculer le centre basé sur les assistantes
-  const center = assistantes.length > 0 && assistantes[0].latitude
-    ? [assistantes[0].latitude, assistantes[0].longitude]
-    : defaultCenter
+  // Use search center if available, otherwise use default
+  const center = searchCenter || defaultCenter
 
   return (
     <div className="h-full w-full rounded-lg overflow-hidden shadow-lg">
