@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)"
+    ],
+    "deny": [],
+    "ask": []
+  },
+  "guidance": {
+    "mode": "balanced",
+    "text": "You are assisting a software engineer experienced in C, C++, and C#, but new to modern web development. Always explain web technologies clearly, step-by-step. Pause after each step and wait for confirmation before proceeding. Produce clean, production-ready code. Never assume knowledge of modern JS frameworks. Describe what tools and commands do before using them."
+  }
+}

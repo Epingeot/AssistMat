@@ -48,11 +48,24 @@ export const AuthProvider = ({ children }) => {
       const { data } = supabase.auth.onAuthStateChange(
         async (event, session) => {
           logger.log('🔔 Auth changed:', event, session?.user?.email)
-          
+
           if (!isMounted) return
-          
+
+          // Handle session expiration/refresh failures
+          if (event === 'TOKEN_REFRESHED') {
+            logger.log('🔄 Token refreshed successfully')
+          }
+
+          if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+            logger.log('👋 User signed out or deleted')
+            setUser(null)
+            setProfile(null)
+            setLoading(false)
+            return
+          }
+
           setUser(session?.user ?? null)
-          
+
           if (session?.user) {
             await loadProfile(session.user.id)
           } else {
@@ -61,7 +74,7 @@ export const AuthProvider = ({ children }) => {
           }
         }
       )
-    
+
       subscription = data.subscription
     }
 
@@ -80,20 +93,33 @@ export const AuthProvider = ({ children }) => {
   const loadProfile = async (userId) => {
     try {
       logger.log('📥 Loading profile for:', userId)
-      
-      const { data, error } = await supabase
+
+      // Add timeout to prevent hanging on expired sessions
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Profile load timeout')), 10000)
+      )
+
+      const queryPromise = supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .maybeSingle()  // ← Changé de .single() à .maybeSingle()
+        .maybeSingle()
+
+      const { data, error } = await Promise.race([queryPromise, timeoutPromise])
 
       logger.log('📦 Profile query result:', { data, error })
 
       if (error) {
         logger.error('❌ Profile error:', error)
+        // If auth error, sign out the user
+        if (error.message?.includes('JWT') || error.code === 'PGRST301') {
+          logger.warn('⚠️ Session expired, signing out')
+          await supabase.auth.signOut()
+          return
+        }
         throw error
       }
-      
+
       if (data) {
         logger.log('✅ Profile loaded:', data.role)
         setProfile(data)
@@ -103,6 +129,13 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       logger.error('❌ Profile loading failed:', error)
+
+      // If timeout or session error, sign out
+      if (error.message === 'Profile load timeout') {
+        logger.warn('⏱️ Profile load timed out, likely session expired')
+        await supabase.auth.signOut()
+      }
+
       setProfile(null)
     } finally {
       logger.log('🏁 Setting loading to false')
