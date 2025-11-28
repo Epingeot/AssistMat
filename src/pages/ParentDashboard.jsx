@@ -121,44 +121,45 @@ export default function ParentDashboard() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
       {/* Header */}
       <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+        <div className="max-w-7xl mx-auto px-4 py-3 md:py-4 flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-blue-600">AssistMat</h1>
-            <p className="text-sm text-gray-600">Trouvez votre assistante maternelle</p>
+            <h1 className="text-xl md:text-2xl font-bold text-blue-600">AssistMat</h1>
+            <p className="text-xs md:text-sm text-gray-600 hidden sm:block">Trouvez votre assistante maternelle</p>
           </div>
-          <div className="flex items-center gap-4">
-            <span className="text-gray-700">
+          <div className="flex items-center gap-2 md:gap-4">
+            <span className="text-sm md:text-base text-gray-700 hidden md:block">
               {profile?.prenom} {profile?.nom}
             </span>
             <button
               onClick={signOut}
-              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+              className="px-3 md:px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-sm md:text-base active:bg-red-700"
             >
-              Déconnexion
+              <span className="hidden sm:inline">Déconnexion</span>
+              <span className="sm:hidden">✕</span>
             </button>
           </div>
         </div>
       </nav>
 
       {/* Onglets */}
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        <div className="flex gap-4 mb-6">
+      <div className="max-w-7xl mx-auto px-4 py-4 md:py-6">
+        <div className="grid grid-cols-2 gap-2 md:flex md:gap-4 mb-6">
           <button
             onClick={() => setActiveTab('recherche')}
-            className={`px-6 py-3 rounded-lg font-semibold transition ${
+            className={`px-4 md:px-6 py-2.5 md:py-3 rounded-lg font-semibold transition text-sm md:text-base ${
               activeTab === 'recherche'
                 ? 'bg-blue-600 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-50'
+                : 'bg-white text-gray-700 hover:bg-gray-50 active:bg-gray-100'
             }`}
           >
             🔍 Rechercher
           </button>
           <button
             onClick={() => setActiveTab('reservations')}
-            className={`px-6 py-3 rounded-lg font-semibold transition ${
+            className={`px-4 md:px-6 py-2.5 md:py-3 rounded-lg font-semibold transition text-sm md:text-base ${
               activeTab === 'reservations'
                 ? 'bg-blue-600 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-50'
+                : 'bg-white text-gray-700 hover:bg-gray-50 active:bg-gray-100'
             }`}
           >
             📅 Mes réservations
@@ -190,10 +191,10 @@ export default function ParentDashboard() {
           )}
 
           {!loading && assistantes.length > 0 && (
-            <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="mt-8 flex flex-col lg:grid lg:grid-cols-3 gap-6">
               {/* Liste */}
-              <div className="lg:col-span-1 space-y-4 max-h-screen overflow-y-auto">
-                <h2 className="text-xl font-bold text-gray-800 sticky top-0 bg-blue-50 py-2">
+              <div className="lg:col-span-1 space-y-4 max-h-96 lg:max-h-screen overflow-y-auto">
+                <h2 className="text-xl font-bold text-gray-800 sticky top-0 bg-blue-50 py-2 z-10">
                   {assistantes.length} résultat{assistantes.length > 1 ? 's' : ''}
                 </h2>
                 {assistantes.map(assistante => (
@@ -206,7 +207,7 @@ export default function ParentDashboard() {
               </div>
 
               {/* Carte */}
-              <div className="lg:col-span-2 h-[600px]">
+              <div className="lg:col-span-2 h-[400px] lg:h-[600px] order-first lg:order-last">
                 <ErrorBoundary
                   name="Parent MapView"
                   fallback={() => (

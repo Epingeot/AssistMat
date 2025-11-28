@@ -12,8 +12,8 @@ export default function SearchBar({ onSearch }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-4">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-4 md:p-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Ville
@@ -57,10 +57,10 @@ export default function SearchBar({ onSearch }) {
           </select>
         </div>
 
-        <div className="flex items-end">
+        <div className="sm:col-span-2 md:col-span-1 flex items-end">
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-2 px-4 rounded-lg font-semibold hover:from-blue-600 hover:to-indigo-700 transition"
+            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-2.5 md:py-2 px-4 rounded-lg font-semibold hover:from-blue-600 hover:to-indigo-700 transition text-base md:text-sm"
           >
             🔍 Rechercher
           </button>
@@ -69,10 +69,10 @@ export default function SearchBar({ onSearch }) {
 
       {/* Filtres par type d'accueil */}
       <div className="mt-4 pt-4 border-t border-gray-200">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-gray-700 mb-3">
           Type(s) d'accueil
         </label>
-        <div className="flex flex-wrap gap-2">
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
           {[
             { value: 'regulier', label: '🕐 Régulier' },
             { value: 'temps_partiel', label: '⏰ Temps partiel' },
@@ -81,10 +81,10 @@ export default function SearchBar({ onSearch }) {
           ].map(type => (
             <label
               key={type.value}
-              className={`px-3 py-2 border-2 rounded-lg cursor-pointer transition ${
+              className={`px-3 py-2.5 md:py-2 border-2 rounded-lg cursor-pointer transition text-center ${
                 typesAccueil.includes(type.value)
                   ? 'border-blue-500 bg-blue-50 text-blue-700'
-                  : 'border-gray-300 text-gray-700 hover:border-gray-400'
+                  : 'border-gray-300 text-gray-700 hover:border-gray-400 active:bg-gray-50'
               }`}
             >
               <input

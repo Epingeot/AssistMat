@@ -249,8 +249,8 @@ export default function AssistanteProfile() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <div className="bg-white rounded-lg shadow-md p-6">
+    <div className="max-w-3xl mx-auto px-4 md:px-0">
+      <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
         <h2 className="text-2xl font-bold text-gray-800 mb-6">
           Mon profil professionnel
         </h2>
@@ -479,7 +479,7 @@ export default function AssistanteProfile() {
           <button
             type="submit"
             disabled={saving}
-            className="w-full bg-gradient-to-r from-purple-500 to-pink-600 text-white py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-gradient-to-r from-purple-500 to-pink-600 text-white py-3 md:py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-700 transition disabled:opacity-50 disabled:cursor-not-allowed text-base active:scale-98"
           >
             {saving ? 'Sauvegarde en cours...' : 'Enregistrer mon profil'}
           </button>
