@@ -7,6 +7,7 @@ export default function AddressAutocomplete({ onSelectAddress, initialValue = ''
   const [suggestions, setSuggestions] = useState([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [userHasTyped, setUserHasTyped] = useState(false)
   const wrapperRef = useRef(null)
 
   // Fermer les suggestions si clic à l'extérieur
@@ -22,6 +23,11 @@ export default function AddressAutocomplete({ onSelectAddress, initialValue = ''
 
   // Rechercher des suggestions
   useEffect(() => {
+    // Don't search on initial load with initialValue
+    if (!userHasTyped) {
+      return
+    }
+
     if (query.length < 3) {
       setSuggestions([])
       return
@@ -51,14 +57,16 @@ export default function AddressAutocomplete({ onSelectAddress, initialValue = ''
     }, 300) // Debounce de 300ms
 
     return () => clearTimeout(timeoutId)
-  }, [query])
+  }, [query, userHasTyped])
 
   const handleSelect = (feature) => {
     const props = feature.properties
     const coords = feature.geometry.coordinates
 
-    setQuery(props.label)
+    // Show only street part in the address field (not full address)
+    setQuery(props.name)
     setShowSuggestions(false)
+    setUserHasTyped(false) // Reset so it doesn't auto-expand on next load
 
     // Extraire les infos
     const address = {
@@ -77,14 +85,17 @@ export default function AddressAutocomplete({ onSelectAddress, initialValue = ''
   return (
     <div ref={wrapperRef} className="relative">
       <label className="block text-sm font-medium text-gray-700 mb-2">
-        Adresse complète *
+        Adresse *
       </label>
       
       <input
         type="text"
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+        onChange={(e) => {
+          setQuery(e.target.value)
+          setUserHasTyped(true)
+        }}
+        onFocus={() => userHasTyped && suggestions.length > 0 && setShowSuggestions(true)}
         placeholder="Commencez à taper votre adresse..."
         autoComplete="street-address"
         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
@@ -129,9 +140,11 @@ export default function AddressAutocomplete({ onSelectAddress, initialValue = ''
         </div>
       )}
 
-      <p className="text-xs text-gray-500 mt-1">
-        Tapez au moins 3 caractères pour voir les suggestions
-      </p>
+      {userHasTyped && (
+        <p className="text-xs text-gray-500 mt-1">
+          Tapez au moins 3 caractères pour voir les suggestions
+        </p>
+      )}
     </div>
   )
 }

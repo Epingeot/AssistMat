@@ -61,6 +61,18 @@ export default function AssistanteProfile() {
           agrement: assistante.agrement || '',
         })
 
+        // Set validated address from existing data
+        if (assistante.adresse && assistante.ville && assistante.code_postal) {
+          setValidatedAddress({
+            street: assistante.adresse,
+            city: assistante.ville,
+            postcode: assistante.code_postal,
+            fullAddress: `${assistante.adresse}, ${assistante.code_postal} ${assistante.ville}`,
+            latitude: null,  // Will use existing location in database
+            longitude: null
+          })
+        }
+
         const { data: jours } = await supabase
           .from('jours_ouvrables')
           .select('jour')
@@ -113,13 +125,18 @@ export default function AssistanteProfile() {
         tarif_journalier: parseFloat(formData.tarif_journalier),
         description: formData.description,
         agrement: formData.agrement,
-        location: `POINT(${validatedAddress.longitude} ${validatedAddress.latitude})`
       }
 
-      logger.log('📍 Using coordinates:', {
-        lat: validatedAddress.latitude,
-        lon: validatedAddress.longitude
-      })
+      // Only update location if new coordinates are provided (new address selected)
+      if (validatedAddress.latitude && validatedAddress.longitude) {
+        assistantePayload.location = `POINT(${validatedAddress.longitude} ${validatedAddress.latitude})`
+        logger.log('📍 Using new coordinates:', {
+          lat: validatedAddress.latitude,
+          lon: validatedAddress.longitude
+        })
+      } else {
+        logger.log('📍 Keeping existing location coordinates')
+      }
 
       let assistanteId = assistanteData?.id
 
@@ -220,11 +237,11 @@ export default function AssistanteProfile() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Autocomplétion d'adresse */}
-          <AddressAutocomplete 
+          <AddressAutocomplete
             initialValue={formData.adresse}
             onSelectAddress={(address) => {
               logger.log('✅ Address selected:', address)
-              
+
               setValidatedAddress(address)
               setFormData(prev => ({
                 ...prev,
@@ -234,8 +251,8 @@ export default function AssistanteProfile() {
               }))
             }}
           />
-          {/* Afficher l'adresse validée */}
-          {validatedAddress && (
+          {/* Afficher l'adresse validée seulement si nouvellement sélectionnée */}
+          {validatedAddress && validatedAddress.latitude && validatedAddress.longitude && (
             <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
               <p className="text-sm font-semibold text-green-800 mb-1">
                 ✅ Adresse validée
@@ -245,6 +262,39 @@ export default function AssistanteProfile() {
               </p>
             </div>
           )}
+
+          {/* Ville et Code postal */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Ville *
+              </label>
+              <input
+                type="text"
+                name="ville"
+                value={formData.ville}
+                readOnly
+                required
+                placeholder="Sélectionnez une adresse"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 cursor-not-allowed"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Code postal *
+              </label>
+              <input
+                type="text"
+                name="code_postal"
+                value={formData.code_postal}
+                readOnly
+                required
+                placeholder="00000"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 cursor-not-allowed"
+              />
+            </div>
+          </div>
+
           {/* Places */}
           <div className="grid grid-cols-2 gap-4">
             <div>
