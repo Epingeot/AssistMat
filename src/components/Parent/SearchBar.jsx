@@ -4,10 +4,11 @@ export default function SearchBar({ onSearch }) {
   const [ville, setVille] = useState('')
   const [codePostal, setCodePostal] = useState('')
   const [rayon, setRayon] = useState(10)
+  const [typesAccueil, setTypesAccueil] = useState([])
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    onSearch({ ville, codePostal, rayon })
+    onSearch({ ville, codePostal, rayon, typesAccueil })
   }
 
   return (
@@ -63,6 +64,44 @@ export default function SearchBar({ onSearch }) {
           >
             🔍 Rechercher
           </button>
+        </div>
+      </div>
+
+      {/* Filtres par type d'accueil */}
+      <div className="mt-4 pt-4 border-t border-gray-200">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Type(s) d'accueil
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {[
+            { value: 'regulier', label: '🕐 Régulier' },
+            { value: 'temps_partiel', label: '⏰ Temps partiel' },
+            { value: 'periscolaire', label: '🎒 Périscolaire' },
+            { value: 'occasionnel', label: '👶 Occasionnel' }
+          ].map(type => (
+            <label
+              key={type.value}
+              className={`px-3 py-2 border-2 rounded-lg cursor-pointer transition ${
+                typesAccueil.includes(type.value)
+                  ? 'border-blue-500 bg-blue-50 text-blue-700'
+                  : 'border-gray-300 text-gray-700 hover:border-gray-400'
+              }`}
+            >
+              <input
+                type="checkbox"
+                checked={typesAccueil.includes(type.value)}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setTypesAccueil([...typesAccueil, type.value])
+                  } else {
+                    setTypesAccueil(typesAccueil.filter(t => t !== type.value))
+                  }
+                }}
+                className="sr-only"
+              />
+              <span className="text-sm font-medium">{type.label}</span>
+            </label>
+          ))}
         </div>
       </div>
     </form>

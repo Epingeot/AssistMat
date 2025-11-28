@@ -14,10 +14,22 @@ export default function AssistanteCard({ assistante, onSelect }) {
           </p>
         </div>
         <div className="text-right">
-          <p className="text-2xl font-bold text-purple-600">
-            {assistante.tarif_journalier}€
-          </p>
-          <p className="text-xs text-gray-500">par jour</p>
+          {assistante.tarif_journalier && (
+            <>
+              <p className="text-2xl font-bold text-purple-600">
+                {assistante.tarif_journalier}€
+              </p>
+              <p className="text-xs text-gray-500">par jour</p>
+            </>
+          )}
+          {assistante.tarif_horaire && (
+            <>
+              <p className={assistante.tarif_journalier ? "text-lg font-semibold text-purple-500 mt-1" : "text-2xl font-bold text-purple-600"}>
+                {assistante.tarif_horaire}€
+              </p>
+              <p className="text-xs text-gray-500">par heure</p>
+            </>
+          )}
         </div>
       </div>
 
@@ -38,6 +50,30 @@ export default function AssistanteCard({ assistante, onSelect }) {
           </div>
         )}
       </div>
+
+      {assistante.types_accueil && assistante.types_accueil.length > 0 && (
+        <div className="mb-3">
+          <p className="text-xs text-gray-500 mb-1">Types d'accueil :</p>
+          <div className="flex gap-1 flex-wrap">
+            {assistante.types_accueil.map(type => {
+              const labels = {
+                regulier: '🕐 Régulier',
+                temps_partiel: '⏰ Temps partiel',
+                periscolaire: '🎒 Périscolaire',
+                occasionnel: '👶 Occasionnel'
+              }
+              return (
+                <span
+                  key={type}
+                  className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium"
+                >
+                  {labels[type] || type}
+                </span>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {assistante.jours_ouvrables && assistante.jours_ouvrables.length > 0 && (
         <div className="mb-3">

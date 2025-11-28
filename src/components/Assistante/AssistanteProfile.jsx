@@ -24,10 +24,12 @@ export default function AssistanteProfile() {
     places_totales: 4,
     places_disponibles: 4,
     tarif_journalier: '',
+    tarif_horaire: '',
     description: '',
     agrement: '',
   })
   const [joursOuvrables, setJoursOuvrables] = useState([])
+  const [typesAccueil, setTypesAccueil] = useState([])
 
   // Charger les données existantes
   useEffect(() => {
@@ -57,6 +59,7 @@ export default function AssistanteProfile() {
           places_totales: assistante.places_totales || 4,
           places_disponibles: assistante.places_disponibles || 4,
           tarif_journalier: assistante.tarif_journalier || '',
+          tarif_horaire: assistante.tarif_horaire || '',
           description: assistante.description || '',
           agrement: assistante.agrement || '',
         })
@@ -81,6 +84,16 @@ export default function AssistanteProfile() {
         if (jours) {
           setJoursOuvrables(jours.map(j => j.jour))
         }
+
+        // Load types d'accueil
+        const { data: types } = await supabase
+          .from('types_accueil')
+          .select('type')
+          .eq('assistante_id', assistante.id)
+
+        if (types) {
+          setTypesAccueil(types.map(t => t.type))
+        }
       }
     } catch (err) {
       setError(err.message)
@@ -101,10 +114,16 @@ export default function AssistanteProfile() {
     e.preventDefault()
     setError(null)
     setMessage(null)
-    
+
     // Vérification
     if (!validatedAddress) {
       setError('⚠️ Veuillez sélectionner une adresse dans les suggestions')
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      return
+    }
+
+    if (typesAccueil.length === 0) {
+      setError('⚠️ Veuillez sélectionner au moins un type d\'accueil')
       window.scrollTo({ top: 0, behavior: 'smooth' })
       return
     }
@@ -122,7 +141,8 @@ export default function AssistanteProfile() {
         code_postal: validatedAddress.postcode,
         places_totales: parseInt(formData.places_totales),
         places_disponibles: parseInt(formData.places_disponibles),
-        tarif_journalier: parseFloat(formData.tarif_journalier),
+        tarif_journalier: formData.tarif_journalier ? parseFloat(formData.tarif_journalier) : null,
+        tarif_horaire: formData.tarif_horaire ? parseFloat(formData.tarif_horaire) : null,
         description: formData.description,
         agrement: formData.agrement,
       }
@@ -167,7 +187,7 @@ export default function AssistanteProfile() {
 
       // Gérer les jours ouvrables
       logger.log('Updating jours ouvrables...')
-      
+
       await supabase
         .from('jours_ouvrables')
         .delete()
@@ -184,6 +204,27 @@ export default function AssistanteProfile() {
           .insert(joursData)
 
         if (joursError) throw joursError
+      }
+
+      // Gérer les types d'accueil
+      logger.log('Updating types accueil...')
+
+      await supabase
+        .from('types_accueil')
+        .delete()
+        .eq('assistante_id', assistanteId)
+
+      if (typesAccueil.length > 0) {
+        const typesData = typesAccueil.map(type => ({
+          assistante_id: assistanteId,
+          type: type
+        }))
+
+        const { error: typesError } = await supabase
+          .from('types_accueil')
+          .insert(typesData)
+
+        if (typesError) throw typesError
       }
 
       logger.log('✅ Everything saved successfully')
@@ -329,29 +370,79 @@ export default function AssistanteProfile() {
             </div>
           </div>
 
-          {/* Tarif */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Tarif journalier (€) *
-            </label>
-            <input
-              type="number"
-              name="tarif_journalier"
-              value={formData.tarif_journalier}
-              onChange={handleChange}
-              required
-              step="0.01"
-              min="0"
-              placeholder="45.00"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            />
+          {/* Tarifs */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Tarif journalier (€)
+              </label>
+              <input
+                type="number"
+                name="tarif_journalier"
+                value={formData.tarif_journalier}
+                onChange={handleChange}
+                step="0.01"
+                min="0"
+                placeholder="45.00"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Tarif horaire (€)
+              </label>
+              <input
+                type="number"
+                name="tarif_horaire"
+                value={formData.tarif_horaire}
+                onChange={handleChange}
+                step="0.01"
+                min="0"
+                placeholder="6.50"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+            </div>
           </div>
 
           {/* Jours ouvrables */}
-          <JoursSemaine 
+          <JoursSemaine
             selectedJours={joursOuvrables}
             onChange={setJoursOuvrables}
           />
+
+          {/* Types d'accueil */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              Type(s) d'accueil proposé(s) *
+            </label>
+            <div className="space-y-2">
+              {[
+                { value: 'regulier', label: 'Accueil régulier', desc: 'Journées complètes, 4-5 jours/semaine' },
+                { value: 'temps_partiel', label: 'Temps partiel', desc: 'Quelques heures par jour, ou quelques jours par semaine' },
+                { value: 'periscolaire', label: 'Garde périscolaire', desc: 'Vacances, mercredis, avant/après école' },
+                { value: 'occasionnel', label: 'Garde occasionnelle', desc: 'Babysitting ponctuel' }
+              ].map(type => (
+                <label key={type.value} className="flex items-start gap-3 p-3 border border-gray-300 rounded-lg hover:bg-purple-50 cursor-pointer transition">
+                  <input
+                    type="checkbox"
+                    checked={typesAccueil.includes(type.value)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setTypesAccueil([...typesAccueil, type.value])
+                      } else {
+                        setTypesAccueil(typesAccueil.filter(t => t !== type.value))
+                      }
+                    }}
+                    className="mt-1 h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                  />
+                  <div className="flex-1">
+                    <div className="font-medium text-gray-900">{type.label}</div>
+                    <div className="text-xs text-gray-500">{type.desc}</div>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
 
           {/* Agrément */}
           <div>

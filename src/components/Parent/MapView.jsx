@@ -86,9 +86,10 @@ export default function MapView({ assistantes, searchCenter, onSelectAssistante 
                   <p className="text-purple-600 font-semibold mt-2">
                     {assistante.places_disponibles} places disponibles
                   </p>
-                  <p className="text-sm text-gray-500">
-                    {assistante.tarif_journalier}€/jour
-                  </p>
+                  <div className="text-sm text-gray-500 flex gap-2">
+                    {assistante.tarif_journalier && <span>{assistante.tarif_journalier}€/jour</span>}
+                    {assistante.tarif_horaire && <span>{assistante.tarif_horaire}€/heure</span>}
+                  </div>
                   <button
                     onClick={() => onSelectAssistante(assistante)}
                     className="mt-2 w-full bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600"

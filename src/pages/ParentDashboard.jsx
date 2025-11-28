@@ -28,7 +28,7 @@ export default function ParentDashboard() {
 
   const [activeTab, setActiveTab] = useState('recherche') // 'recherche' ou 'reservations'
 
-  const handleSearch = async ({ ville, codePostal, rayon }) => {
+  const handleSearch = async ({ ville, codePostal, rayon, typesAccueil }) => {
     if (!ville && !codePostal) {
       setError('Veuillez entrer une ville ou un code postal')
       return
@@ -64,7 +64,7 @@ export default function ParentDashboard() {
 
       logger.log('Assistantes trouvées:', data)
 
-      // Enrichir avec les jours ouvrables
+      // Enrichir avec les jours ouvrables et types d'accueil
       const enrichedData = await Promise.all(
         data.map(async (assistante) => {
           const { data: jours } = await supabase
@@ -72,16 +72,31 @@ export default function ParentDashboard() {
             .select('jour')
             .eq('assistante_id', assistante.id)
 
+          const { data: types } = await supabase
+            .from('types_accueil')
+            .select('type')
+            .eq('assistante_id', assistante.id)
+
           return {
             ...assistante,
-            jours_ouvrables: jours?.map(j => j.jour) || []
+            jours_ouvrables: jours?.map(j => j.jour) || [],
+            types_accueil: types?.map(t => t.type) || []
           }
         })
       )
 
-      setAssistantes(enrichedData)
+      // Filter by care types if selected
+      let filteredData = enrichedData
+      if (typesAccueil && typesAccueil.length > 0) {
+        filteredData = enrichedData.filter(assistante => {
+          // Check if assistante offers at least one of the selected types
+          return typesAccueil.some(type => assistante.types_accueil.includes(type))
+        })
+      }
 
-      if (enrichedData.length === 0) {
+      setAssistantes(filteredData)
+
+      if (filteredData.length === 0) {
         setError('Aucune assistante maternelle trouvée dans ce secteur')
       }
     } catch (err) {
