@@ -21,14 +21,15 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     let subscription = null
     let isMounted = true
+    let isInitializing = true // Flag to track if we're in initial auth setup
 
     // Initialiser l'authentification
     const initAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession()
-        
+
         logger.log('🔄 Init: Session retrieved:', session?.user?.email)
-        
+
         if (!isMounted) return
 
         if (session?.user) {
@@ -40,6 +41,10 @@ export const AuthProvider = ({ children }) => {
       } catch (error) {
         logger.error('❌ Init error:', error)
         if (isMounted) setLoading(false)
+      } finally {
+        // Mark initialization as complete
+        isInitializing = false
+        logger.log('✅ Initial auth complete')
       }
     }
 
@@ -50,6 +55,13 @@ export const AuthProvider = ({ children }) => {
           logger.log('🔔 Auth changed:', event, session?.user?.email)
 
           if (!isMounted) return
+
+          // IMPORTANT: Ignore SIGNED_IN events during initialization
+          // These happen during _recoverAndRefresh before the session is actually ready
+          if (isInitializing && event === 'SIGNED_IN') {
+            logger.log('⏭️ Ignoring SIGNED_IN during initialization')
+            return
+          }
 
           // Handle session expiration/refresh failures
           if (event === 'TOKEN_REFRESHED') {
@@ -64,11 +76,21 @@ export const AuthProvider = ({ children }) => {
             return
           }
 
-          setUser(session?.user ?? null)
-
+          // Validate session before attempting to load profile
           if (session?.user) {
+            // Check if session has valid access token
+            const hasValidToken = session.access_token && session.expires_at && session.expires_at > Date.now() / 1000
+
+            if (!hasValidToken) {
+              logger.warn('⚠️ Invalid or expired session detected, signing out')
+              await supabase.auth.signOut()
+              return
+            }
+
+            setUser(session.user)
             await loadProfile(session.user.id)
           } else {
+            setUser(null)
             setProfile(null)
             setLoading(false)
           }
@@ -94,9 +116,9 @@ export const AuthProvider = ({ children }) => {
     try {
       logger.log('📥 Loading profile for:', userId)
 
-      // Add timeout to prevent hanging on expired sessions
+      // Add timeout to prevent hanging on expired sessions (3s for faster feedback)
       const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Profile load timeout')), 10000)
+        setTimeout(() => reject(new Error('Profile load timeout')), 3000)
       )
 
       const queryPromise = supabase
