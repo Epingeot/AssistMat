@@ -79,17 +79,47 @@ export default function MapView({ assistantes, searchCenter, onSelectAssistante 
               }}
             >
               <Popup>
-                <div className="text-sm">
-                  <p className="font-bold">{assistante.prenom} {assistante.nom}</p>
+                <div className="text-sm min-w-[200px]">
+                  {/* Photo */}
+                  {assistante.photo_url && (
+                    <div className="flex justify-center mb-2">
+                      <img
+                        src={assistante.photo_url}
+                        alt={`${assistante.prenom} ${assistante.nom}`}
+                        className="w-16 h-16 rounded-full object-cover border-2 border-purple-200"
+                      />
+                    </div>
+                  )}
+
+                  <p className="font-bold text-center">{assistante.prenom} {assistante.nom}</p>
                   <div className="text-gray-600 text-xs">{assistante.adresse}</div>
                   <div className="text-gray-600 text-xs">{assistante.code_postal} {assistante.ville}</div>
+
                   <p className="text-purple-600 font-semibold mt-2">
                     {assistante.places_disponibles} places disponibles
                   </p>
+
                   <div className="text-sm text-gray-500 flex gap-2">
                     {assistante.tarif_journalier && <span>{assistante.tarif_journalier}€/jour</span>}
                     {assistante.tarif_horaire && <span>{assistante.tarif_horaire}€/heure</span>}
                   </div>
+
+                  {/* Additional info badges */}
+                  {(assistante.has_garden || assistante.has_pets) && (
+                    <div className="mt-2 flex gap-1 flex-wrap">
+                      {assistante.has_garden && (
+                        <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                          🌳 Jardin
+                        </span>
+                      )}
+                      {assistante.has_pets && (
+                        <span className="px-2 py-0.5 bg-orange-100 text-orange-700 text-xs rounded-full">
+                          🐾 Animaux
+                        </span>
+                      )}
+                    </div>
+                  )}
+
                   <button
                     onClick={() => onSelectAssistante(assistante)}
                     className="mt-2 w-full bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600"
