@@ -21,7 +21,6 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     let subscription = null
     let isMounted = true
-    let isInitializing = true // Flag to track if we're in initial auth setup
 
     // Initialiser l'authentification
     const initAuth = async () => {
@@ -41,10 +40,6 @@ export const AuthProvider = ({ children }) => {
       } catch (error) {
         logger.error('❌ Init error:', error)
         if (isMounted) setLoading(false)
-      } finally {
-        // Mark initialization as complete
-        isInitializing = false
-        logger.log('✅ Initial auth complete')
       }
     }
 
@@ -56,16 +51,20 @@ export const AuthProvider = ({ children }) => {
 
           if (!isMounted) return
 
-          // IMPORTANT: Ignore SIGNED_IN events during initialization
-          // These happen during _recoverAndRefresh before the session is actually ready
-          if (isInitializing && event === 'SIGNED_IN') {
-            logger.log('⏭️ Ignoring SIGNED_IN during initialization')
+          // IMPORTANT: Ignore ALL SIGNED_IN events
+          // - Initial session is handled by initAuth()
+          // - Manual sign-in is handled by signIn() directly
+          // - Tab switching / session recovery should not reload profile
+          if (event === 'SIGNED_IN') {
+            logger.log('⏭️ Ignoring SIGNED_IN event (handled elsewhere)')
             return
           }
 
-          // Handle session expiration/refresh failures
+          // Handle successful token refresh
           if (event === 'TOKEN_REFRESHED') {
             logger.log('🔄 Token refreshed successfully')
+            // Token refresh succeeded, no need to reload profile (already loaded)
+            return
           }
 
           if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
