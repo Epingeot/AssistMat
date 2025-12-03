@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { logger } from '../../utils/logger'
 
@@ -177,10 +178,19 @@ export default function AuthForm() {
             onClick={() => setIsLogin(!isLogin)}
             className="text-blue-600 hover:text-blue-700 font-medium"
           >
-            {isLogin 
-              ? "Pas de compte ? S'inscrire" 
+            {isLogin
+              ? "Pas de compte ? S'inscrire"
               : 'Déjà un compte ? Se connecter'}
           </button>
+        </div>
+
+        <div className="mt-4 text-center text-sm text-gray-500">
+          <Link
+            to="/disclaimer"
+            className="hover:text-gray-700 underline"
+          >
+            Mentions légales et avertissement
+          </Link>
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext'
 import AuthForm from './components/Auth/AuthForm'
 import AssistanteDashboard from './pages/AssistanteDashboard'
 import ParentDashboard from './pages/ParentDashboard'
+import Disclaimer from './pages/Disclaimer'
 import { logger } from './utils/logger'
 import ErrorBoundary from './components/ErrorBoundary'
 import { Toaster } from 'react-hot-toast'
@@ -78,6 +79,7 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route path="/disclaimer" element={<Disclaimer />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
