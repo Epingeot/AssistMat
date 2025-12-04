@@ -139,6 +139,39 @@ export default function AssistanteCard({ assistante, onSelect }) {
           {assistante.agrement_date && ` (obtenu le ${new Date(assistante.agrement_date).toLocaleDateString('fr-FR')})`}
         </p>
       )}
+
+      {/* Contact Information */}
+      {(assistante.telephone || assistante.email) && (
+        <div className="mt-3 pt-3 border-t border-gray-200">
+          <p className="text-xs font-medium text-gray-700 mb-2">Contact :</p>
+          <div className="space-y-1">
+            {assistante.telephone && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm">📞</span>
+                <a
+                  href={`tel:${assistante.telephone}`}
+                  className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {assistante.telephone}
+                </a>
+              </div>
+            )}
+            {assistante.email && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm">✉️</span>
+                <a
+                  href={`mailto:${assistante.email}`}
+                  className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {assistante.email}
+                </a>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

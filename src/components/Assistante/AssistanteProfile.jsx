@@ -21,6 +21,8 @@ export default function AssistanteProfile() {
     adresse: '',
     ville: '',
     code_postal: '',
+    telephone: '',
+    email: '',
     places_totales: 4,
     places_disponibles: 4,
     tarif_journalier: '',
@@ -63,6 +65,8 @@ export default function AssistanteProfile() {
           adresse: assistante.adresse || '',
           ville: assistante.ville || '',
           code_postal: assistante.code_postal || '',
+          telephone: assistante.telephone || '',
+          email: assistante.email || '',
           places_totales: assistante.places_totales || 4,
           places_disponibles: assistante.places_disponibles || 4,
           tarif_journalier: assistante.tarif_journalier || '',
@@ -213,6 +217,8 @@ export default function AssistanteProfile() {
         adresse: validatedAddress.street,
         ville: validatedAddress.city,
         code_postal: validatedAddress.postcode,
+        telephone: formData.telephone || null,
+        email: formData.email || null,
         places_totales: parseInt(formData.places_totales),
         places_disponibles: parseInt(formData.places_disponibles),
         tarif_journalier: formData.tarif_journalier ? parseFloat(formData.tarif_journalier) : null,
@@ -458,6 +464,46 @@ export default function AssistanteProfile() {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 cursor-not-allowed"
               />
             </div>
+          </div>
+
+          {/* Contact Information */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              Informations de contact (optionnel)
+            </label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs text-gray-600 mb-2">
+                  Téléphone
+                </label>
+                <input
+                  type="tel"
+                  name="telephone"
+                  value={formData.telephone}
+                  onChange={handleChange}
+                  placeholder="06 12 34 56 78"
+                  autoComplete="tel"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-600 mb-2">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="votre@email.com"
+                  autoComplete="email"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 mt-2">
+              Ces informations seront visibles par les parents intéressés par vos services.
+            </p>
           </div>
 
           {/* Places */}
