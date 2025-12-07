@@ -1,12 +1,34 @@
 import { useAuth } from '../contexts/AuthContext'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { supabase } from '../lib/supabase'
 import AssistanteProfile from '../components/Assistante/AssistanteProfile'
 import ReservationsList from '../components/Assistante/ReservationsList'
+import AvailabilityCalendar from '../components/Calendar/AvailabilityCalendar'
 import ErrorBoundary from '../components/ErrorBoundary'
 
 export default function AssistanteDashboard() {
-  const { profile, signOut } = useAuth()
+  const { user, profile, signOut } = useAuth()
   const [activeTab, setActiveTab] = useState('profil')
+  const [assistanteId, setAssistanteId] = useState(null)
+
+  // Load assistante ID for calendar
+  useEffect(() => {
+    if (user) {
+      loadAssistanteId()
+    }
+  }, [user])
+
+  const loadAssistanteId = async () => {
+    const { data } = await supabase
+      .from('assistantes_maternelles')
+      .select('id')
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    if (data) {
+      setAssistanteId(data.id)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
@@ -35,7 +57,7 @@ export default function AssistanteDashboard() {
       {/* Contenu */}
       <div className="max-w-7xl mx-auto px-4 py-4 md:py-8">
         {/* Onglets */}
-        <div className="grid grid-cols-2 gap-2 md:flex md:gap-4 mb-6">
+        <div className="grid grid-cols-3 gap-2 md:flex md:gap-4 mb-6">
           <button
             onClick={() => setActiveTab('profil')}
             className={`px-4 md:px-6 py-2.5 md:py-3 rounded-lg font-semibold transition text-sm md:text-base ${
@@ -44,7 +66,17 @@ export default function AssistanteDashboard() {
                 : 'bg-white text-gray-700 hover:bg-gray-50 active:bg-gray-100'
             }`}
           >
-            👤 Mon profil
+            👤 <span className="hidden sm:inline">Mon </span>Profil
+          </button>
+          <button
+            onClick={() => setActiveTab('planning')}
+            className={`px-4 md:px-6 py-2.5 md:py-3 rounded-lg font-semibold transition text-sm md:text-base ${
+              activeTab === 'planning'
+                ? 'bg-purple-600 text-white'
+                : 'bg-white text-gray-700 hover:bg-gray-50 active:bg-gray-100'
+            }`}
+          >
+            📆 Planning
           </button>
           <button
             onClick={() => setActiveTab('reservations')}
@@ -54,7 +86,7 @@ export default function AssistanteDashboard() {
                 : 'bg-white text-gray-700 hover:bg-gray-50 active:bg-gray-100'
             }`}
           >
-            📅 Réservations
+            📋 Demandes
           </button>
         </div>
 
@@ -66,6 +98,36 @@ export default function AssistanteDashboard() {
             message="Impossible de charger votre profil professionnel."
           >
             <AssistanteProfile />
+          </ErrorBoundary>
+        )}
+        {activeTab === 'planning' && (
+          <ErrorBoundary
+            name="Assistante Planning Tab"
+            title="Erreur de planning"
+            message="Impossible de charger le planning."
+          >
+            <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
+              <h2 className="text-xl font-bold text-gray-800 mb-4">
+                Mon planning
+              </h2>
+              {assistanteId ? (
+                <AvailabilityCalendar
+                  assistanteId={assistanteId}
+                  mode="view"
+                  showChildNames={true}
+                />
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <p>Veuillez d'abord compléter votre profil pour voir votre planning.</p>
+                  <button
+                    onClick={() => setActiveTab('profil')}
+                    className="mt-4 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+                  >
+                    Compléter mon profil
+                  </button>
+                </div>
+              )}
+            </div>
           </ErrorBoundary>
         )}
         {activeTab === 'reservations' && (

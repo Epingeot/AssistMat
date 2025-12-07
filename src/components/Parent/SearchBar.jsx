@@ -67,17 +67,15 @@ export default function SearchBar({ onSearch }) {
         </div>
       </div>
 
-      {/* Filtres par type d'accueil */}
+      {/* Filtres par options de service */}
       <div className="mt-4 pt-4 border-t border-gray-200">
         <label className="block text-sm font-medium text-gray-700 mb-3">
-          Type(s) d'accueil
+          Options de service (facultatif)
         </label>
-        <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2">
           {[
-            { value: 'regulier', label: '🕐 Régulier' },
-            { value: 'temps_partiel', label: '⏰ Temps partiel' },
             { value: 'periscolaire', label: '🎒 Périscolaire' },
-            { value: 'occasionnel', label: '👶 Occasionnel' }
+            { value: 'remplacements', label: '🔄 Remplacements' }
           ].map(type => (
             <label
               key={type.value}
@@ -103,6 +101,9 @@ export default function SearchBar({ onSearch }) {
             </label>
           ))}
         </div>
+        <p className="text-xs text-gray-500 mt-2">
+          Filtrer par assistantes proposant ces services additionnels
+        </p>
       </div>
     </form>
   )

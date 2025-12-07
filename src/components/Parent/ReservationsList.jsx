@@ -5,6 +5,7 @@ import { format, differenceInMonths } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { logger } from '../../utils/logger'
 import toast from 'react-hot-toast'
+import { JOURS, formatTime } from '../../utils/scheduling'
 
 export default function ReservationsList() {
   const { user } = useAuth()
@@ -29,13 +30,15 @@ export default function ReservationsList() {
           assistante:assistantes_maternelles!reservations_assistante_id_fkey(
             *,
             profile:profiles!assistantes_maternelles_user_id_fkey(nom, prenom)
-          )
+          ),
+          child:children(id, prenom),
+          slots:reservation_slots(*)
         `)
         .eq('parent_id', user.id)
         .order('created_at', { ascending: false })
 
       if (error) throw error
-      
+
       logger.log('Reservations loaded:', data)
       setReservations(data || [])
     } catch (err) {
@@ -156,6 +159,17 @@ export default function ReservationsList() {
             new Date(reservation.date_debut)
           )
 
+          // Group slots by day
+          const slotsByDay = {}
+          if (reservation.slots) {
+            reservation.slots.forEach(slot => {
+              if (!slotsByDay[slot.jour]) {
+                slotsByDay[slot.jour] = []
+              }
+              slotsByDay[slot.jour].push(slot)
+            })
+          }
+
           return (
             <div
               key={reservation.id}
@@ -173,6 +187,11 @@ export default function ReservationsList() {
                   <p className="text-sm text-gray-600">
                     {reservation.assistante.adresse}, {reservation.assistante.ville}
                   </p>
+                  {reservation.child && (
+                    <p className="text-sm text-blue-600 font-medium mt-1">
+                      👶 Pour : {reservation.child.prenom}
+                    </p>
+                  )}
                 </div>
                 <span
                   className={`px-3 py-1 rounded-full text-sm font-semibold ${
@@ -204,26 +223,61 @@ export default function ReservationsList() {
                 </div>
               </div>
 
+              {/* Time slots by day */}
               <div className="mb-4">
-                <p className="text-sm text-gray-600 mb-2">Jours de la semaine :</p>
-                <div className="flex gap-2 flex-wrap">
-                  {reservation.jours_semaine.map(jour => (
-                    <span
-                      key={jour}
-                      className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm capitalize font-medium"
-                    >
-                      {jour}
-                    </span>
-                  ))}
-                </div>
+                <p className="text-sm text-gray-600 mb-2">Créneaux réservés :</p>
+                {Object.keys(slotsByDay).length > 0 ? (
+                  <div className="space-y-2">
+                    {JOURS.filter(jour => slotsByDay[jour]).map(jour => (
+                      <div key={jour} className="flex items-center gap-2">
+                        <span className="w-20 text-sm font-medium text-gray-700 capitalize">
+                          {jour}
+                        </span>
+                        <div className="flex gap-1 flex-wrap">
+                          {slotsByDay[jour].map((slot, idx) => (
+                            <span
+                              key={idx}
+                              className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs"
+                            >
+                              {formatTime(slot.heure_debut)} - {formatTime(slot.heure_fin)}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : reservation.jours_semaine ? (
+                  // Fallback for old reservations without slots
+                  <div className="flex gap-2 flex-wrap">
+                    {reservation.jours_semaine.map(jour => (
+                      <span
+                        key={jour}
+                        className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm capitalize font-medium"
+                      >
+                        {jour}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500 italic">Aucun créneau spécifié</p>
+                )}
               </div>
+
+              {/* Notes */}
+              {reservation.notes && (
+                <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                  <p className="text-sm text-gray-600">
+                    <span className="font-medium">Note :</span> {reservation.notes}
+                  </p>
+                </div>
+              )}
 
               <div className="flex justify-between items-center pt-4 border-t">
                 <div className="text-sm text-gray-600">
                   <p>Durée : {duree} mois</p>
                   <p>Demandé le {format(new Date(reservation.created_at), 'dd/MM/yyyy à HH:mm', { locale: fr })}</p>
                 </div>
-                
+
                 {reservation.statut === 'en_attente' && (
                   <button
                     onClick={() => cancelReservation(reservation.id)}

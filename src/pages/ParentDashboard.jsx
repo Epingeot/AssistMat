@@ -7,6 +7,7 @@ import AssistanteCard from '../components/Parent/AssistanteCard'
 import SearchBar from '../components/Parent/SearchBar'
 import ReservationModal from '../components/Parent/ReservationModal'
 import ReservationsList from '../components/Parent/ReservationsList'
+import ChildrenManager from '../components/Parent/ChildrenManager'
 import { logger } from '../utils/logger'
 import ErrorBoundary from '../components/ErrorBoundary'
 import toast from 'react-hot-toast'
@@ -64,33 +65,31 @@ export default function ParentDashboard() {
 
       logger.log('Assistantes trouvées:', data)
 
-      // Enrichir avec les jours ouvrables et types d'accueil
+      // Enrichir avec les horaires de travail
       const enrichedData = await Promise.all(
         data.map(async (assistante) => {
-          const { data: jours } = await supabase
-            .from('jours_ouvrables')
-            .select('jour')
-            .eq('assistante_id', assistante.id)
-
-          const { data: types } = await supabase
-            .from('types_accueil')
-            .select('type')
+          const { data: horaires } = await supabase
+            .from('horaires_travail')
+            .select('*')
             .eq('assistante_id', assistante.id)
 
           return {
             ...assistante,
-            jours_ouvrables: jours?.map(j => j.jour) || [],
-            types_accueil: types?.map(t => t.type) || []
+            horaires_travail: horaires || []
           }
         })
       )
 
-      // Filter by care types if selected
+      // Filter by service options if selected
       let filteredData = enrichedData
       if (typesAccueil && typesAccueil.length > 0) {
         filteredData = enrichedData.filter(assistante => {
-          // Check if assistante offers at least one of the selected types
-          return typesAccueil.some(type => assistante.types_accueil.includes(type))
+          // Check if assistante matches selected service options
+          return typesAccueil.some(type => {
+            if (type === 'periscolaire') return assistante.accepts_periscolaire
+            if (type === 'remplacements') return assistante.accepts_remplacements
+            return false
+          })
         })
       }
 
@@ -143,7 +142,7 @@ export default function ParentDashboard() {
 
       {/* Onglets */}
       <div className="max-w-7xl mx-auto px-4 py-4 md:py-6">
-        <div className="grid grid-cols-2 gap-2 md:flex md:gap-4 mb-6">
+        <div className="grid grid-cols-3 gap-2 md:flex md:gap-4 mb-6">
           <button
             onClick={() => setActiveTab('recherche')}
             className={`px-4 md:px-6 py-2.5 md:py-3 rounded-lg font-semibold transition text-sm md:text-base ${
@@ -155,6 +154,16 @@ export default function ParentDashboard() {
             🔍 Rechercher
           </button>
           <button
+            onClick={() => setActiveTab('enfants')}
+            className={`px-4 md:px-6 py-2.5 md:py-3 rounded-lg font-semibold transition text-sm md:text-base ${
+              activeTab === 'enfants'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white text-gray-700 hover:bg-gray-50 active:bg-gray-100'
+            }`}
+          >
+            👶 <span className="hidden sm:inline">Mes </span>Enfants
+          </button>
+          <button
             onClick={() => setActiveTab('reservations')}
             className={`px-4 md:px-6 py-2.5 md:py-3 rounded-lg font-semibold transition text-sm md:text-base ${
               activeTab === 'reservations'
@@ -162,7 +171,7 @@ export default function ParentDashboard() {
                 : 'bg-white text-gray-700 hover:bg-gray-50 active:bg-gray-100'
             }`}
           >
-            📅 Mes réservations
+            📅 <span className="hidden sm:inline">Mes </span>Réservations
           </button>
         </div>
       </div>
@@ -246,6 +255,20 @@ export default function ParentDashboard() {
             </div>
           )}
 
+          </div>
+        </ErrorBoundary>
+      )}
+
+      {activeTab === 'enfants' && (
+        <ErrorBoundary
+          name="Parent Children Tab"
+          title="Erreur"
+          message="Impossible de charger les informations de vos enfants."
+        >
+          <div className="max-w-3xl mx-auto px-4 py-8">
+            <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
+              <ChildrenManager />
+            </div>
           </div>
         </ErrorBoundary>
       )}

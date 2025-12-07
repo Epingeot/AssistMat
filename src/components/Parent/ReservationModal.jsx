@@ -1,53 +1,185 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { addMonths, format, differenceInMonths } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { logger } from '../../utils/logger'
+import {
+  JOURS,
+  generateTimeOptions,
+  calculateHours,
+  calculateAvgHoursPerMonth,
+  formatHours,
+  formatTime
+} from '../../utils/scheduling'
 
 export default function ReservationModal({ assistante, onClose, onSuccess }) {
   const { user } = useAuth()
-  
+
+  // Form state
   const [dateDebut, setDateDebut] = useState('')
   const [dateFin, setDateFin] = useState('')
-  const [joursSelectionnes, setJoursSelectionnes] = useState([])
+  const [selectedChild, setSelectedChild] = useState('')
+  const [selectedSlots, setSelectedSlots] = useState([]) // Array of {jour, heure_debut, heure_fin}
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const joursDisponibles = assistante.jours_ouvrables || []
+  // Data state
+  const [children, setChildren] = useState([])
+  const [schedule, setSchedule] = useState([]) // horaires_travail
+  const [loadingData, setLoadingData] = useState(true)
+  const [showAddChild, setShowAddChild] = useState(false)
+  const [newChildName, setNewChildName] = useState('')
 
-  const toggleJour = (jour) => {
-    if (joursSelectionnes.includes(jour)) {
-      setJoursSelectionnes(joursSelectionnes.filter(j => j !== jour))
-    } else {
-      setJoursSelectionnes([...joursSelectionnes, jour])
+  const timeOptions = generateTimeOptions('06:00', '22:00')
+
+  // Load children and assistante schedule
+  useEffect(() => {
+    loadData()
+  }, [])
+
+  const loadData = async () => {
+    setLoadingData(true)
+    try {
+      // Load parent's children
+      const { data: childrenData } = await supabase
+        .from('children')
+        .select('id, prenom')
+        .eq('parent_id', user.id)
+        .order('prenom')
+
+      setChildren(childrenData || [])
+
+      // Auto-select first child if only one
+      if (childrenData?.length === 1) {
+        setSelectedChild(childrenData[0].id)
+      }
+
+      // Load assistante's schedule
+      const { data: horaires } = await supabase
+        .from('horaires_travail')
+        .select('jour, heure_debut, heure_fin')
+        .eq('assistante_id', assistante.id)
+
+      setSchedule(horaires || [])
+    } catch (err) {
+      logger.error('Error loading data:', err)
+    } finally {
+      setLoadingData(false)
     }
   }
 
-  const validateDates = () => {
+  // Add child inline
+  const handleAddChild = async () => {
+    if (!newChildName.trim()) return
+
+    try {
+      const { data, error } = await supabase
+        .from('children')
+        .insert([{
+          parent_id: user.id,
+          prenom: newChildName.trim(),
+          rgpd_consent_display_name: false
+        }])
+        .select()
+        .single()
+
+      if (error) throw error
+
+      setChildren([...children, data])
+      setSelectedChild(data.id)
+      setNewChildName('')
+      setShowAddChild(false)
+    } catch (err) {
+      logger.error('Error adding child:', err)
+      setError('Erreur lors de l\'ajout de l\'enfant')
+    }
+  }
+
+  // Normalize time to HH:MM format (remove seconds if present)
+  const normalizeTime = (time) => {
+    if (!time) return time
+    // Handle "HH:MM:SS" format from database
+    return time.substring(0, 5)
+  }
+
+  // Get schedule for a day (with normalized times)
+  const getScheduleForDay = (jour) => {
+    const found = schedule.find(s => s.jour === jour)
+    if (!found) return null
+    return {
+      ...found,
+      heure_debut: normalizeTime(found.heure_debut),
+      heure_fin: normalizeTime(found.heure_fin)
+    }
+  }
+
+  // Toggle slot selection for a day
+  const toggleSlot = (jour, heure_debut, heure_fin) => {
+    const existingIndex = selectedSlots.findIndex(
+      s => s.jour === jour && s.heure_debut === heure_debut && s.heure_fin === heure_fin
+    )
+
+    if (existingIndex >= 0) {
+      setSelectedSlots(selectedSlots.filter((_, i) => i !== existingIndex))
+    } else {
+      setSelectedSlots([...selectedSlots, { jour, heure_debut, heure_fin }])
+    }
+  }
+
+  // Check if a slot is selected
+  const isSlotSelected = (jour, heure_debut, heure_fin) => {
+    return selectedSlots.some(
+      s => s.jour === jour && s.heure_debut === heure_debut && s.heure_fin === heure_fin
+    )
+  }
+
+  // Update time for a day
+  const updateDayTime = (jour, field, value) => {
+    const daySlots = selectedSlots.filter(s => s.jour === jour)
+    const otherSlots = selectedSlots.filter(s => s.jour !== jour)
+
+    if (daySlots.length > 0) {
+      // Update existing slot for this day
+      const updated = {
+        jour,
+        heure_debut: field === 'heure_debut' ? value : daySlots[0].heure_debut,
+        heure_fin: field === 'heure_fin' ? value : daySlots[0].heure_fin
+      }
+      setSelectedSlots([...otherSlots, updated])
+    }
+  }
+
+  // Calculate hours per week from selected slots
+  const calculateWeeklyHours = () => {
+    return selectedSlots.reduce((total, slot) => {
+      return total + calculateHours(slot.heure_debut, slot.heure_fin)
+    }, 0)
+  }
+
+  // Validation
+  const validateForm = () => {
+    if (!selectedChild) {
+      return "Veuillez sélectionner un enfant"
+    }
     if (!dateDebut || !dateFin) {
       return "Veuillez sélectionner les dates"
     }
-
-    const debut = new Date(dateDebut)
-    const fin = new Date(dateFin)
-    const months = differenceInMonths(fin, debut)
-
+    const months = differenceInMonths(new Date(dateFin), new Date(dateDebut))
     if (months < 3) {
       return "La réservation doit être d'au moins 3 mois"
     }
-
-    if (joursSelectionnes.length === 0) {
-      return "Veuillez sélectionner au moins un jour"
+    if (selectedSlots.length === 0) {
+      return "Veuillez sélectionner au moins un créneau"
     }
-
     return null
   }
 
+  // Submit
   const handleSubmit = async (e) => {
     e.preventDefault()
-    
-    const validationError = validateDates()
+
+    const validationError = validateForm()
     if (validationError) {
       setError(validationError)
       return
@@ -57,24 +189,37 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
     setError(null)
 
     try {
-      const { data, error: reservationError } = await supabase
+      // Create reservation
+      const { data: reservation, error: reservationError } = await supabase
         .from('reservations')
-        .insert([
-          {
-            parent_id: user.id,
-            assistante_id: assistante.id,
-            date_debut: dateDebut,
-            date_fin: dateFin,
-            jours_semaine: joursSelectionnes,
-            statut: 'en_attente'
-          }
-        ])
+        .insert([{
+          parent_id: user.id,
+          assistante_id: assistante.id,
+          child_id: selectedChild,
+          date_debut: dateDebut,
+          date_fin: dateFin,
+          statut: 'en_attente'
+        }])
         .select()
         .single()
 
       if (reservationError) throw reservationError
 
-      onSuccess(data)
+      // Create reservation slots
+      const slotsData = selectedSlots.map(slot => ({
+        reservation_id: reservation.id,
+        jour: slot.jour,
+        heure_debut: slot.heure_debut,
+        heure_fin: slot.heure_fin
+      }))
+
+      const { error: slotsError } = await supabase
+        .from('reservation_slots')
+        .insert(slotsData)
+
+      if (slotsError) throw slotsError
+
+      onSuccess(reservation)
     } catch (err) {
       logger.error('Reservation error:', err)
       setError(err.message)
@@ -83,17 +228,29 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
     }
   }
 
-  // Date minimum : aujourd'hui
+  // Date constraints
   const today = format(new Date(), 'yyyy-MM-dd')
-  
-  // Date minimum pour la fin : 3 mois après le début
-  const minDateFin = dateDebut 
+  const minDateFin = dateDebut
     ? format(addMonths(new Date(dateDebut), 3), 'yyyy-MM-dd')
     : today
 
+  // Calculate summary
+  const weeklyHours = calculateWeeklyHours()
+  const avgMonthlyHours = calculateAvgHoursPerMonth(weeklyHours, assistante.vacation_weeks || 5)
+
+  if (loadingData) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]">
+        <div className="bg-white rounded-lg p-8">
+          <div className="text-center text-gray-500">Chargement...</div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]">
-      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           {/* Header */}
           <div className="flex justify-between items-start mb-6">
@@ -107,7 +264,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
             </div>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 text-2xl"
+              className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
             >
               ×
             </button>
@@ -119,23 +276,89 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Informations */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="text-gray-600">Tarif journalier</p>
-                  <p className="text-xl font-bold text-blue-600">
-                    {assistante.tarif_journalier}€
-                  </p>
-                </div>
-                <div>
-                  <p className="text-gray-600">Places disponibles</p>
-                  <p className="text-xl font-bold text-blue-600">
-                    {assistante.places_disponibles}
-                  </p>
-                </div>
+          {/* Info bar */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div className="flex flex-wrap gap-4 text-sm">
+              <div>
+                <span className="text-gray-600">Capacité :</span>
+                <span className="ml-1 font-semibold text-blue-700">
+                  {assistante.max_kids || 4} enfant{(assistante.max_kids || 4) > 1 ? 's' : ''}
+                </span>
               </div>
+              <div>
+                <span className="text-gray-600">Vacances :</span>
+                <span className="ml-1 font-semibold text-blue-700">
+                  {assistante.vacation_weeks || 5} sem/an
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Child selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Enfant concerné *
+              </label>
+              {children.length === 0 && !showAddChild ? (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <p className="text-sm text-yellow-800 mb-3">
+                    Vous devez d'abord ajouter un enfant pour pouvoir réserver.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddChild(true)}
+                    className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition text-sm font-medium"
+                  >
+                    + Ajouter un enfant
+                  </button>
+                </div>
+              ) : showAddChild ? (
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newChildName}
+                    onChange={(e) => setNewChildName(e.target.value)}
+                    placeholder="Prénom de l'enfant"
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddChild}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  >
+                    Ajouter
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddChild(false)}
+                    className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  >
+                    Annuler
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <select
+                    value={selectedChild}
+                    onChange={(e) => setSelectedChild(e.target.value)}
+                    required
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Sélectionner un enfant</option>
+                    {children.map(child => (
+                      <option key={child.id} value={child.id}>{child.prenom}</option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddChild(true)}
+                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                  >
+                    + Nouveau
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Dates */}
@@ -150,12 +373,12 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
                   onChange={(e) => setDateDebut(e.target.value)}
                   min={today}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Date de fin * (minimum 3 mois)
+                  Date de fin * (min 3 mois)
                 </label>
                 <input
                   type="date"
@@ -163,7 +386,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
                   onChange={(e) => setDateFin(e.target.value)}
                   min={minDateFin}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
@@ -174,57 +397,140 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
               </div>
             )}
 
-            {/* Jours de la semaine */}
+            {/* Time slots selection */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
-                Jours souhaités *
+                Créneaux souhaités *
               </label>
-              <div className="grid grid-cols-5 gap-2">
-                {['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi'].map(jour => {
-                  const isDisponible = joursDisponibles.includes(jour)
-                  const isSelected = joursSelectionnes.includes(jour)
-                  
+              <p className="text-xs text-gray-500 mb-4">
+                Sélectionnez les jours et horaires souhaités pour votre enfant
+              </p>
+
+              <div className="space-y-3">
+                {JOURS.map((jourNom, index) => {
+                  const daySchedule = getScheduleForDay(index)
+                  const isWorking = !!daySchedule
+                  const selectedSlot = selectedSlots.find(s => s.jour === index)
+                  const isSelected = !!selectedSlot
+
                   return (
-                    <button
-                      key={jour}
-                      type="button"
-                      onClick={() => isDisponible && toggleJour(jour)}
-                      disabled={!isDisponible}
-                      className={`p-3 rounded-lg border-2 transition capitalize text-sm font-medium ${
-                        !isDisponible
-                          ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
+                    <div
+                      key={index}
+                      className={`p-3 rounded-lg border-2 transition ${
+                        !isWorking
+                          ? 'bg-gray-50 border-gray-200 opacity-60'
                           : isSelected
-                          ? 'border-blue-500 bg-blue-50 text-blue-700'
-                          : 'border-gray-300 text-gray-700 hover:border-blue-300'
+                          ? 'bg-blue-50 border-blue-300'
+                          : 'bg-white border-gray-200 hover:border-gray-300'
                       }`}
                     >
-                      {jour}
-                      {!isDisponible && <div className="text-xs mt-1">Non dispo</div>}
-                    </button>
+                      <div className="flex items-center gap-4">
+                        {/* Day toggle */}
+                        <button
+                          type="button"
+                          disabled={!isWorking}
+                          onClick={() => {
+                            if (isSelected) {
+                              setSelectedSlots(selectedSlots.filter(s => s.jour !== index))
+                            } else if (daySchedule) {
+                              setSelectedSlots([...selectedSlots, {
+                                jour: index,
+                                heure_debut: daySchedule.heure_debut,
+                                heure_fin: daySchedule.heure_fin
+                              }])
+                            }
+                          }}
+                          className={`w-24 py-2 px-3 rounded-lg font-medium text-sm capitalize transition ${
+                            !isWorking
+                              ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                              : isSelected
+                              ? 'bg-blue-600 text-white'
+                              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                          }`}
+                        >
+                          {jourNom.substring(0, 3)}
+                        </button>
+
+                        {/* Time selectors or "Non travaillé" */}
+                        {isWorking ? (
+                          isSelected ? (
+                            <div className="flex items-center gap-2 flex-1">
+                              <select
+                                value={selectedSlot.heure_debut}
+                                onChange={(e) => updateDayTime(index, 'heure_debut', e.target.value)}
+                                className="px-2 py-1 border border-gray-300 rounded text-sm"
+                              >
+                                {timeOptions
+                                  .filter(t => t >= daySchedule.heure_debut && t < daySchedule.heure_fin)
+                                  .map(t => (
+                                    <option key={t} value={t}>{formatTime(t)}</option>
+                                  ))}
+                              </select>
+                              <span className="text-gray-500">à</span>
+                              <select
+                                value={selectedSlot.heure_fin}
+                                onChange={(e) => updateDayTime(index, 'heure_fin', e.target.value)}
+                                className="px-2 py-1 border border-gray-300 rounded text-sm"
+                              >
+                                {timeOptions
+                                  .filter(t => t > selectedSlot.heure_debut && t <= daySchedule.heure_fin)
+                                  .map(t => (
+                                    <option key={t} value={t}>{formatTime(t)}</option>
+                                  ))}
+                              </select>
+                              <span className="text-xs text-gray-500 ml-2">
+                                ({calculateHours(selectedSlot.heure_debut, selectedSlot.heure_fin)}h)
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-sm text-gray-500">
+                              Disponible : {formatTime(daySchedule.heure_debut)} - {formatTime(daySchedule.heure_fin)}
+                            </span>
+                          )
+                        ) : (
+                          <span className="text-sm text-gray-400 italic">
+                            Non travaillé
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   )
                 })}
               </div>
-              {joursSelectionnes.length > 0 && (
-                <p className="text-sm text-gray-600 mt-2">
-                  {joursSelectionnes.length} jour{joursSelectionnes.length > 1 ? 's' : ''} sélectionné{joursSelectionnes.length > 1 ? 's' : ''}
-                </p>
-              )}
             </div>
 
-            {/* Estimation */}
-            {dateDebut && dateFin && joursSelectionnes.length > 0 && (
+            {/* Summary */}
+            {selectedSlots.length > 0 && (
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <p className="text-sm text-gray-700 mb-2">Estimation mensuelle :</p>
-                <p className="text-2xl font-bold text-green-600">
-                  ~{(assistante.tarif_journalier * joursSelectionnes.length * 4).toFixed(2)}€/mois
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  ({joursSelectionnes.length} jours × 4 semaines × {assistante.tarif_journalier}€)
-                </p>
+                <h4 className="font-medium text-gray-800 mb-3">Récapitulatif</h4>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p className="text-gray-600">Heures par semaine</p>
+                    <p className="text-xl font-bold text-green-700">
+                      {formatHours(weeklyHours)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600">
+                      Moyenne mensuelle
+                      <span className="text-xs text-gray-500 block">
+                        (avec {assistante.vacation_weeks || 5} sem. de vacances)
+                      </span>
+                    </p>
+                    <p className="text-xl font-bold text-green-700">
+                      {formatHours(avgMonthlyHours)}
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-3 pt-3 border-t border-green-200">
+                  <p className="text-xs text-gray-600">
+                    Jours sélectionnés : {selectedSlots.map(s => JOURS[s.jour].substring(0, 3)).join(', ')}
+                  </p>
+                </div>
               </div>
             )}
 
-            {/* Boutons */}
+            {/* Buttons */}
             <div className="flex gap-3">
               <button
                 type="button"
@@ -235,7 +541,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
               </button>
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || children.length === 0}
                 className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Envoi...' : 'Envoyer la demande'}

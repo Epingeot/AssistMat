@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
-import JoursSemaine from './JoursSemaine'
+import ScheduleEditor from './ScheduleEditor'
 import AddressAutocomplete from './AddressAutocomplete'
 import { logger } from '../../utils/logger'
+import { createEmptySchedule, dbScheduleToUI, uiScheduleToDb } from '../../utils/scheduling'
 
 
 export default function AssistanteProfile() {
@@ -23,10 +24,11 @@ export default function AssistanteProfile() {
     code_postal: '',
     telephone: '',
     email: '',
-    places_totales: 4,
-    places_disponibles: 4,
-    tarif_journalier: '',
-    tarif_horaire: '',
+    max_kids: 4,
+    max_days_per_week_per_kid: 5,
+    vacation_weeks: 5,
+    accepts_periscolaire: false,
+    accepts_remplacements: false,
     description: '',
     agrement: '',
     agrement_date: '',
@@ -34,8 +36,7 @@ export default function AssistanteProfile() {
     has_pets: false,
     pets_description: '',
   })
-  const [joursOuvrables, setJoursOuvrables] = useState([])
-  const [typesAccueil, setTypesAccueil] = useState([])
+  const [schedule, setSchedule] = useState(createEmptySchedule())
   const [photoFile, setPhotoFile] = useState(null)
   const [photoPreview, setPhotoPreview] = useState(null)
   const [uploading, setUploading] = useState(false)
@@ -67,10 +68,11 @@ export default function AssistanteProfile() {
           code_postal: assistante.code_postal || '',
           telephone: assistante.telephone || '',
           email: assistante.email || '',
-          places_totales: assistante.places_totales || 4,
-          places_disponibles: assistante.places_disponibles || 4,
-          tarif_journalier: assistante.tarif_journalier || '',
-          tarif_horaire: assistante.tarif_horaire || '',
+          max_kids: assistante.max_kids || 4,
+          max_days_per_week_per_kid: assistante.max_days_per_week_per_kid || 5,
+          vacation_weeks: assistante.vacation_weeks || 5,
+          accepts_periscolaire: assistante.accepts_periscolaire || false,
+          accepts_remplacements: assistante.accepts_remplacements || false,
           description: assistante.description || '',
           agrement: assistante.agrement || '',
           agrement_date: assistante.agrement_date || '',
@@ -96,23 +98,14 @@ export default function AssistanteProfile() {
           })
         }
 
-        const { data: jours } = await supabase
-          .from('jours_ouvrables')
-          .select('jour')
+        // Load schedule from horaires_travail
+        const { data: horaires } = await supabase
+          .from('horaires_travail')
+          .select('jour, heure_debut, heure_fin')
           .eq('assistante_id', assistante.id)
 
-        if (jours) {
-          setJoursOuvrables(jours.map(j => j.jour))
-        }
-
-        // Load types d'accueil
-        const { data: types } = await supabase
-          .from('types_accueil')
-          .select('type')
-          .eq('assistante_id', assistante.id)
-
-        if (types) {
-          setTypesAccueil(types.map(t => t.type))
+        if (horaires && horaires.length > 0) {
+          setSchedule(dbScheduleToUI(horaires))
         }
       }
     } catch (err) {
@@ -166,8 +159,10 @@ export default function AssistanteProfile() {
       return
     }
 
-    if (typesAccueil.length === 0) {
-      setError('⚠️ Veuillez sélectionner au moins un type d\'accueil')
+    // Check that at least one working day is selected
+    const enabledDays = schedule.filter(d => d.enabled)
+    if (enabledDays.length === 0) {
+      setError('⚠️ Veuillez sélectionner au moins un jour de travail')
       window.scrollTo({ top: 0, behavior: 'smooth' })
       return
     }
@@ -219,10 +214,11 @@ export default function AssistanteProfile() {
         code_postal: validatedAddress.postcode,
         telephone: formData.telephone || null,
         email: formData.email || null,
-        places_totales: parseInt(formData.places_totales),
-        places_disponibles: parseInt(formData.places_disponibles),
-        tarif_journalier: formData.tarif_journalier ? parseFloat(formData.tarif_journalier) : null,
-        tarif_horaire: formData.tarif_horaire ? parseFloat(formData.tarif_horaire) : null,
+        max_kids: parseInt(formData.max_kids),
+        max_days_per_week_per_kid: parseInt(formData.max_days_per_week_per_kid),
+        vacation_weeks: parseInt(formData.vacation_weeks),
+        accepts_periscolaire: formData.accepts_periscolaire,
+        accepts_remplacements: formData.accepts_remplacements,
         description: formData.description,
         agrement: formData.agrement,
         agrement_date: formData.agrement_date || null,
@@ -270,46 +266,28 @@ export default function AssistanteProfile() {
         logger.log('Profile created:', newAssistante)
       }
 
-      // Gérer les jours ouvrables
-      logger.log('Updating jours ouvrables...')
+      // Gérer les horaires de travail
+      logger.log('Updating horaires travail...')
 
       await supabase
-        .from('jours_ouvrables')
+        .from('horaires_travail')
         .delete()
         .eq('assistante_id', assistanteId)
 
-      if (joursOuvrables.length > 0) {
-        const joursData = joursOuvrables.map(jour => ({
+      const scheduleData = uiScheduleToDb(schedule)
+      if (scheduleData.length > 0) {
+        const horairesData = scheduleData.map(day => ({
           assistante_id: assistanteId,
-          jour: jour
+          jour: day.jour,
+          heure_debut: day.heure_debut,
+          heure_fin: day.heure_fin
         }))
 
-        const { error: joursError } = await supabase
-          .from('jours_ouvrables')
-          .insert(joursData)
+        const { error: horairesError } = await supabase
+          .from('horaires_travail')
+          .insert(horairesData)
 
-        if (joursError) throw joursError
-      }
-
-      // Gérer les types d'accueil
-      logger.log('Updating types accueil...')
-
-      await supabase
-        .from('types_accueil')
-        .delete()
-        .eq('assistante_id', assistanteId)
-
-      if (typesAccueil.length > 0) {
-        const typesData = typesAccueil.map(type => ({
-          assistante_id: assistanteId,
-          type: type
-        }))
-
-        const { error: typesError } = await supabase
-          .from('types_accueil')
-          .insert(typesData)
-
-        if (typesError) throw typesError
+        if (horairesError) throw horairesError
       }
 
       logger.log('✅ Everything saved successfully')
@@ -506,111 +484,98 @@ export default function AssistanteProfile() {
             </p>
           </div>
 
-          {/* Places */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Capacité d'accueil */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Places totales *
+                Nombre d'enfants max *
               </label>
-              <input
-                type="number"
-                name="places_totales"
-                value={formData.places_totales}
+              <select
+                name="max_kids"
+                value={formData.max_kids}
                 onChange={handleChange}
                 required
-                min="1"
-                max="4"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
+              >
+                {[1, 2, 3, 4].map(n => (
+                  <option key={n} value={n}>{n} enfant{n > 1 ? 's' : ''}</option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500 mt-1">Capacité simultanée</p>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Places disponibles *
+                Jours max par enfant
               </label>
-              <input
-                type="number"
-                name="places_disponibles"
-                value={formData.places_disponibles}
+              <select
+                name="max_days_per_week_per_kid"
+                value={formData.max_days_per_week_per_kid}
                 onChange={handleChange}
-                required
-                min="0"
-                max={formData.places_totales}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
+              >
+                {[1, 2, 3, 4, 5, 6, 7].map(n => (
+                  <option key={n} value={n}>{n} jour{n > 1 ? 's' : ''}/semaine</option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500 mt-1">Par enfant</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Semaines de vacances
+              </label>
+              <select
+                name="vacation_weeks"
+                value={formData.vacation_weeks}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              >
+                {[0, 1, 2, 3, 4, 5, 6, 7, 8].map(n => (
+                  <option key={n} value={n}>{n} semaine{n > 1 ? 's' : ''}</option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500 mt-1">Semaines de congés par an</p>
             </div>
           </div>
 
-          {/* Tarifs */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Tarif journalier (€)
-              </label>
-              <input
-                type="number"
-                name="tarif_journalier"
-                value={formData.tarif_journalier}
-                onChange={handleChange}
-                step="0.01"
-                min="0"
-                placeholder="45.00"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Tarif horaire (€)
-              </label>
-              <input
-                type="number"
-                name="tarif_horaire"
-                value={formData.tarif_horaire}
-                onChange={handleChange}
-                step="0.01"
-                min="0"
-                placeholder="6.50"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-            </div>
-          </div>
-
-          {/* Jours ouvrables */}
-          <JoursSemaine
-            selectedJours={joursOuvrables}
-            onChange={setJoursOuvrables}
+          {/* Horaires de travail */}
+          <ScheduleEditor
+            schedule={schedule}
+            vacationWeeks={formData.vacation_weeks}
+            onChange={setSchedule}
           />
 
-          {/* Types d'accueil */}
+          {/* Options supplémentaires */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">
-              Type(s) d'accueil proposé(s) *
+              Services proposés (optionnel)
             </label>
             <div className="space-y-2">
-              {[
-                { value: 'regulier', label: 'Accueil régulier', desc: 'Journées complètes, 4-5 jours/semaine' },
-                { value: 'temps_partiel', label: 'Temps partiel', desc: 'Quelques heures par jour, ou quelques jours par semaine' },
-                { value: 'periscolaire', label: 'Garde périscolaire', desc: 'Vacances, mercredis, avant/après école' },
-                { value: 'occasionnel', label: 'Garde occasionnelle', desc: 'Babysitting ponctuel' }
-              ].map(type => (
-                <label key={type.value} className="flex items-start gap-3 p-3 border border-gray-300 rounded-lg hover:bg-purple-50 cursor-pointer transition">
-                  <input
-                    type="checkbox"
-                    checked={typesAccueil.includes(type.value)}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        setTypesAccueil([...typesAccueil, type.value])
-                      } else {
-                        setTypesAccueil(typesAccueil.filter(t => t !== type.value))
-                      }
-                    }}
-                    className="mt-1 h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                  />
-                  <div className="flex-1">
-                    <div className="font-medium text-gray-900">{type.label}</div>
-                    <div className="text-xs text-gray-500">{type.desc}</div>
-                  </div>
-                </label>
-              ))}
+              <label className="flex items-start gap-3 p-3 border border-gray-300 rounded-lg hover:bg-purple-50 cursor-pointer transition">
+                <input
+                  type="checkbox"
+                  name="accepts_periscolaire"
+                  checked={formData.accepts_periscolaire}
+                  onChange={handleChange}
+                  className="mt-1 h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                />
+                <div className="flex-1">
+                  <div className="font-medium text-gray-900">Accueil périscolaire</div>
+                  <div className="text-xs text-gray-500">Avant/après l'école, mercredis, vacances scolaires</div>
+                </div>
+              </label>
+              <label className="flex items-start gap-3 p-3 border border-gray-300 rounded-lg hover:bg-purple-50 cursor-pointer transition">
+                <input
+                  type="checkbox"
+                  name="accepts_remplacements"
+                  checked={formData.accepts_remplacements}
+                  onChange={handleChange}
+                  className="mt-1 h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                />
+                <div className="flex-1">
+                  <div className="font-medium text-gray-900">Disponible pour remplacements</div>
+                  <div className="text-xs text-gray-500">Contrats courts (CDD) pour remplacer une autre assistante</div>
+                </div>
+              </label>
             </div>
           </div>
 

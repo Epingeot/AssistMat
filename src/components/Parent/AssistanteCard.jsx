@@ -1,4 +1,25 @@
+import { JOURS, JOURS_COURTS, formatTime, calculateAvgHoursPerMonth, calculateWeeklyHours } from '../../utils/scheduling'
+
 export default function AssistanteCard({ assistante, onSelect }) {
+  // Build schedule summary from horaires_travail if available
+  const getScheduleSummary = () => {
+    if (!assistante.horaires_travail || assistante.horaires_travail.length === 0) {
+      return null
+    }
+
+    // calculateWeeklyHours expects array with heure_debut and heure_fin
+    const weeklyHours = calculateWeeklyHours(assistante.horaires_travail)
+    const avgMonthlyHours = calculateAvgHoursPerMonth(weeklyHours, assistante.vacation_weeks || 5)
+
+    return {
+      weeklyHours,
+      avgMonthlyHours,
+      workingDays: assistante.horaires_travail.map(h => h.jour)
+    }
+  }
+
+  const scheduleSummary = getScheduleSummary()
+
   return (
     <div
       onClick={() => onSelect(assistante)}
@@ -30,35 +51,29 @@ export default function AssistanteCard({ assistante, onSelect }) {
           </p>
         </div>
 
-        {/* Tarifs */}
+        {/* Max kids info */}
         <div className="text-right flex-shrink-0">
-          {assistante.tarif_journalier && (
+          {assistante.max_kids && (
             <>
               <p className="text-2xl font-bold text-purple-600">
-                {assistante.tarif_journalier}€
+                {assistante.max_kids}
               </p>
-              <p className="text-xs text-gray-500">par jour</p>
-            </>
-          )}
-          {assistante.tarif_horaire && (
-            <>
-              <p className={assistante.tarif_journalier ? "text-lg font-semibold text-purple-500 mt-1" : "text-2xl font-bold text-purple-600"}>
-                {assistante.tarif_horaire}€
-              </p>
-              <p className="text-xs text-gray-500">par heure</p>
+              <p className="text-xs text-gray-500">enfant{assistante.max_kids > 1 ? 's' : ''} max</p>
             </>
           )}
         </div>
       </div>
 
-      <div className="flex items-center gap-4 mb-3">
-        <div className="flex items-center gap-1">
-          <span className="text-lg">👶</span>
-          <span className="text-sm font-semibold text-gray-700">
-            {assistante.places_disponibles}/{assistante.places_totales} places
-          </span>
-        </div>
-        
+      <div className="flex items-center gap-4 mb-3 flex-wrap">
+        {scheduleSummary && (
+          <div className="flex items-center gap-1">
+            <span className="text-lg">🕐</span>
+            <span className="text-sm text-gray-600">
+              ~{Math.round(scheduleSummary.avgMonthlyHours)}h/mois
+            </span>
+          </div>
+        )}
+
         {assistante.distance_km && (
           <div className="flex items-center gap-1">
             <span className="text-lg">🚗</span>
@@ -67,44 +82,53 @@ export default function AssistanteCard({ assistante, onSelect }) {
             </span>
           </div>
         )}
+
+        {assistante.max_days_per_week_per_kid && (
+          <div className="flex items-center gap-1">
+            <span className="text-lg">📅</span>
+            <span className="text-sm text-gray-600">
+              max {assistante.max_days_per_week_per_kid}j/sem/enfant
+            </span>
+          </div>
+        )}
       </div>
 
-      {assistante.types_accueil && assistante.types_accueil.length > 0 && (
+      {/* Service options */}
+      {(assistante.accepts_periscolaire || assistante.accepts_remplacements) && (
         <div className="mb-3">
-          <p className="text-xs text-gray-500 mb-1">Types d'accueil :</p>
           <div className="flex gap-1 flex-wrap">
-            {assistante.types_accueil.map(type => {
-              const labels = {
-                regulier: '🕐 Régulier',
-                temps_partiel: '⏰ Temps partiel',
-                periscolaire: '🎒 Périscolaire',
-                occasionnel: '👶 Occasionnel'
-              }
-              return (
-                <span
-                  key={type}
-                  className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium"
-                >
-                  {labels[type] || type}
-                </span>
-              )
-            })}
+            {assistante.accepts_periscolaire && (
+              <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">
+                🎒 Périscolaire
+              </span>
+            )}
+            {assistante.accepts_remplacements && (
+              <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full font-medium">
+                🔄 Remplacements
+              </span>
+            )}
           </div>
         </div>
       )}
 
-      {assistante.jours_ouvrables && assistante.jours_ouvrables.length > 0 && (
+      {/* Working days from horaires_travail */}
+      {scheduleSummary && scheduleSummary.workingDays.length > 0 && (
         <div className="mb-3">
-          <p className="text-xs text-gray-500 mb-1">Jours disponibles :</p>
+          <p className="text-xs text-gray-500 mb-1">Jours de travail :</p>
           <div className="flex gap-1 flex-wrap">
-            {assistante.jours_ouvrables.map(jour => (
-              <span
-                key={jour}
-                className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full"
-              >
-                {jour.substring(0, 3)}
-              </span>
-            ))}
+            {scheduleSummary.workingDays.map(jourNum => {
+              const h = assistante.horaires_travail.find(ht => ht.jour === jourNum)
+              const jourName = typeof jourNum === 'number' ? JOURS[jourNum] : jourNum
+              return (
+                <span
+                  key={jourNum}
+                  className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full"
+                  title={h ? `${formatTime(h.heure_debut)} - ${formatTime(h.heure_fin)}` : ''}
+                >
+                  {jourName ? jourName.substring(0, 3) : jourNum}
+                </span>
+              )
+            })}
           </div>
         </div>
       )}
