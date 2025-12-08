@@ -5,7 +5,7 @@ import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { logger } from '../../utils/logger'
 import toast from 'react-hot-toast'
-import { JOURS, formatTime } from '../../utils/scheduling'
+import { JOURS, formatTime, getDayName } from '../../utils/scheduling'
 
 export default function ReservationsList() {
   const { user } = useAuth()
@@ -103,10 +103,11 @@ export default function ReservationsList() {
         const slotsByDay = {}
         if (reservation.slots) {
           reservation.slots.forEach(slot => {
-            if (!slotsByDay[slot.jour]) {
-              slotsByDay[slot.jour] = []
+            const dayName = getDayName(slot.jour)
+            if (!slotsByDay[dayName]) {
+              slotsByDay[dayName] = []
             }
-            slotsByDay[slot.jour].push(slot)
+            slotsByDay[dayName].push(slot)
           })
         }
 
@@ -183,18 +184,6 @@ export default function ReservationsList() {
                         ))}
                       </div>
                     </div>
-                  ))}
-                </div>
-              ) : reservation.jours_semaine ? (
-                // Fallback for old reservations without slots
-                <div className="flex gap-2 flex-wrap">
-                  {reservation.jours_semaine.map(jour => (
-                    <span
-                      key={jour}
-                      className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm capitalize"
-                    >
-                      {jour}
-                    </span>
                   ))}
                 </div>
               ) : (

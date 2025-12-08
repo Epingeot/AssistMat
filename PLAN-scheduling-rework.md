@@ -10,7 +10,9 @@
 Add items here as you think of them. Use `[x]` to mark completed items.
 
 ### Bugs to Fix
-- [ ]
+- [ ] in the reservation list, if the "duree" of a remplacement is less than a mpnth or not a full mont hvalue, the duree is not correct (eg ig the remplacement is for 15 days, duree = 0 months)
+- [x] in assistante/reservationList.jsx when getting the reservations from supabase, the child and slots fields always return NULL
+- [x] in both assistante and parents reservation list the slots are not showing up - Fixed 2025-12-08 (converted integer jour to day name)
 
 ### Improvements
 - [x] Remove "/an" in the vacation weeks combo box (redundant text) - Fixed 2025-12-07
