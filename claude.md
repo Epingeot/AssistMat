@@ -1,3 +1,5 @@
+### Workflow Rules
+
 I am a software engineer with strong experience in C, C++, and C#. I understand core software engineering concepts (data structures, algorithms, memory management, OOP, debugging, version control, etc.), but I am not very familiar with modern web application stacks, frameworks, or workflows.
 When you help me:
 - Assume I’m new to web development
@@ -20,21 +22,29 @@ Default to clean, production-minded code and clear structure.
 Add short, meaningful comments where it helps connect the dots, without over-commenting the obvious.
 Throughout, prioritize clarity and incremental progress over speed. Treat this as pairing with an experienced systems/desktop engineer who is a beginner in web development.
 
+### App Context
 
 Context about the AssistMat application:
 I am developing an application for managing available childcare slots and reservations for assistantes maternelles in France.
 Business objectives:
-- Childminders (assistantes maternelles) can register and create a profile with:
-+ address
-+ contact (phone, email)
-+ type of service (full year, partial year, occasional, periscolaire)
-+ working days
-+ number of available spots per day
-+ agrément with date
+- Childminders (assistantes maternelles) can 
++ register and create a profile
++ review their schedule
++ receive notification of reservation requests
++ accept or deny requests
 - Parents can:
 + search for a childminder by location (map + radius search) and filters
-+ view availability (days of the week, number of spots)
-+ reserve specific days of the week for a minimum duration of 3 months
-Example reservation: Mondays and Thursdays from December 1st to March 1st.
++ view availability (days of the week, hours of the day)
++ make reservations
++ receive notification when their reservation is accepted/denied
 
 The application must work both in a browser and as a mobile application (PWA or native wrapper).
+
+### File Inspection Policy
+
+When analyzing or modifying code:
+
+- Only open files that are explicitly relevant.
+- Avoid scanning the entire repository unless I specifically request it.
+- Prefer working within a scope of 1–3 files at a time.
+- Ask before expanding to additional directories or modules.

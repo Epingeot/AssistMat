@@ -31,8 +31,8 @@ export default function ReservationsList() {
             *,
             profile:profiles!assistantes_maternelles_user_id_fkey(nom, prenom)
           ),
-          child:children(id, prenom),
-          slots:reservation_slots(*)
+          child:children!reservations_child_id_fkey(id, prenom),
+          slots:reservation_slots!reservation_slots_reservation_id_fkey(*)
         `)
         .eq('parent_id', user.id)
         .order('created_at', { ascending: false })

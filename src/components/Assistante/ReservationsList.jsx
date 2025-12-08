@@ -36,8 +36,8 @@ export default function ReservationsList() {
         .select(`
           *,
           parent:profiles!reservations_parent_id_fkey(prenom, nom, email),
-          child:children(id, prenom, rgpd_consent_display_name),
-          slots:reservation_slots(*)
+          child:children!reservations_child_id_fkey(id, prenom, rgpd_consent_display_name),
+          slots:reservation_slots!reservation_slots_reservation_id_fkey(*)
         `)
         .eq('assistante_id', assistante.id)
         .order('created_at', { ascending: false })
