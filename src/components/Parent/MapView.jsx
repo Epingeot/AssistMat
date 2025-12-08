@@ -72,11 +72,6 @@ export default function MapView({ assistantes, searchCenter, onSelectAssistante 
             <Marker
               key={assistante.id}
               position={position}
-              eventHandlers={{
-                click: () => {
-                  onSelectAssistante(assistante)
-                }
-              }}
             >
               <Popup>
                 <div className="text-sm min-w-[200px]">
@@ -95,13 +90,15 @@ export default function MapView({ assistantes, searchCenter, onSelectAssistante 
                   <div className="text-gray-600 text-xs">{assistante.adresse}</div>
                   <div className="text-gray-600 text-xs">{assistante.code_postal} {assistante.ville}</div>
 
-                  <p className="text-purple-600 font-semibold mt-2">
-                    {assistante.places_disponibles} places disponibles
-                  </p>
+                  {assistante.max_kids && (
+                    <p className="text-purple-600 font-semibold mt-2">
+                      {assistante.max_kids} enfant{assistante.max_kids > 1 ? 's' : ''} max
+                    </p>
+                  )}
 
-                  <div className="text-sm text-gray-500 flex gap-2">
-                    {assistante.tarif_journalier && <span>{assistante.tarif_journalier}€/jour</span>}
-                    {assistante.tarif_horaire && <span>{assistante.tarif_horaire}€/heure</span>}
+                  <div className="text-sm text-gray-500 flex gap-2 flex-wrap">
+                    {assistante.accepts_periscolaire && <span className="text-blue-600">Périscolaire</span>}
+                    {assistante.accepts_remplacements && <span className="text-orange-600">Remplacements</span>}
                   </div>
 
                   {/* Additional info badges */}

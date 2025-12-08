@@ -29,7 +29,7 @@ export default function ParentDashboard() {
 
   const [activeTab, setActiveTab] = useState('recherche') // 'recherche' ou 'reservations'
 
-  const handleSearch = async ({ ville, codePostal, rayon, typesAccueil }) => {
+  const handleSearch = async ({ ville, codePostal, rayon, typesAccueil, joursRecherches, hasGarden, petsFilter }) => {
     if (!ville && !codePostal) {
       setError('Veuillez entrer une ville ou un code postal')
       return
@@ -80,11 +80,12 @@ export default function ParentDashboard() {
         })
       )
 
-      // Filter by service options if selected
+      // Apply filters
       let filteredData = enrichedData
+
+      // Filter by service options
       if (typesAccueil && typesAccueil.length > 0) {
-        filteredData = enrichedData.filter(assistante => {
-          // Check if assistante matches selected service options
+        filteredData = filteredData.filter(assistante => {
           return typesAccueil.some(type => {
             if (type === 'periscolaire') return assistante.accepts_periscolaire
             if (type === 'remplacements') return assistante.accepts_remplacements
@@ -93,10 +94,34 @@ export default function ParentDashboard() {
         })
       }
 
+      // Filter by days of the week
+      if (joursRecherches && joursRecherches.length > 0) {
+        filteredData = filteredData.filter(assistante => {
+          if (!assistante.horaires_travail || assistante.horaires_travail.length === 0) {
+            return false
+          }
+          // Check if assistante works on ALL requested days
+          const workingDays = assistante.horaires_travail.map(h => h.jour)
+          return joursRecherches.every(jour => workingDays.includes(jour))
+        })
+      }
+
+      // Filter by garden
+      if (hasGarden === true) {
+        filteredData = filteredData.filter(assistante => assistante.has_garden === true)
+      }
+
+      // Filter by pets
+      if (petsFilter === true) {
+        filteredData = filteredData.filter(assistante => assistante.has_pets === true)
+      } else if (petsFilter === false) {
+        filteredData = filteredData.filter(assistante => assistante.has_pets !== true)
+      }
+
       setAssistantes(filteredData)
 
       if (filteredData.length === 0) {
-        setError('Aucune assistante maternelle trouvée dans ce secteur')
+        setError('Aucune assistante maternelle trouvée avec ces critères')
       }
     } catch (err) {
       logger.error('Search error:', err)
@@ -236,7 +261,7 @@ export default function ParentDashboard() {
                   <MapView
                     assistantes={assistantes}
                     searchCenter={searchCenter}
-                    onSelectAssistante={setSelectedAssistante}
+                    onSelectAssistante={handleSelectAssistante}
                   />
                 </ErrorBoundary>
               </div>

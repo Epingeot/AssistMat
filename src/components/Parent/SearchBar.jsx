@@ -1,18 +1,44 @@
 import { useState } from 'react'
+import { JOURS, JOURS_COURTS } from '../../utils/scheduling'
 
 export default function SearchBar({ onSearch }) {
   const [ville, setVille] = useState('')
   const [codePostal, setCodePostal] = useState('')
   const [rayon, setRayon] = useState(10)
   const [typesAccueil, setTypesAccueil] = useState([])
+  const [joursRecherches, setJoursRecherches] = useState([])
+  const [dateDebut, setDateDebut] = useState('')
+  const [hasGarden, setHasGarden] = useState(null) // null = no filter, true = must have, false = not used
+  const [petsFilter, setPetsFilter] = useState(null) // null = no filter, true = has pets, false = no pets
+  const [showAdvanced, setShowAdvanced] = useState(false)
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    onSearch({ ville, codePostal, rayon, typesAccueil })
+    onSearch({
+      ville,
+      codePostal,
+      rayon,
+      typesAccueil,
+      joursRecherches,
+      dateDebut,
+      hasGarden,
+      petsFilter
+    })
   }
+
+  const toggleJour = (jourIndex) => {
+    if (joursRecherches.includes(jourIndex)) {
+      setJoursRecherches(joursRecherches.filter(j => j !== jourIndex))
+    } else {
+      setJoursRecherches([...joursRecherches, jourIndex])
+    }
+  }
+
+  const hasActiveFilters = typesAccueil.length > 0 || joursRecherches.length > 0 || dateDebut || hasGarden !== null || petsFilter !== null
 
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-4 md:p-6">
+      {/* Main search fields */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -62,49 +88,187 @@ export default function SearchBar({ onSearch }) {
             type="submit"
             className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-2.5 md:py-2 px-4 rounded-lg font-semibold hover:from-blue-600 hover:to-indigo-700 transition text-base md:text-sm"
           >
-            🔍 Rechercher
+            Rechercher
           </button>
         </div>
       </div>
 
-      {/* Filtres par options de service */}
+      {/* Toggle advanced filters */}
       <div className="mt-4 pt-4 border-t border-gray-200">
-        <label className="block text-sm font-medium text-gray-700 mb-3">
-          Options de service (facultatif)
-        </label>
-        <div className="flex flex-wrap gap-2">
-          {[
-            { value: 'periscolaire', label: '🎒 Périscolaire' },
-            { value: 'remplacements', label: '🔄 Remplacements' }
-          ].map(type => (
-            <label
-              key={type.value}
-              className={`px-3 py-2.5 md:py-2 border-2 rounded-lg cursor-pointer transition text-center ${
-                typesAccueil.includes(type.value)
-                  ? 'border-blue-500 bg-blue-50 text-blue-700'
-                  : 'border-gray-300 text-gray-700 hover:border-gray-400 active:bg-gray-50'
-              }`}
-            >
-              <input
-                type="checkbox"
-                checked={typesAccueil.includes(type.value)}
-                onChange={(e) => {
-                  if (e.target.checked) {
-                    setTypesAccueil([...typesAccueil, type.value])
-                  } else {
-                    setTypesAccueil(typesAccueil.filter(t => t !== type.value))
-                  }
-                }}
-                className="sr-only"
-              />
-              <span className="text-sm font-medium">{type.label}</span>
-            </label>
-          ))}
-        </div>
-        <p className="text-xs text-gray-500 mt-2">
-          Filtrer par assistantes proposant ces services additionnels
-        </p>
+        <button
+          type="button"
+          onClick={() => setShowAdvanced(!showAdvanced)}
+          className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition"
+        >
+          <span className={`transform transition ${showAdvanced ? 'rotate-90' : ''}`}>
+            ▶
+          </span>
+          Filtres avancés
+          {hasActiveFilters && (
+            <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">
+              {[
+                typesAccueil.length,
+                joursRecherches.length,
+                dateDebut ? 1 : 0,
+                hasGarden !== null ? 1 : 0,
+                petsFilter !== null ? 1 : 0
+              ].reduce((a, b) => a + b, 0)} actif(s)
+            </span>
+          )}
+        </button>
       </div>
+
+      {/* Advanced filters */}
+      {showAdvanced && (
+        <div className="mt-4 space-y-4">
+          {/* Days of the week */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Jours de la semaine
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {JOURS.map((jour, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => toggleJour(index)}
+                  className={`px-3 py-2 border-2 rounded-lg text-sm font-medium transition capitalize ${
+                    joursRecherches.includes(index)
+                      ? 'border-blue-500 bg-blue-50 text-blue-700'
+                      : 'border-gray-300 text-gray-700 hover:border-gray-400'
+                  }`}
+                >
+                  {JOURS_COURTS[index]}
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Filtrer par assistantes travaillant ces jours
+            </p>
+          </div>
+
+          {/* Start date */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Date de debut souhaitee
+            </label>
+            <input
+              type="date"
+              value={dateDebut}
+              onChange={(e) => setDateDebut(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Pour information (non filtrant)
+            </p>
+          </div>
+
+          {/* Garden and pets filters */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Garden filter */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Jardin
+              </label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setHasGarden(hasGarden === true ? null : true)}
+                  className={`px-3 py-2 border-2 rounded-lg text-sm font-medium transition ${
+                    hasGarden === true
+                      ? 'border-green-500 bg-green-50 text-green-700'
+                      : 'border-gray-300 text-gray-700 hover:border-gray-400'
+                  }`}
+                >
+                  Avec jardin
+                </button>
+              </div>
+            </div>
+
+            {/* Pets filter */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Animaux
+              </label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPetsFilter(petsFilter === true ? null : true)}
+                  className={`px-3 py-2 border-2 rounded-lg text-sm font-medium transition ${
+                    petsFilter === true
+                      ? 'border-orange-500 bg-orange-50 text-orange-700'
+                      : 'border-gray-300 text-gray-700 hover:border-gray-400'
+                  }`}
+                >
+                  Avec animaux
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPetsFilter(petsFilter === false ? null : false)}
+                  className={`px-3 py-2 border-2 rounded-lg text-sm font-medium transition ${
+                    petsFilter === false
+                      ? 'border-blue-500 bg-blue-50 text-blue-700'
+                      : 'border-gray-300 text-gray-700 hover:border-gray-400'
+                  }`}
+                >
+                  Sans animaux
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Service options */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Options de service
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { value: 'periscolaire', label: 'Periscolaire' },
+                { value: 'remplacements', label: 'Remplacements' }
+              ].map(type => (
+                <button
+                  key={type.value}
+                  type="button"
+                  onClick={() => {
+                    if (typesAccueil.includes(type.value)) {
+                      setTypesAccueil(typesAccueil.filter(t => t !== type.value))
+                    } else {
+                      setTypesAccueil([...typesAccueil, type.value])
+                    }
+                  }}
+                  className={`px-3 py-2 border-2 rounded-lg text-sm font-medium transition ${
+                    typesAccueil.includes(type.value)
+                      ? 'border-blue-500 bg-blue-50 text-blue-700'
+                      : 'border-gray-300 text-gray-700 hover:border-gray-400'
+                  }`}
+                >
+                  {type.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Clear filters button */}
+          {hasActiveFilters && (
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setTypesAccueil([])
+                  setJoursRecherches([])
+                  setDateDebut('')
+                  setHasGarden(null)
+                  setPetsFilter(null)
+                }}
+                className="text-sm text-red-600 hover:text-red-700 font-medium"
+              >
+                Effacer tous les filtres
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </form>
   )
 }
