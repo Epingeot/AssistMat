@@ -154,10 +154,10 @@ export default function ReservationsList() {
       {/* Liste des réservations */}
       <div className="space-y-4">
         {filteredReservations.map(reservation => {
-          const duree = differenceInMonths(
-            new Date(reservation.date_fin),
-            new Date(reservation.date_debut)
-          )
+          const isRemplacement = !!reservation.date_fin
+          const duree = isRemplacement
+            ? differenceInMonths(new Date(reservation.date_fin), new Date(reservation.date_debut))
+            : null
 
           // Group slots by day
           const slotsByDay = {}
@@ -187,6 +187,9 @@ export default function ReservationsList() {
                   <p className="text-sm text-gray-600">
                     {reservation.assistante.adresse}, {reservation.assistante.ville}
                   </p>
+                  {isRemplacement && (
+                    <p className="text-xs text-green-600 mt-1">Remplacement</p>
+                  )}
                   {reservation.child && (
                     <p className="text-sm text-blue-600 font-medium mt-1">
                       👶 Pour : {reservation.child.prenom}
@@ -208,19 +211,21 @@ export default function ReservationsList() {
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className={`grid gap-4 mb-4 ${isRemplacement ? 'grid-cols-2' : 'grid-cols-1'}`}>
                 <div>
                   <p className="text-sm text-gray-600">Début</p>
                   <p className="font-semibold">
                     {format(new Date(reservation.date_debut), 'dd MMMM yyyy', { locale: fr })}
                   </p>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-600">Fin</p>
-                  <p className="font-semibold">
-                    {format(new Date(reservation.date_fin), 'dd MMMM yyyy', { locale: fr })}
-                  </p>
-                </div>
+                {isRemplacement && (
+                  <div>
+                    <p className="text-sm text-gray-600">Fin</p>
+                    <p className="font-semibold">
+                      {format(new Date(reservation.date_fin), 'dd MMMM yyyy', { locale: fr })}
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Time slots by day */}
@@ -274,10 +279,11 @@ export default function ReservationsList() {
 
               <div className="flex justify-between items-center pt-4 border-t">
                 <div className="text-sm text-gray-600">
-                  <p>Durée : {duree} mois</p>
+                  {isRemplacement && (
+                      <p>Durée : {duree} mois</p>
+                  )}
                   <p>Demandé le {format(new Date(reservation.created_at), 'dd/MM/yyyy à HH:mm', { locale: fr })}</p>
                 </div>
-
                 {reservation.statut === 'en_attente' && (
                   <button
                     onClick={() => cancelReservation(reservation.id)}

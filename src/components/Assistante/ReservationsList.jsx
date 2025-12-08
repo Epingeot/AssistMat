@@ -97,8 +97,9 @@ export default function ReservationsList() {
         const childName = reservation.child?.rgpd_consent_display_name
           ? reservation.child.prenom
           : 'Enfant (nom masqué)'
+        const isRemplacement = !!reservation.date_fin
 
-        // Group slots by day
+          // Group slots by day
         const slotsByDay = {}
         if (reservation.slots) {
           reservation.slots.forEach(slot => {
@@ -120,6 +121,9 @@ export default function ReservationsList() {
                   {reservation.parent.prenom} {reservation.parent.nom}
                 </h3>
                 <p className="text-sm text-gray-600">{reservation.parent.email}</p>
+                {isRemplacement && (
+                  <p className="text-xs text-green-600 mt-1">Remplacement</p>
+                )}
                 {reservation.child && (
                   <p className="text-sm text-purple-600 font-medium mt-1">
                     👶 Pour : {childName}
@@ -141,19 +145,21 @@ export default function ReservationsList() {
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
+            <div className={`grid gap-4 mb-4 ${isRemplacement ? 'grid-cols-2' : 'grid-cols-1'}`}>
               <div>
-                <p className="text-gray-600">Du</p>
+                <p className="text-sm text-gray-600">Début</p>
                 <p className="font-semibold">
                   {format(new Date(reservation.date_debut), 'dd MMMM yyyy', { locale: fr })}
                 </p>
               </div>
-              <div>
-                <p className="text-gray-600">Au</p>
-                <p className="font-semibold">
-                  {format(new Date(reservation.date_fin), 'dd MMMM yyyy', { locale: fr })}
-                </p>
-              </div>
+              {isRemplacement && (
+                <div>
+                  <p className="text-sm text-gray-600">Fin</p>
+                  <p className="font-semibold">
+                    {format(new Date(reservation.date_fin), 'dd MMMM yyyy', { locale: fr })}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Time slots by day */}

@@ -21,6 +21,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
   const [dateFin, setDateFin] = useState('')
   const [selectedChild, setSelectedChild] = useState('')
   const [selectedSlots, setSelectedSlots] = useState([]) // Array of {jour, heure_debut, heure_fin}
+  const [isRemplacement, setIsRemplacement] = useState(false) // CDD vs CDI
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
@@ -162,12 +163,17 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
     if (!selectedChild) {
       return "Veuillez sélectionner un enfant"
     }
-    if (!dateDebut || !dateFin) {
-      return "Veuillez sélectionner les dates"
+    if (!dateDebut) {
+      return "Veuillez sélectionner la date de début"
     }
-    const months = differenceInMonths(new Date(dateFin), new Date(dateDebut))
-    if (months < 3) {
-      return "La réservation doit être d'au moins 3 mois"
+    if (isRemplacement) {
+      if (!dateFin) {
+        return "Veuillez sélectionner la date de fin pour un remplacement"
+      }
+      const months = differenceInMonths(new Date(dateFin), new Date(dateDebut))
+      if (months < 0) {
+        return "La date de fin doit être après la date de début"
+      }
     }
     if (selectedSlots.length === 0) {
       return "Veuillez sélectionner au moins un créneau"
@@ -197,7 +203,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
           assistante_id: assistante.id,
           child_id: selectedChild,
           date_debut: dateDebut,
-          date_fin: dateFin,
+          date_fin: isRemplacement && dateFin ? dateFin : null,
           statut: 'en_attente'
         }])
         .select()
@@ -361,8 +367,31 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
               )}
             </div>
 
+            {/* Remplacement checkbox */}
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={isRemplacement}
+                  onChange={(e) => {
+                    setIsRemplacement(e.target.checked)
+                    if (!e.target.checked) {
+                      setDateFin('') // Clear date_fin when unchecking
+                    }
+                  }}
+                  className="h-5 w-5 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                />
+                <div>
+                  <span className="font-medium text-gray-900">Remplacement (CDD)</span>
+                  <p className="text-xs text-gray-600 mt-0.5">
+                    Cochez si vous cherchez un accueil temporaire avec une date de fin définie
+                  </p>
+                </div>
+              </label>
+            </div>
+
             {/* Dates */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className={`grid gap-4 ${isRemplacement ? 'grid-cols-2' : 'grid-cols-1'}`}>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Date de début *
@@ -376,24 +405,32 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Date de fin * (min 3 mois)
-                </label>
-                <input
-                  type="date"
-                  value={dateFin}
-                  onChange={(e) => setDateFin(e.target.value)}
-                  min={minDateFin}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+              {isRemplacement && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Date de fin *
+                  </label>
+                  <input
+                    type="date"
+                    value={dateFin}
+                    onChange={(e) => setDateFin(e.target.value)}
+                    min={dateDebut || today}
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              )}
             </div>
 
-            {dateDebut && dateFin && (
+            {isRemplacement && dateDebut && dateFin && (
               <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
-                Durée : {differenceInMonths(new Date(dateFin), new Date(dateDebut))} mois
+                Durée du remplacement : {differenceInMonths(new Date(dateFin), new Date(dateDebut))} mois
+              </div>
+            )}
+
+            {!isRemplacement && (
+              <div className="text-sm text-blue-600 bg-blue-50 p-3 rounded-lg">
+                Contrat à durée indéterminée (CDI) - sans date de fin
               </div>
             )}
 
