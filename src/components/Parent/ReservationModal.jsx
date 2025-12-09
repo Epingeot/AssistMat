@@ -22,6 +22,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
   const [selectedChild, setSelectedChild] = useState('')
   const [selectedSlots, setSelectedSlots] = useState([]) // Array of {jour, heure_debut, heure_fin}
   const [isRemplacement, setIsRemplacement] = useState(false) // CDD vs CDI
+  const [notes, setNotes] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
@@ -204,7 +205,8 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
           child_id: selectedChild,
           date_debut: dateDebut,
           date_fin: isRemplacement && dateFin ? dateFin : null,
-          statut: 'en_attente'
+          statut: 'en_attente',
+          notes: notes.trim() || null
         }])
         .select()
         .single()
@@ -534,6 +536,24 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
                   )
                 })}
               </div>
+            </div>
+
+            {/* Notes/Message */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Message pour l'assistante (optionnel)
+              </label>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Ex: Besoin de places pour jumeaux, horaires flexibles, allergies particulières..."
+                rows={4}
+                maxLength={500}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                {notes.length}/500 caractères
+              </p>
             </div>
 
             {/* Summary */}

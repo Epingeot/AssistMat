@@ -11,6 +11,8 @@ export default function ReservationsList() {
   const { user } = useAuth()
   const [reservations, setReservations] = useState([])
   const [loading, setLoading] = useState(true)
+  const [respondingTo, setRespondingTo] = useState(null) // {reservationId, action: 'accept' | 'deny'}
+  const [responseMessage, setResponseMessage] = useState('')
 
   useEffect(() => {
     loadReservations()
@@ -51,21 +53,39 @@ export default function ReservationsList() {
     }
   }
 
-  const updateStatut = async (reservationId, newStatut) => {
+  const updateStatut = async (reservationId, newStatut, message = '') => {
     try {
       const { error } = await supabase
         .from('reservations')
-        .update({ statut: newStatut })
+        .update({
+          statut: newStatut,
+          assistante_response: message.trim() || null
+        })
         .eq('id', reservationId)
 
       if (error) throw error
-      
+
+      toast.success(newStatut === 'confirmee' ? 'Réservation acceptée' : 'Réservation refusée')
+      setRespondingTo(null)
+      setResponseMessage('')
+
       // Recharger
       loadReservations()
     } catch (err) {
       logger.error('Error updating status:', err)
       toast.error('Erreur lors de la mise à jour')
     }
+  }
+
+  const handleResponse = (reservationId, action) => {
+    setRespondingTo({ reservationId, action })
+    setResponseMessage('')
+  }
+
+  const confirmResponse = () => {
+    if (!respondingTo) return
+    const newStatut = respondingTo.action === 'accept' ? 'confirmee' : 'annulee'
+    updateStatut(respondingTo.reservationId, newStatut, responseMessage)
   }
 
   if (loading) {
@@ -201,20 +221,64 @@ export default function ReservationsList() {
             )}
 
             {reservation.statut === 'en_attente' && (
-              <div className="flex gap-3 mt-4">
-                <button
-                  onClick={() => updateStatut(reservation.id, 'confirmee')}
-                  className="flex-1 bg-green-500 text-white py-2 rounded-lg font-semibold hover:bg-green-600 transition"
-                >
-                  ✓ Accepter
-                </button>
-                <button
-                  onClick={() => updateStatut(reservation.id, 'annulee')}
-                  className="flex-1 bg-red-500 text-white py-2 rounded-lg font-semibold hover:bg-red-600 transition"
-                >
-                  ✗ Refuser
-                </button>
-              </div>
+              respondingTo?.reservationId === reservation.id ? (
+                <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Message pour le parent (optionnel)
+                  </label>
+                  <textarea
+                    value={responseMessage}
+                    onChange={(e) => setResponseMessage(e.target.value)}
+                    placeholder={
+                      respondingTo.action === 'accept'
+                        ? "Ex: Parfait! Appelez-moi pour finaliser les détails..."
+                        : "Ex: Désolée, ces horaires ne correspondent pas à ma disponibilité..."
+                    }
+                    rows={3}
+                    maxLength={300}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 resize-none text-sm"
+                  />
+                  <p className="text-xs text-gray-500 mt-1 mb-3">
+                    {responseMessage.length}/300 caractères
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={confirmResponse}
+                      className={`flex-1 text-white py-2 rounded-lg font-semibold transition ${
+                        respondingTo.action === 'accept'
+                          ? 'bg-green-500 hover:bg-green-600'
+                          : 'bg-red-500 hover:bg-red-600'
+                      }`}
+                    >
+                      {respondingTo.action === 'accept' ? '✓ Confirmer acceptation' : '✗ Confirmer refus'}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setRespondingTo(null)
+                        setResponseMessage('')
+                      }}
+                      className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-400 transition"
+                    >
+                      Annuler
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex gap-3 mt-4">
+                  <button
+                    onClick={() => handleResponse(reservation.id, 'accept')}
+                    className="flex-1 bg-green-500 text-white py-2 rounded-lg font-semibold hover:bg-green-600 transition"
+                  >
+                    ✓ Accepter
+                  </button>
+                  <button
+                    onClick={() => handleResponse(reservation.id, 'deny')}
+                    className="flex-1 bg-red-500 text-white py-2 rounded-lg font-semibold hover:bg-red-600 transition"
+                  >
+                    ✗ Refuser
+                  </button>
+                </div>
+              )
             )}
           </div>
         )

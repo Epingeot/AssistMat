@@ -261,7 +261,16 @@ export default function ReservationsList() {
               {reservation.notes && (
                 <div className="mb-4 p-3 bg-gray-50 rounded-lg">
                   <p className="text-sm text-gray-600">
-                    <span className="font-medium">Note :</span> {reservation.notes}
+                    <span className="font-medium">Votre message :</span> {reservation.notes}
+                  </p>
+                </div>
+              )}
+
+              {/* Assistante Response */}
+              {reservation.assistante_response && (
+                <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <p className="text-sm text-blue-800">
+                    <span className="font-medium">Réponse de l'assistante :</span> {reservation.assistante_response}
                   </p>
                 </div>
               )}

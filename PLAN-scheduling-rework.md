@@ -19,7 +19,8 @@ Add items here as you think of them. Use `[x]` to mark completed items.
 - [x] Remove "/an" in the vacation weeks combo box (redundant text) - Fixed 2025-12-07
 
 ### New Features / Ideas
-- [ ]
+- [x] when an assistant accepts or denies a reservation let them add a message. is it easy to add an in-app messaging system? is it worth it? an better idea to facilitate the reservation flow. probably not necessary beyond that as the parent and assistant will exchange numbers from there on
+- [ ] possibility to edit a reservation request (change dates and hours). on the parent side until the reservation is accepted or denied by the assistant. then it can only be updated bythe assistant. + possibility to hide/archive old/denied requests
 
 ### Technical Debt
 - [x] Drop old tables (jours_ouvrables, types_accueil) after verifying migration
@@ -53,7 +54,6 @@ Transform the scheduling system from simple day-based booking to a time-slot-bas
 
 - Time-slot based with **30-minute granularity**
 - Parents select specific days AND hours (e.g., Monday 9:00-15:00)
-- Minimum duration: 3 months
 - Calculate average hours/month: `(hours_per_week * (52 - vacation_weeks)) / 12`
 - Track by child (child info in parent profile)
 - Conflict detection prevents overlapping bookings
