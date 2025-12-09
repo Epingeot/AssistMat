@@ -9,7 +9,6 @@ import {
 
 /**
  * ScheduleEditor - 7-day schedule picker with time ranges
- * Replaces the old JoursSemaine component with full time support
  *
  * Props:
  * - schedule: Array of {jour, enabled, heure_debut, heure_fin} for each day (0-6)

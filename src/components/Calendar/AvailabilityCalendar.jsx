@@ -39,10 +39,12 @@ export default function AvailabilityCalendar({
   const weekStart = externalWeekStart || internalWeekStart
 
   const [schedule, setSchedule] = useState([]) // horaires_travail
-  const [bookedSlots, setBookedSlots] = useState([]) // booked_slots for this week
-  const [pendingSlots, setPendingSlots] = useState([]) // pending reservations
+  const [bookedSlots, setBookedSlots] = useState([]) // confirmed reservations for this week
+  const [pendingSlots, setPendingSlots] = useState([]) // pending reservations for this week
   const [loading, setLoading] = useState(true)
   const [vacationWeeks, setVacationWeeks] = useState(5)
+  const [maxKids, setMaxKids] = useState(4)
+  const [selectedSlot, setSelectedSlot] = useState(null) // For preview modal
 
   // Generate array of 7 dates for the current week
   const weekDates = useMemo(() => {
@@ -69,78 +71,81 @@ export default function AvailabilityCalendar({
         setSchedule(horaires)
       }
 
-      // Load assistante's vacation weeks
+      // Load assistante's vacation weeks and max kids
       const { data: assistante } = await supabase
         .from('assistantes_maternelles')
-        .select('vacation_weeks')
+        .select('vacation_weeks, max_kids')
         .eq('id', assistanteId)
         .single()
 
       if (assistante) {
         setVacationWeeks(assistante.vacation_weeks || 5)
+        setMaxKids(assistante.max_kids || 4)
       }
 
-      // Load booked slots for this week (confirmed reservations)
-      const weekEnd = addDays(weekStart, 6)
-      const { data: booked } = await supabase
-        .from('booked_slots')
-        .select(`
-          id,
-          date,
-          heure_debut,
-          heure_fin,
-          child_id,
-          children (
-            prenom,
-            rgpd_consent_display_name
-          )
-        `)
-        .eq('assistante_id', assistanteId)
-        .gte('date', format(weekStart, 'yyyy-MM-dd'))
-        .lte('date', format(weekEnd, 'yyyy-MM-dd'))
-
-      if (booked) {
-        setBookedSlots(booked)
-      }
-
-      // Load pending reservation slots for this week
-      const { data: pending } = await supabase
+      // Load all reservations (confirmed and pending) for this assistante
+      const { data: reservations } = await supabase
         .from('reservations')
         .select(`
           id,
+          statut,
           date_debut,
           date_fin,
-          reservation_slots (
+          notes,
+          child:children!reservations_child_id_fkey(
+            prenom,
+            rgpd_consent_display_name
+          ),
+          parent:profiles!reservations_parent_id_fkey(
+            prenom,
+            nom,
+            email
+          ),
+          reservation_slots!reservation_slots_reservation_id_fkey(
             jour,
             heure_debut,
             heure_fin
           )
         `)
         .eq('assistante_id', assistanteId)
-        .eq('statut', 'en_attente')
+        .in('statut', ['confirmee', 'en_attente'])
 
-      if (pending) {
-        // Filter and expand pending slots for this week
+      if (reservations) {
+        const bookedForWeek = []
         const pendingForWeek = []
-        pending.forEach(reservation => {
+
+        reservations.forEach(reservation => {
           const resStart = new Date(reservation.date_debut)
-          const resEnd = new Date(reservation.date_fin)
+          const resEnd = reservation.date_fin ? new Date(reservation.date_fin) : null
 
           weekDates.forEach((date, dayIndex) => {
-            if (date >= resStart && date <= resEnd) {
+            // Check if this date falls within the reservation period
+            if (date >= resStart && (!resEnd || date <= resEnd)) {
               reservation.reservation_slots?.forEach(slot => {
                 if (slot.jour === dayIndex) {
-                  pendingForWeek.push({
+                  const slotData = {
                     date: format(date, 'yyyy-MM-dd'),
                     heure_debut: slot.heure_debut,
                     heure_fin: slot.heure_fin,
-                    reservation_id: reservation.id
-                  })
+                    reservation_id: reservation.id,
+                    statut: reservation.statut,
+                    child: reservation.child,
+                    parent: reservation.parent,
+                    notes: reservation.notes
+                  }
+
+                  if (reservation.statut === 'confirmee') {
+                    bookedForWeek.push(slotData)
+                  } else {
+                    pendingForWeek.push(slotData)
+                  }
                 }
               })
             }
           })
         })
+
+        setBookedSlots(bookedForWeek)
         setPendingSlots(pendingForWeek)
       }
 
@@ -189,24 +194,32 @@ export default function AvailabilityCalendar({
     }
   }
 
-  // Check if a slot is booked
-  const getBookedSlot = (date, timeStart, timeEnd) => {
+  // Get all booked slots for a specific time
+  const getBookedSlots = (date, timeStart, timeEnd) => {
     const dateStr = format(date, 'yyyy-MM-dd')
-    return bookedSlots.find(slot =>
+    return bookedSlots.filter(slot =>
       slot.date === dateStr &&
       timeToMinutes(slot.heure_debut) <= timeToMinutes(timeStart) &&
       timeToMinutes(slot.heure_fin) >= timeToMinutes(timeEnd)
     )
   }
 
-  // Check if a slot is pending
-  const isPending = (date, timeStart, timeEnd) => {
+  // Get all pending slots for a specific time
+  const getPendingSlots = (date, timeStart, timeEnd) => {
     const dateStr = format(date, 'yyyy-MM-dd')
-    return pendingSlots.some(slot =>
+    return pendingSlots.filter(slot =>
       slot.date === dateStr &&
       timeToMinutes(slot.heure_debut) <= timeToMinutes(timeStart) &&
       timeToMinutes(slot.heure_fin) >= timeToMinutes(timeEnd)
     )
+  }
+
+  // Get all reservations (booked + pending) for a specific time
+  const getAllReservations = (date, timeStart, timeEnd) => {
+    return [
+      ...getBookedSlots(date, timeStart, timeEnd),
+      ...getPendingSlots(date, timeStart, timeEnd)
+    ]
   }
 
   // Check if a slot is selected (for select mode)
@@ -218,20 +231,30 @@ export default function AvailabilityCalendar({
     )
   }
 
-  // Handle slot click (for select mode)
+  // Handle slot click
   const handleSlotClick = (dayIndex, timeStart, timeEnd, date) => {
-    if (mode !== 'select' || !onSlotSelect) return
+    const allReservations = getAllReservations(date, timeStart, timeEnd)
 
-    // Don't allow selecting booked or pending slots
-    if (getBookedSlot(date, timeStart, timeEnd) || isPending(date, timeStart, timeEnd)) {
+    // If there are reservations, show preview modal
+    if (allReservations.length > 0) {
+      setSelectedSlot({
+        date,
+        dayIndex,
+        timeStart,
+        timeEnd,
+        reservations: allReservations
+      })
       return
     }
 
-    onSlotSelect({
-      jour: dayIndex,
-      heure_debut: timeStart,
-      heure_fin: timeEnd
-    })
+    // For select mode, allow selecting empty slots
+    if (mode === 'select' && onSlotSelect) {
+      onSlotSelect({
+        jour: dayIndex,
+        heure_debut: timeStart,
+        heure_fin: timeEnd
+      })
+    }
   }
 
   // Generate all time slots for display (6:00 to 22:00)
@@ -321,12 +344,20 @@ export default function AvailabilityCalendar({
           <span>Disponible</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-4 h-4 bg-blue-500 rounded"></div>
-          <span>Réservé</span>
+          <div className="w-4 h-4 bg-blue-200 rounded"></div>
+          <span>25% plein</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-4 h-4 bg-gray-300 rounded" style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(0,0,0,0.1) 2px, rgba(0,0,0,0.1) 4px)' }}></div>
-          <span>En attente</span>
+          <div className="w-4 h-4 bg-blue-300 rounded"></div>
+          <span>50% plein</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <div className="w-4 h-4 bg-blue-400 rounded"></div>
+          <span>75% plein</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <div className="w-4 h-4 bg-blue-500 rounded"></div>
+          <span>Complet</span>
         </div>
         <div className="flex items-center gap-1">
           <div className="w-4 h-4 bg-gray-100 border border-gray-200 rounded"></div>
@@ -381,38 +412,49 @@ export default function AvailabilityCalendar({
                     timeToMinutes(timeSlot.start) >= timeToMinutes(workingHours.start) &&
                     timeToMinutes(timeSlot.end) <= timeToMinutes(workingHours.end)
 
-                  const bookedSlot = getBookedSlot(date, timeSlot.start, timeSlot.end)
-                  const pending = isPending(date, timeSlot.start, timeSlot.end)
+                  const bookedSlotsForTime = getBookedSlots(date, timeSlot.start, timeSlot.end)
+                  const pendingSlotsForTime = getPendingSlots(date, timeSlot.start, timeSlot.end)
+                  const totalReservations = bookedSlotsForTime.length + pendingSlotsForTime.length
+                  const capacityPercent = totalReservations / maxKids
+
                   const selected = mode === 'select' && isSelected(dayIndex, timeSlot.start, timeSlot.end)
                   const isToday = format(date, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd')
                   const isPast = date < new Date() && !isToday
+                  const isFull = totalReservations >= maxKids
 
-                  let cellClass = 'h-8 border-r border-gray-100 transition-colors '
+                  let cellClass = 'h-8 border-r border-gray-100 transition-colors relative '
                   let content = null
 
                   if (!isWorking) {
                     // Non-working hours
                     cellClass += 'bg-gray-100'
-                  } else if (bookedSlot) {
-                    // Booked
-                    cellClass += 'bg-blue-500'
-                    if (showChildNames && bookedSlot.children?.rgpd_consent_display_name) {
-                      content = (
-                        <span className="text-xs text-white truncate px-1">
-                          {bookedSlot.children.prenom}
-                        </span>
-                      )
+                  } else if (totalReservations > 0) {
+                    // Has reservations - show capacity gradient
+                    cellClass += 'cursor-pointer '
+
+                    // Color gradient based on capacity
+                    if (capacityPercent <= 0.25) {
+                      cellClass += 'bg-blue-200'
+                    } else if (capacityPercent <= 0.5) {
+                      cellClass += 'bg-blue-300'
+                    } else if (capacityPercent <= 0.75) {
+                      cellClass += 'bg-blue-400'
+                    } else {
+                      cellClass += 'bg-blue-500'
                     }
-                  } else if (pending) {
-                    // Pending reservation
-                    cellClass += 'bg-gray-300'
+
+                    // Dots indicator
                     content = (
-                      <div
-                        className="w-full h-full"
-                        style={{
-                          backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(0,0,0,0.1) 2px, rgba(0,0,0,0.1) 4px)'
-                        }}
-                      />
+                      <div className="flex items-center justify-center gap-0.5 h-full">
+                        {Array.from({ length: maxKids }).map((_, i) => (
+                          <div
+                            key={i}
+                            className={`w-1.5 h-1.5 rounded-full ${
+                              i < totalReservations ? 'bg-white' : 'bg-white/30'
+                            }`}
+                          />
+                        ))}
+                      </div>
                     )
                   } else if (selected) {
                     // Selected (in select mode)
@@ -435,8 +477,7 @@ export default function AvailabilityCalendar({
                       onClick={() => isWorking && !isPast && handleSlotClick(dayIndex, timeSlot.start, timeSlot.end, date)}
                       title={
                         !isWorking ? 'Non travaillé' :
-                        bookedSlot ? 'Réservé' :
-                        pending ? 'En attente de confirmation' :
+                        totalReservations > 0 ? `${totalReservations}/${maxKids} places réservées - Cliquez pour détails` :
                         selected ? 'Sélectionné' :
                         isPast ? 'Passé' :
                         'Disponible'
@@ -458,6 +499,124 @@ export default function AvailabilityCalendar({
           <p className="text-sm text-purple-700">
             <strong>{selectedSlots.length}</strong> créneau{selectedSlots.length > 1 ? 'x' : ''} sélectionné{selectedSlots.length > 1 ? 's' : ''}
           </p>
+        </div>
+      )}
+
+      {/* Reservation Preview Modal */}
+      {selectedSlot && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={() => setSelectedSlot(null)}
+        >
+          <div
+            className="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[80vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="p-4 border-b border-gray-200 bg-gray-50">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="text-lg font-bold text-gray-800">
+                    Réservations - {JOURS[selectedSlot.dayIndex]}
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    {format(selectedSlot.date, 'd MMMM yyyy', { locale: fr })}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {formatTime(selectedSlot.timeStart)} - {formatTime(selectedSlot.timeEnd)}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setSelectedSlot(null)}
+                  className="text-gray-400 hover:text-gray-600 transition"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <div className="mt-2 text-sm font-semibold text-gray-700">
+                Capacité: {selectedSlot.reservations.length}/{maxKids}
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-4 space-y-4">
+              {selectedSlot.reservations.map((reservation, idx) => {
+                const childName = reservation.child?.rgpd_consent_display_name
+                  ? reservation.child.prenom
+                  : 'Nom masqué (RGPD)'
+
+                return (
+                  <div
+                    key={idx}
+                    className={`p-4 rounded-lg border-2 ${
+                      reservation.statut === 'confirmee'
+                        ? 'border-blue-300 bg-blue-50'
+                        : 'border-yellow-300 bg-yellow-50'
+                    }`}
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <h4 className="font-semibold text-gray-800">
+                        {idx + 1}. {childName}
+                      </h4>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                          reservation.statut === 'confirmee'
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-yellow-100 text-yellow-800'
+                        }`}
+                      >
+                        {reservation.statut === 'confirmee' ? '✅ Confirmée' : '⏳ En attente'}
+                      </span>
+                    </div>
+
+                    {reservation.parent && (
+                      <div className="text-sm text-gray-700 space-y-1">
+                        <p>
+                          <span className="font-medium">Parent:</span>{' '}
+                          {reservation.parent.prenom} {reservation.parent.nom}
+                        </p>
+                        {reservation.parent.email && (
+                          <p className="flex items-center gap-1">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            {reservation.parent.email}
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    {reservation.notes && (
+                      <div className="mt-2 p-2 bg-white rounded border border-gray-200">
+                        <p className="text-xs text-gray-600">
+                          <span className="font-medium">Note:</span> {reservation.notes}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 border-t border-gray-200 bg-gray-50">
+              <div className="flex justify-between items-center text-sm text-gray-600">
+                <span>
+                  {selectedSlot.reservations.length === maxKids
+                    ? 'Créneau complet'
+                    : `${maxKids - selectedSlot.reservations.length} place(s) disponible(s)`}
+                </span>
+                <button
+                  onClick={() => setSelectedSlot(null)}
+                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition"
+                >
+                  Fermer
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
