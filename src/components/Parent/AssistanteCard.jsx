@@ -64,6 +64,43 @@ export default function AssistanteCard({ assistante, onSelect }) {
         </div>
       </div>
 
+      {/* Availability badge */}
+      {assistante.earliest_available && assistante.earliest_available.isFullyAvailable && (
+        <div className="mb-3">
+          <div className="inline-flex items-center gap-2 px-3 py-2 bg-green-100 border-2 border-green-400 rounded-lg">
+            <span className="text-xl">✅</span>
+            <p className="text-sm font-bold text-green-800">Disponible immédiatement !</p>
+          </div>
+        </div>
+      )}
+      {assistante.earliest_available && !assistante.earliest_available.isFullyAvailable && assistante.earliest_available.earliestDate && (
+        <div className="mb-3">
+          <div className="inline-flex items-center gap-2 px-3 py-2 bg-blue-100 border border-blue-300 rounded-lg">
+            <span className="text-lg">📅</span>
+            <div>
+              <p className="text-xs text-blue-700 font-medium">
+                Disponible {assistante.earliest_available.availableDays.map(d => JOURS_COURTS[d]).join(', ')}
+              </p>
+              <p className="text-sm font-bold text-blue-800">
+                dès le {new Date(assistante.earliest_available.earliestDate).toLocaleDateString('fr-FR', {
+                  day: 'numeric',
+                  month: 'short',
+                  year: 'numeric'
+                })}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+      {!assistante.earliest_available && assistante.horaires_travail?.length > 0 && (
+        <div className="mb-3">
+          <div className="inline-flex items-center gap-2 px-3 py-2 bg-red-100 border border-red-300 rounded-lg">
+            <span className="text-lg">⚠️</span>
+            <p className="text-sm font-bold text-red-800">Complet (tous les jours réservés)</p>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center gap-4 mb-3 flex-wrap">
         {scheduleSummary && (
           <div className="flex items-center gap-1">
@@ -104,7 +141,7 @@ export default function AssistanteCard({ assistante, onSelect }) {
             )}
             {assistante.accepts_remplacements && (
               <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full font-medium">
-                🔄 Remplacements
+                🔄 Accepte les remplacements
               </span>
             )}
           </div>

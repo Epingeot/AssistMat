@@ -8,6 +8,7 @@ import SearchBar from '../components/Parent/SearchBar'
 import ReservationModal from '../components/Parent/ReservationModal'
 import ReservationsList from '../components/Parent/ReservationsList'
 import ChildrenManager from '../components/Parent/ChildrenManager'
+import { calculateEarliestAvailability } from '../utils/scheduling'
 import { logger } from '../utils/logger'
 import ErrorBoundary from '../components/ErrorBoundary'
 import toast from 'react-hot-toast'
@@ -29,7 +30,7 @@ export default function ParentDashboard() {
 
   const [activeTab, setActiveTab] = useState('recherche') // 'recherche' ou 'reservations'
 
-  const handleSearch = async ({ ville, codePostal, rayon, typesAccueil, joursRecherches, hasGarden, petsFilter }) => {
+  const handleSearch = async ({ ville, codePostal, rayon, typesAccueil, joursRecherches, hasGarden, petsFilter, showOnlyAvailable }) => {
     if (!ville && !codePostal) {
       setError('Veuillez entrer une ville ou un code postal')
       return
@@ -65,7 +66,7 @@ export default function ParentDashboard() {
 
       logger.log('Assistantes trouvées:', data)
 
-      // Enrichir avec les horaires de travail
+      // Enrichir avec les horaires de travail et disponibilité
       const enrichedData = await Promise.all(
         data.map(async (assistante) => {
           const { data: horaires } = await supabase
@@ -73,9 +74,18 @@ export default function ParentDashboard() {
             .select('*')
             .eq('assistante_id', assistante.id)
 
+          // Calculate earliest availability
+          const earliestAvailable = await calculateEarliestAvailability(
+            assistante.id,
+            assistante.max_kids || 4,
+            horaires || [],
+            supabase
+          )
+
           return {
             ...assistante,
-            horaires_travail: horaires || []
+            horaires_travail: horaires || [],
+            earliest_available: earliestAvailable
           }
         })
       )
@@ -116,6 +126,11 @@ export default function ParentDashboard() {
         filteredData = filteredData.filter(assistante => assistante.has_pets === true)
       } else if (petsFilter === false) {
         filteredData = filteredData.filter(assistante => assistante.has_pets !== true)
+      }
+
+      // Filter by availability (only show available assistants)
+      if (showOnlyAvailable) {
+        filteredData = filteredData.filter(assistante => assistante.earliest_available !== null)
       }
 
       setAssistantes(filteredData)

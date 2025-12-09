@@ -15,6 +15,62 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 })
 
+// Custom red marker for fully booked assistants
+const redIcon = L.divIcon({
+  className: 'custom-marker',
+  html: `
+    <div style="
+      width: 25px;
+      height: 25px;
+      background-color: #ef4444;
+      border: 3px solid white;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      position: relative;
+    ">
+      <div style="
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-weight: bold;
+        font-size: 16px;
+      ">⚠</div>
+    </div>
+  `,
+  iconSize: [25, 25],
+  iconAnchor: [12, 12],
+})
+
+// Custom green marker for available assistants
+const greenIcon = L.divIcon({
+  className: 'custom-marker',
+  html: `
+    <div style="
+      width: 25px;
+      height: 25px;
+      background-color: #10b981;
+      border: 3px solid white;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      position: relative;
+    ">
+      <div style="
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-weight: bold;
+        font-size: 12px;
+      ">✓</div>
+    </div>
+  `,
+  iconSize: [25, 25],
+  iconAnchor: [12, 12],
+})
+
 // Composant pour recentrer la carte quand les assistantes changent
 function MapUpdater({ center, assistantes }) {
   const map = useMap()
@@ -64,14 +120,19 @@ export default function MapView({ assistantes, searchCenter, onSelectAssistante 
         
         {assistantes.map((assistante) => {
           if (!assistante.latitude || !assistante.longitude) return null
-          
+
           // Position du marker : [latitude, longitude]
           const position = [assistante.latitude, assistante.longitude]
-          
+
+          // Determine marker color based on availability
+          const isFullyBooked = !assistante.earliest_available
+          const markerIcon = isFullyBooked ? redIcon : greenIcon
+
           return (
             <Marker
               key={assistante.id}
               position={position}
+              icon={markerIcon}
             >
               <Popup>
                 <div className="text-sm min-w-[200px]">
@@ -94,6 +155,21 @@ export default function MapView({ assistantes, searchCenter, onSelectAssistante 
                     <p className="text-purple-600 font-semibold mt-2">
                       {assistante.max_kids} enfant{assistante.max_kids > 1 ? 's' : ''} max
                     </p>
+                  )}
+
+                  {/* Availability badge */}
+                  {isFullyBooked ? (
+                    <div className="mt-2 px-2 py-1 bg-red-100 border border-red-300 rounded text-xs text-center">
+                      <span className="text-red-800 font-semibold">⚠️ Complet</span>
+                    </div>
+                  ) : assistante.earliest_available?.isFullyAvailable ? (
+                    <div className="mt-2 px-2 py-1 bg-green-100 border border-green-300 rounded text-xs text-center">
+                      <span className="text-green-800 font-semibold">✅ Disponible immédiatement</span>
+                    </div>
+                  ) : (
+                    <div className="mt-2 px-2 py-1 bg-blue-100 border border-blue-300 rounded text-xs text-center">
+                      <span className="text-blue-800 font-semibold">📅 Disponible</span>
+                    </div>
                   )}
 
                   <div className="text-sm text-gray-500 flex gap-2 flex-wrap">

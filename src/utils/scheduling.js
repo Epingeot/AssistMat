@@ -273,3 +273,124 @@ export function summarizeSchedule(schedule) {
     return `${daysStr} (horaires variables)`
   }
 }
+
+/**
+ * Calculate availability for an assistante by day of week
+ * Returns which days are available and when
+ * @param {string} assistanteId - The assistante's ID
+ * @param {number} maxKids - Maximum number of children
+ * @param {Array<{jour: number, heure_debut: string, heure_fin: string}>} horaires - Working schedule
+ * @param {object} supabase - Supabase client instance
+ * @returns {Promise<{earliestDate: Date|null, availableDays: number[], isFullyAvailable: boolean}|null>}
+ */
+export async function calculateEarliestAvailability(assistanteId, maxKids, horaires, supabase) {
+  if (!horaires || horaires.length === 0) {
+    return null // No working hours defined
+  }
+
+  const workingDays = horaires.map(h => h.jour)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  // Fetch all confirmed reservations
+  const { data: reservations, error } = await supabase
+    .from('reservations')
+    .select(`
+      id,
+      date_debut,
+      date_fin,
+      reservation_slots!reservation_slots_reservation_id_fkey(
+        jour,
+        heure_debut,
+        heure_fin
+      )
+    `)
+    .eq('assistante_id', assistanteId)
+    .eq('statut', 'confirmee')
+
+  if (error) {
+    console.error('Error fetching reservations for availability:', error)
+    return null
+  }
+
+  // Analyze availability for each working day of the week
+  const dayAvailability = {} // { dayNum: { availableFrom: Date, isCDIFull: boolean } }
+
+  for (const dayNum of workingDays) {
+    // Separate CDI (long-term) and CDD (replacement) reservations for this day
+    const cdiReservations = []
+    const cddReservations = []
+
+    for (const res of (reservations || [])) {
+      const hasThisDay = res.reservation_slots?.some(slot => slot.jour === dayNum)
+      if (!hasThisDay) continue
+
+      if (!res.date_fin) {
+        // No end date = CDI (long-term contract)
+        cdiReservations.push(res)
+      } else {
+        // Has end date = CDD (replacement/temporary)
+        cddReservations.push(res)
+      }
+    }
+
+    // Check if this day is fully booked with CDI
+    if (cdiReservations.length >= maxKids) {
+      dayAvailability[dayNum] = { availableFrom: null, isCDIFull: true }
+      continue
+    }
+
+    // Day has capacity - check for remplacements
+    if (cddReservations.length === 0) {
+      // No remplacements - available now!
+      dayAvailability[dayNum] = { availableFrom: today, isCDIFull: false }
+    } else {
+      // Find when the latest remplacement ends
+      let latestEndDate = today
+      for (const cdd of cddReservations) {
+        const endDate = new Date(cdd.date_fin)
+        if (endDate > latestEndDate) {
+          latestEndDate = endDate
+        }
+      }
+      // Available the day after the last remplacement ends
+      const availableDate = new Date(latestEndDate)
+      availableDate.setDate(availableDate.getDate() + 1)
+      dayAvailability[dayNum] = { availableFrom: availableDate, isCDIFull: false }
+    }
+  }
+
+  // Check if all days are fully booked (CDI)
+  const availableDayNums = workingDays.filter(day => !dayAvailability[day]?.isCDIFull)
+  if (availableDayNums.length === 0) {
+    return null // Completely full
+  }
+
+  // Find the earliest date when any day becomes available
+  let earliestDate = null
+  for (const dayNum of availableDayNums) {
+    const dayInfo = dayAvailability[dayNum]
+    if (dayInfo.availableFrom) {
+      if (!earliestDate || dayInfo.availableFrom < earliestDate) {
+        earliestDate = dayInfo.availableFrom
+      }
+    }
+  }
+
+  // Find all days that are available at the earliest date
+  const daysAvailableAtEarliestDate = availableDayNums.filter(dayNum => {
+    const dayInfo = dayAvailability[dayNum]
+    return dayInfo.availableFrom && dayInfo.availableFrom <= earliestDate
+  })
+
+  // Check if fully available (all working days available now)
+  const isFullyAvailable =
+    daysAvailableAtEarliestDate.length === workingDays.length &&
+    earliestDate <= today
+
+  return {
+    earliestDate,
+    availableDays: daysAvailableAtEarliestDate,
+    isFullyAvailable
+  }
+}

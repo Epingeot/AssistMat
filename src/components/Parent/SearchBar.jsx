@@ -10,6 +10,7 @@ export default function SearchBar({ onSearch }) {
   const [dateDebut, setDateDebut] = useState('')
   const [hasGarden, setHasGarden] = useState(null) // null = no filter, true = must have, false = not used
   const [petsFilter, setPetsFilter] = useState(null) // null = no filter, true = has pets, false = no pets
+  const [showOnlyAvailable, setShowOnlyAvailable] = useState(false)
   const [showAdvanced, setShowAdvanced] = useState(false)
 
   const handleSubmit = (e) => {
@@ -22,7 +23,8 @@ export default function SearchBar({ onSearch }) {
       joursRecherches,
       dateDebut,
       hasGarden,
-      petsFilter
+      petsFilter,
+      showOnlyAvailable
     })
   }
 
@@ -34,7 +36,7 @@ export default function SearchBar({ onSearch }) {
     }
   }
 
-  const hasActiveFilters = typesAccueil.length > 0 || joursRecherches.length > 0 || dateDebut || hasGarden !== null || petsFilter !== null
+  const hasActiveFilters = typesAccueil.length > 0 || joursRecherches.length > 0 || dateDebut || hasGarden !== null || petsFilter !== null || showOnlyAvailable
 
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-4 md:p-6">
@@ -111,7 +113,8 @@ export default function SearchBar({ onSearch }) {
                 joursRecherches.length,
                 dateDebut ? 1 : 0,
                 hasGarden !== null ? 1 : 0,
-                petsFilter !== null ? 1 : 0
+                petsFilter !== null ? 1 : 0,
+                showOnlyAvailable ? 1 : 0
               ].reduce((a, b) => a + b, 0)} actif(s)
             </span>
           )}
@@ -249,6 +252,27 @@ export default function SearchBar({ onSearch }) {
             </div>
           </div>
 
+          {/* Availability filter */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Disponibilité
+            </label>
+            <button
+              type="button"
+              onClick={() => setShowOnlyAvailable(!showOnlyAvailable)}
+              className={`px-3 py-2 border-2 rounded-lg text-sm font-medium transition ${
+                showOnlyAvailable
+                  ? 'border-green-500 bg-green-50 text-green-700'
+                  : 'border-gray-300 text-gray-700 hover:border-gray-400'
+              }`}
+            >
+              {showOnlyAvailable ? '✓ ' : ''}Uniquement les disponibles
+            </button>
+            <p className="text-xs text-gray-500 mt-1">
+              Masquer les assistantes complètes (tous jours réservés)
+            </p>
+          </div>
+
           {/* Clear filters button */}
           {hasActiveFilters && (
             <div className="pt-2">
@@ -260,6 +284,7 @@ export default function SearchBar({ onSearch }) {
                   setDateDebut('')
                   setHasGarden(null)
                   setPetsFilter(null)
+                  setShowOnlyAvailable(true)
                 }}
                 className="text-sm text-red-600 hover:text-red-700 font-medium"
               >
