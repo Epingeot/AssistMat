@@ -3,36 +3,10 @@
 **Created:** 2025-12-06
 **Status:** Steps 1-5 Complete, Step 6 In Progress
 
----
-
-## Backlog / Ideas
-
-Add items here as you think of them. Use `[x]` to mark completed items.
-
-### Bugs to Fix
-- [ ] in the reservation list, if the "duree" of a remplacement is less than a month or not a full mont hvalue, the duree is not correct (eg ig the remplacement is for 15 days, duree = 0 months)
-- [x] in assistante/reservationList.jsx when getting the reservations from supabase, the child and slots fields always return NULL
-- [x] in both assistante and parents reservation list the slots are not showing up - Fixed 2025-12-08 (converted integer jour to day name)
-- [x] in the assistant schedule reserved/pending slots slots are not showing
-
-### Improvements
-- [x] Remove "/an" in the vacation weeks combo box (redundant text) - Fixed 2025-12-07
-
-### New Features / Ideas
-- [x] when an assistant accepts or denies a reservation let them add a message. is it easy to add an in-app messaging system? is it worth it? an better idea to facilitate the reservation flow. probably not necessary beyond that as the parent and assistant will exchange numbers from there on
-- [ ] possibility to edit a reservation request (change dates and hours). on the parent side until the reservation is accepted or denied by the assistant. then it can only be updated bythe assistant. + possibility to hide/archive old/denied requests
-
-### Technical Debt
-- [x] Drop old tables (jours_ouvrables, types_accueil) after verifying migration
-- [x] Drop deprecated columns from assistantes_maternelles (tarif_journalier, tarif_horaire, places_totales, places_disponibles)
-
----
 
 ## Summary
 
 Transform the scheduling system from simple day-based booking to a time-slot-based calendar with conflict detection, vacation tracking, and child information management.
-
----
 
 ## New Business Rules
 

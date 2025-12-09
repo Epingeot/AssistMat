@@ -40,6 +40,10 @@ Business objectives:
 
 The application must work both in a browser and as a mobile application (PWA or native wrapper).
 
+### Task List Reference
+
+Whenever you start working on this project or respond to a request about bugs, features, enhancements, or pending work, first read the file `claude_tasks.md`. Use it as the authoritative backlog.
+
 ### File Inspection Policy
 
 When analyzing or modifying code:
