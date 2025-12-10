@@ -18,6 +18,10 @@
 ## 🔧 Enhancements
 - [x] Remove "/an" in the vacation weeks combo box (redundant text) - Fixed 2025-12-07
 - [ ] add an assistant option "gestion des contracts automatisee" that indicates the assistant is using an system like nounou-top.fr to manage the cotracts, paie and taxes to simplify the transaction. it's a plus. add  comment that explains that. check nounou-top.fr to formulate the correct message
+- [x] during reservation, after calculating earliest availability: auto-populate start date with that date, and disable days that are not available (inferred from availability data) - Fixed 2025-12-10
+- [ ] availability granularity to the hour: if an assistant has a 4+ hour block available during the day, show that day as available in the reservation form but reduce the time range to the available range and add a comment (e.g., "from 12h to 16h only")
+- [x] during reservation, if a day is not available at the start date but available later, display "complet jusqu'au [date]". If start date is after that day's available date, the day should be selectable. Return full dayAvailability structure from calculateAvailability, compute earliestDate/availableDays/isFullyAvailable outside if only used in assistant card - Fixed 2025-12-10
+- [ ] move the "start date" and "Uniquement les disponibles" filters out of the "filtres avances" and make it a dynamic display option. Start date is today by default. in map view assistant that are not disponible for the start date are marked with a red marker
 
 ## 📘 Notes for Claude
 - Always avoid scanning the entire repo.

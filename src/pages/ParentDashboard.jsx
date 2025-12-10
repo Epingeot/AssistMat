@@ -8,7 +8,7 @@ import SearchBar from '../components/Parent/SearchBar'
 import ReservationModal from '../components/Parent/ReservationModal'
 import ReservationsList from '../components/Parent/ReservationsList'
 import ChildrenManager from '../components/Parent/ChildrenManager'
-import { calculateEarliestAvailability } from '../utils/scheduling'
+import { calculateAvailability } from '../utils/scheduling'
 import { logger } from '../utils/logger'
 import ErrorBoundary from '../components/ErrorBoundary'
 import toast from 'react-hot-toast'
@@ -75,7 +75,7 @@ export default function ParentDashboard() {
             .eq('assistante_id', assistante.id)
 
           // Calculate earliest availability
-          const earliestAvailable = await calculateEarliestAvailability(
+          const availability = await calculateAvailability(
             assistante.id,
             assistante.max_kids || 4,
             horaires || [],
@@ -85,7 +85,7 @@ export default function ParentDashboard() {
           return {
             ...assistante,
             horaires_travail: horaires || [],
-            earliest_available: earliestAvailable
+            availability
           }
         })
       )
@@ -130,7 +130,7 @@ export default function ParentDashboard() {
 
       // Filter by availability (only show available assistants)
       if (showOnlyAvailable) {
-        filteredData = filteredData.filter(assistante => assistante.earliest_available !== null)
+        filteredData = filteredData.filter(assistante => assistante.availability !== null)
       }
 
       setAssistantes(filteredData)

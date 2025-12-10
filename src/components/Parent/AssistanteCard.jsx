@@ -1,4 +1,4 @@
-import { JOURS, JOURS_COURTS, formatTime, calculateAvgHoursPerMonth, calculateWeeklyHours } from '../../utils/scheduling'
+import { JOURS, JOURS_COURTS, formatTime, calculateAvgHoursPerMonth, calculateWeeklyHours, getToday } from '../../utils/scheduling'
 
 export default function AssistanteCard({ assistante, onSelect }) {
   // Build schedule summary from horaires_travail if available
@@ -65,7 +65,7 @@ export default function AssistanteCard({ assistante, onSelect }) {
       </div>
 
       {/* Availability badge */}
-      {assistante.earliest_available && assistante.earliest_available.isFullyAvailable && (
+      {assistante.availability && assistante.availability.isFullyAvailable && (
         <div className="mb-3">
           <div className="inline-flex items-center gap-2 px-3 py-2 bg-green-100 border-2 border-green-400 rounded-lg">
             <span className="text-xl">✅</span>
@@ -73,26 +73,30 @@ export default function AssistanteCard({ assistante, onSelect }) {
           </div>
         </div>
       )}
-      {assistante.earliest_available && !assistante.earliest_available.isFullyAvailable && assistante.earliest_available.earliestDate && (
+      {assistante.availability && !assistante.availability.isFullyAvailable && assistante.availability.earliestDate && (
         <div className="mb-3">
           <div className="inline-flex items-center gap-2 px-3 py-2 bg-blue-100 border border-blue-300 rounded-lg">
             <span className="text-lg">📅</span>
             <div>
               <p className="text-xs text-blue-700 font-medium">
-                Disponible {assistante.earliest_available.availableDays.map(d => JOURS_COURTS[d]).join(', ')}
+                Disponible les {assistante.availability.availableDays.length > 1 ? 
+                assistante.availability.availableDays.map(d => JOURS_COURTS[d]).join(', ')
+              : JOURS[assistante.availability.availableDays[0]]}
               </p>
               <p className="text-sm font-bold text-blue-800">
-                dès le {new Date(assistante.earliest_available.earliestDate).toLocaleDateString('fr-FR', {
+                {assistante.availability.earliestDate <= getToday() ?
+                  'immédiatement'
+                : `dès le ${assistante.availability.earliestDate.toLocaleDateString('fr-FR', {
                   day: 'numeric',
                   month: 'short',
                   year: 'numeric'
-                })}
+                })}`}
               </p>
             </div>
           </div>
         </div>
       )}
-      {!assistante.earliest_available && assistante.horaires_travail?.length > 0 && (
+      {!assistante.availability && assistante.horaires_travail?.length > 0 && (
         <div className="mb-3">
           <div className="inline-flex items-center gap-2 px-3 py-2 bg-red-100 border border-red-300 rounded-lg">
             <span className="text-lg">⚠️</span>

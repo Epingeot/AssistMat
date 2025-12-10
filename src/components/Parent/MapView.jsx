@@ -125,7 +125,7 @@ export default function MapView({ assistantes, searchCenter, onSelectAssistante 
           const position = [assistante.latitude, assistante.longitude]
 
           // Determine marker color based on availability
-          const isFullyBooked = !assistante.earliest_available
+          const isFullyBooked = !assistante.availability
           const markerIcon = isFullyBooked ? redIcon : greenIcon
 
           return (
@@ -162,7 +162,7 @@ export default function MapView({ assistantes, searchCenter, onSelectAssistante 
                     <div className="mt-2 px-2 py-1 bg-red-100 border border-red-300 rounded text-xs text-center">
                       <span className="text-red-800 font-semibold">⚠️ Complet</span>
                     </div>
-                  ) : assistante.earliest_available?.isFullyAvailable ? (
+                  ) : assistante.availability?.isFullyAvailable ? (
                     <div className="mt-2 px-2 py-1 bg-green-100 border border-green-300 rounded text-xs text-center">
                       <span className="text-green-800 font-semibold">✅ Disponible immédiatement</span>
                     </div>

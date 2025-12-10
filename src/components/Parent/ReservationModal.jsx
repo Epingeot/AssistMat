@@ -10,7 +10,8 @@ import {
   calculateHours,
   calculateAvgHoursPerMonth,
   formatHours,
-  formatTime
+  formatTime,
+  parseLocalDate
 } from '../../utils/scheduling'
 
 export default function ReservationModal({ assistante, onClose, onSuccess }) {
@@ -39,6 +40,35 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
   useEffect(() => {
     loadData()
   }, [])
+
+  // Auto-populate start date with earliest availability
+  useEffect(() => {
+    if (assistante.availability?.earliestDate && !dateDebut) {
+      // Format the Date object to yyyy-MM-dd string for the input
+      const formattedDate = format(assistante.availability.earliestDate, 'yyyy-MM-dd')
+      setDateDebut(formattedDate)
+    }
+  }, [assistante.availability])
+
+  // Clear selected slots that are no longer valid when start date changes
+  useEffect(() => {
+    if (!dateDebut || selectedSlots.length === 0) return
+
+    const dayAvailability = assistante.availability?.dayAvailability || {}
+    const selectedStartDate = parseLocalDate(dateDebut)
+
+    const validSlots = selectedSlots.filter(slot => {
+      const dayInfo = dayAvailability[slot.jour]
+      if (!dayInfo) return true // No info means available
+      if (dayInfo.isCDIFull) return false
+      if (!dayInfo.availableFrom) return false
+      return selectedStartDate >= dayInfo.availableFrom
+    })
+
+    if (validSlots.length !== selectedSlots.length) {
+      setSelectedSlots(validSlots)
+    }
+  }, [dateDebut])
 
   const loadData = async () => {
     setLoadingData(true)
@@ -171,7 +201,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
       if (!dateFin) {
         return "Veuillez sélectionner la date de fin pour un remplacement"
       }
-      const months = differenceInMonths(new Date(dateFin), new Date(dateDebut))
+      const months = differenceInMonths(parseLocalDate(dateFin), parseLocalDate(dateDebut))
       if (months < 0) {
         return "La date de fin doit être après la date de début"
       }
@@ -238,9 +268,6 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
 
   // Date constraints
   const today = format(new Date(), 'yyyy-MM-dd')
-  const minDateFin = dateDebut
-    ? format(addMonths(new Date(dateDebut), 3), 'yyyy-MM-dd')
-    : today
 
   // Calculate summary
   const weeklyHours = calculateWeeklyHours()
@@ -426,7 +453,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
 
             {isRemplacement && dateDebut && dateFin && (
               <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
-                Durée du remplacement : {differenceInMonths(new Date(dateFin), new Date(dateDebut))} mois
+                Durée du remplacement : {differenceInMonths(parseLocalDate(dateFin), parseLocalDate(dateDebut))} mois
               </div>
             )}
 
@@ -449,14 +476,44 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
                 {JOURS.map((jourNom, index) => {
                   const daySchedule = getScheduleForDay(index)
                   const isWorking = !!daySchedule
+
+                  // Get day availability info from dayAvailability structure
+                  const dayAvailability = assistante.availability?.dayAvailability || {}
+                  const dayInfo = dayAvailability[index]
+
+                  // Determine availability based on selected start date
+                  const selectedStartDate = parseLocalDate(dateDebut)
+                  let availableFromDate = null
+                  let canSelectDay = false
+                  let isCDIFull = false
+
+                  if (isWorking && dayInfo) {
+                    isCDIFull = dayInfo.isCDIFull
+                    availableFromDate = dayInfo.availableFrom
+
+                    if (!isCDIFull && dayInfo.availableFrom) {
+                      // Day is available if start date is on or after availableFrom
+                      canSelectDay = selectedStartDate && selectedStartDate >= dayInfo.availableFrom
+                    }
+                  } else if (isWorking && !dayInfo) {
+                    // No availability info means day is available (no reservations)
+                    canSelectDay = true
+                  }
+
                   const selectedSlot = selectedSlots.find(s => s.jour === index)
                   const isSelected = !!selectedSlot
+
+                  // Format the availableFrom date for display
+                  const formatAvailableDate = (date) => {
+                    if (!date) return ''
+                    return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
+                  }
 
                   return (
                     <div
                       key={index}
                       className={`p-3 rounded-lg border-2 transition ${
-                        !isWorking
+                        !canSelectDay
                           ? 'bg-gray-50 border-gray-200 opacity-60'
                           : isSelected
                           ? 'bg-blue-50 border-blue-300'
@@ -467,7 +524,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
                         {/* Day toggle */}
                         <button
                           type="button"
-                          disabled={!isWorking}
+                          disabled={!canSelectDay}
                           onClick={() => {
                             if (isSelected) {
                               setSelectedSlots(selectedSlots.filter(s => s.jour !== index))
@@ -480,7 +537,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
                             }
                           }}
                           className={`w-24 py-2 px-3 rounded-lg font-medium text-sm capitalize transition ${
-                            !isWorking
+                            !canSelectDay
                               ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                               : isSelected
                               ? 'bg-blue-600 text-white'
@@ -490,8 +547,8 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
                           {jourNom.substring(0, 3)}
                         </button>
 
-                        {/* Time selectors or "Non travaillé" */}
-                        {isWorking ? (
+                        {/* Time selectors or status message */}
+                        {canSelectDay ? (
                           isSelected ? (
                             <div className="flex items-center gap-2 flex-1">
                               <select
@@ -526,9 +583,21 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
                               Disponible : {formatTime(daySchedule.heure_debut)} - {formatTime(daySchedule.heure_fin)}
                             </span>
                           )
-                        ) : (
+                        ) : !isWorking ? (
                           <span className="text-sm text-gray-400 italic">
                             Non travaillé
+                          </span>
+                        ) : isCDIFull ? (
+                          <span className="text-sm text-red-500 italic">
+                            Complet
+                          </span>
+                        ) : availableFromDate && selectedStartDate && selectedStartDate < availableFromDate ? (
+                          <span className="text-sm text-orange-500 italic">
+                            Complet jusqu'au {formatAvailableDate(availableFromDate)}
+                          </span>
+                        ) : (
+                          <span className="text-sm text-orange-500 italic">
+                            Sélectionnez une date de début
                           </span>
                         )}
                       </div>

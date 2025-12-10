@@ -11,6 +11,30 @@ export const JOURS = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi
 export const JOURS_COURTS = ['lun', 'mar', 'mer', 'jeu', 'ven', 'sam', 'dim']
 
 /**
+ * Get today's date at midnight for consistent date comparisons
+ * @returns {Date} Today at 00:00:00.000
+ */
+export function getToday() {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  return today
+}
+
+/**
+ * Parse date string (yyyy-MM-dd) as local date to avoid timezone shift
+ * Using new Date("2026-01-15") interprets as UTC midnight, which shifts to
+ * the previous day in negative UTC offset timezones. This function parses
+ * the date components directly to create a local midnight date.
+ * @param {string} dateStr - Date string in yyyy-MM-dd format
+ * @returns {Date|null} Date object at local midnight, or null if invalid
+ */
+export function parseLocalDate(dateStr) {
+  if (!dateStr) return null
+  const [year, month, day] = dateStr.split('-').map(Number)
+  return new Date(year, month - 1, day)
+}
+
+/**
  * Generate time options for dropdowns (30-minute increments)
  * @param {string} startTime - Start time in HH:MM format (default '06:00')
  * @param {string} endTime - End time in HH:MM format (default '22:00')
@@ -275,22 +299,35 @@ export function summarizeSchedule(schedule) {
 }
 
 /**
+ * @typedef {Object} DayAvailabilityInfo
+ * @property {Date|null} availableFrom - Date when day becomes available, null if CDI full
+ * @property {boolean} isCDIFull - True if day is fully booked with long-term contracts
+ */
+
+/**
+ * @typedef {Object} AvailabilityResult
+ * @property {Date|null} earliestDate - Earliest date when any day becomes available
+ * @property {number[]} availableDays - Array of day numbers (0-6) available at earliestDate
+ * @property {boolean} isFullyAvailable - True if all working days are available now
+ * @property {Object.<number, DayAvailabilityInfo>} dayAvailability - Per-day availability keyed by day number (0=lundi to 6=dimanche)
+ */
+
+/**
  * Calculate availability for an assistante by day of week
  * Returns which days are available and when
  * @param {string} assistanteId - The assistante's ID
  * @param {number} maxKids - Maximum number of children
  * @param {Array<{jour: number, heure_debut: string, heure_fin: string}>} horaires - Working schedule
  * @param {object} supabase - Supabase client instance
- * @returns {Promise<{earliestDate: Date|null, availableDays: number[], isFullyAvailable: boolean}|null>}
+ * @returns {Promise<AvailabilityResult|null>} Availability info, or null if no working hours or completely full
  */
-export async function calculateEarliestAvailability(assistanteId, maxKids, horaires, supabase) {
+export async function calculateAvailability(assistanteId, maxKids, horaires, supabase) {
   if (!horaires || horaires.length === 0) {
     return null // No working hours defined
   }
 
   const workingDays = horaires.map(h => h.jour)
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
+  const today = getToday()
 
   // Fetch all confirmed reservations
   const { data: reservations, error } = await supabase
@@ -346,13 +383,10 @@ export async function calculateEarliestAvailability(assistanteId, maxKids, horai
       dayAvailability[dayNum] = { availableFrom: today, isCDIFull: false }
     } else {
       // Find when the latest remplacement ends
-      let latestEndDate = today
-      for (const cdd of cddReservations) {
-        const endDate = new Date(cdd.date_fin)
-        if (endDate > latestEndDate) {
-          latestEndDate = endDate
-        }
-      }
+      const latestEndDate = cddReservations.reduce((maxDate, cdd) => {
+        const endDate = parseLocalDate(cdd.date_fin)
+        return endDate > maxDate ? endDate : maxDate
+      }, today)
       // Available the day after the last remplacement ends
       const availableDate = new Date(latestEndDate)
       availableDate.setDate(availableDate.getDate() + 1)
@@ -368,29 +402,28 @@ export async function calculateEarliestAvailability(assistanteId, maxKids, horai
 
   // Find the earliest date when any day becomes available
   let earliestDate = null
-  for (const dayNum of availableDayNums) {
-    const dayInfo = dayAvailability[dayNum]
-    if (dayInfo.availableFrom) {
-      if (!earliestDate || dayInfo.availableFrom < earliestDate) {
-        earliestDate = dayInfo.availableFrom
-      }
+  for (const availableDayNum of availableDayNums) {
+    const availableFrom = dayAvailability[availableDayNum].availableFrom
+    if (availableFrom && (!earliestDate || availableFrom < earliestDate)) {
+      earliestDate = availableFrom
     }
   }
 
   // Find all days that are available at the earliest date
-  const daysAvailableAtEarliestDate = availableDayNums.filter(dayNum => {
-    const dayInfo = dayAvailability[dayNum]
-    return dayInfo.availableFrom && dayInfo.availableFrom <= earliestDate
+  const availableDays = availableDayNums.filter(availableDayNum => {
+    const availableFrom = dayAvailability[availableDayNum].availableFrom
+    return availableFrom && availableFrom <= earliestDate
   })
 
   // Check if fully available (all working days available now)
   const isFullyAvailable =
-    daysAvailableAtEarliestDate.length === workingDays.length &&
+    availableDays.length === workingDays.length &&
     earliestDate <= today
 
   return {
     earliestDate,
-    availableDays: daysAvailableAtEarliestDate,
-    isFullyAvailable
+    availableDays,
+    isFullyAvailable,
+    dayAvailability
   }
 }
