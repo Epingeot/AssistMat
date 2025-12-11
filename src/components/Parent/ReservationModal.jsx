@@ -11,7 +11,9 @@ import {
   calculateAvgHoursPerMonth,
   formatHours,
   formatTime,
-  parseLocalDate
+  formatDateForDB,
+  parseLocalDate,
+  getToday
 } from '../../utils/scheduling'
 
 export default function ReservationModal({ assistante, onClose, onSuccess }) {
@@ -44,8 +46,8 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
   // Auto-populate start date with earliest availability
   useEffect(() => {
     if (assistante.availability?.earliestDate && !dateDebut) {
-      // Format the Date object to yyyy-MM-dd string for the input
-      const formattedDate = format(assistante.availability.earliestDate, 'yyyy-MM-dd')
+      // Format the Date object for the input
+      const formattedDate = formatDateForDB(assistante.availability.earliestDate)
       setDateDebut(formattedDate)
     }
   }, [assistante.availability])
@@ -267,7 +269,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
   }
 
   // Date constraints
-  const today = format(new Date(), 'yyyy-MM-dd')
+  const today = formatDateForDB(getToday())
 
   // Calculate summary
   const weeklyHours = calculateWeeklyHours()

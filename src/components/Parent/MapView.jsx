@@ -2,6 +2,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import { useEffect } from 'react'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
+import { parseLocalDate } from '../../utils/scheduling'
 
 // Fix pour les icônes Leaflet avec Vite
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png'
@@ -93,7 +94,23 @@ function MapUpdater({ center, assistantes }) {
   return null
 }
 
-export default function MapView({ assistantes, searchCenter, onSelectAssistante }) {
+// Check if assistant is available at the given date
+function isAvailableAtDate(assistante, dateStr) {
+  if (!assistante.availability) return false
+  if (!dateStr) return assistante.availability !== null
+
+  const selectedDate = parseLocalDate(dateStr)
+  const dayAvailability = assistante.availability.dayAvailability || {}
+
+  // Check if any day is available at the selected date
+  return Object.values(dayAvailability).some(dayInfo => {
+    if (dayInfo.isCDIFull) return false
+    if (!dayInfo.availableFrom) return false
+    return selectedDate >= dayInfo.availableFrom
+  })
+}
+
+export default function MapView({ assistantes, searchCenter, onSelectAssistante, dateDebut }) {
   // Centre par défaut : Paris
   const defaultCenter = [48.8566, 2.3522]
 
@@ -124,9 +141,9 @@ export default function MapView({ assistantes, searchCenter, onSelectAssistante 
           // Position du marker : [latitude, longitude]
           const position = [assistante.latitude, assistante.longitude]
 
-          // Determine marker color based on availability
-          const isFullyBooked = !assistante.availability
-          const markerIcon = isFullyBooked ? redIcon : greenIcon
+          // Determine marker color based on availability at selected date
+          const isAvailable = isAvailableAtDate(assistante, dateDebut)
+          const markerIcon = isAvailable ? greenIcon : redIcon
 
           return (
             <Marker
@@ -157,26 +174,6 @@ export default function MapView({ assistantes, searchCenter, onSelectAssistante 
                     </p>
                   )}
 
-                  {/* Availability badge */}
-                  {isFullyBooked ? (
-                    <div className="mt-2 px-2 py-1 bg-red-100 border border-red-300 rounded text-xs text-center">
-                      <span className="text-red-800 font-semibold">⚠️ Complet</span>
-                    </div>
-                  ) : assistante.availability?.isFullyAvailable ? (
-                    <div className="mt-2 px-2 py-1 bg-green-100 border border-green-300 rounded text-xs text-center">
-                      <span className="text-green-800 font-semibold">✅ Disponible immédiatement</span>
-                    </div>
-                  ) : (
-                    <div className="mt-2 px-2 py-1 bg-blue-100 border border-blue-300 rounded text-xs text-center">
-                      <span className="text-blue-800 font-semibold">📅 Disponible</span>
-                    </div>
-                  )}
-
-                  <div className="text-sm text-gray-500 flex gap-2 flex-wrap">
-                    {assistante.accepts_periscolaire && <span className="text-blue-600">Périscolaire</span>}
-                    {assistante.accepts_remplacements && <span className="text-orange-600">Remplacements</span>}
-                  </div>
-
                   {/* Additional info badges */}
                   {(assistante.has_garden || assistante.has_pets) && (
                     <div className="mt-2 flex gap-1 flex-wrap">
@@ -190,6 +187,21 @@ export default function MapView({ assistantes, searchCenter, onSelectAssistante 
                           🐾 Animaux
                         </span>
                       )}
+                    </div>
+                  )}
+
+                  {/* Availability badge */}
+                  {!isAvailable ? (
+                    <div className="mt-2 px-2 py-1 bg-red-100 border border-red-300 rounded text-xs text-center">
+                      <span className="text-red-800 font-semibold">⚠️ Non disponible à cette date</span>
+                    </div>
+                  ) : assistante.availability?.isFullyAvailable ? (
+                    <div className="mt-2 px-2 py-1 bg-green-100 border border-green-300 rounded text-xs text-center">
+                      <span className="text-green-800 font-semibold">✅ Disponible</span>
+                    </div>
+                  ) : (
+                    <div className="mt-2 px-2 py-1 bg-blue-100 border border-blue-300 rounded text-xs text-center">
+                      <span className="text-blue-800 font-semibold">📅 Disponible</span>
                     </div>
                   )}
 

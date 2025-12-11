@@ -5,7 +5,7 @@ import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { logger } from '../../utils/logger'
 import toast from 'react-hot-toast'
-import { JOURS, formatTime, getDayName } from '../../utils/scheduling'
+import { JOURS, formatTime, getDayName, parseLocalDate } from '../../utils/scheduling'
 
 export default function ReservationsList() {
   const { user } = useAuth()
@@ -170,7 +170,7 @@ export default function ReservationsList() {
               <div>
                 <p className="text-sm text-gray-600">Début</p>
                 <p className="font-semibold">
-                  {format(new Date(reservation.date_debut), 'dd MMMM yyyy', { locale: fr })}
+                  {format(parseLocalDate(reservation.date_debut), 'dd MMMM yyyy', { locale: fr })}
                 </p>
               </div>
               {isRemplacement && (

@@ -5,7 +5,9 @@ import {
   JOURS_COURTS,
   generateTimeSlots,
   formatTime,
-  timeToMinutes
+  formatDateForDB,
+  timeToMinutes,
+  getToday
 } from '../../utils/scheduling'
 import { format, startOfWeek, addDays, addWeeks, subWeeks } from 'date-fns'
 import { fr } from 'date-fns/locale'
@@ -124,7 +126,7 @@ export default function AvailabilityCalendar({
               reservation.reservation_slots?.forEach(slot => {
                 if (slot.jour === dayIndex) {
                   const slotData = {
-                    date: format(date, 'yyyy-MM-dd'),
+                    date: formatDateForDB(date),
                     heure_debut: slot.heure_debut,
                     heure_fin: slot.heure_fin,
                     reservation_id: reservation.id,
@@ -196,7 +198,7 @@ export default function AvailabilityCalendar({
 
   // Get all booked slots for a specific time
   const getBookedSlots = (date, timeStart, timeEnd) => {
-    const dateStr = format(date, 'yyyy-MM-dd')
+    const dateStr = formatDateForDB(date)
     return bookedSlots.filter(slot =>
       slot.date === dateStr &&
       timeToMinutes(slot.heure_debut) <= timeToMinutes(timeStart) &&
@@ -206,7 +208,7 @@ export default function AvailabilityCalendar({
 
   // Get all pending slots for a specific time
   const getPendingSlots = (date, timeStart, timeEnd) => {
-    const dateStr = format(date, 'yyyy-MM-dd')
+    const dateStr = formatDateForDB(date)
     return pendingSlots.filter(slot =>
       slot.date === dateStr &&
       timeToMinutes(slot.heure_debut) <= timeToMinutes(timeStart) &&
@@ -380,7 +382,7 @@ export default function AvailabilityCalendar({
                 Heure
               </th>
               {weekDates.map((date, index) => {
-                const isToday = format(date, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd')
+                const isToday = formatDateForDB(date) === formatDateForDB(getToday())
                 const workingHours = getWorkingHoursForDay(index)
                 return (
                   <th
@@ -418,7 +420,7 @@ export default function AvailabilityCalendar({
                   const capacityPercent = totalReservations / maxKids
 
                   const selected = mode === 'select' && isSelected(dayIndex, timeSlot.start, timeSlot.end)
-                  const isToday = format(date, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd')
+                  const isToday = formatDateForDB(date) === formatDateForDB(getToday())
                   const isPast = date < new Date() && !isToday
                   const isFull = totalReservations >= maxKids
 

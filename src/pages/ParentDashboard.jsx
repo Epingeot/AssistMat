@@ -8,7 +8,7 @@ import SearchBar from '../components/Parent/SearchBar'
 import ReservationModal from '../components/Parent/ReservationModal'
 import ReservationsList from '../components/Parent/ReservationsList'
 import ChildrenManager from '../components/Parent/ChildrenManager'
-import { calculateAvailability } from '../utils/scheduling'
+import { calculateAvailability, parseLocalDate } from '../utils/scheduling'
 import { logger } from '../utils/logger'
 import ErrorBoundary from '../components/ErrorBoundary'
 import toast from 'react-hot-toast'
@@ -23,6 +23,7 @@ export default function ParentDashboard() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [selectedAssistante, setSelectedAssistante] = useState(null)
+  const [currentDateDebut, setCurrentDateDebut] = useState(null) // Track selected start date for display
 
   // reservation modal state and handlers
   const [showReservationModal, setShowReservationModal] = useState(false)
@@ -30,7 +31,7 @@ export default function ParentDashboard() {
 
   const [activeTab, setActiveTab] = useState('recherche') // 'recherche' ou 'reservations'
 
-  const handleSearch = async ({ ville, codePostal, rayon, typesAccueil, joursRecherches, hasGarden, petsFilter, showOnlyAvailable }) => {
+  const handleSearch = async ({ ville, codePostal, rayon, typesAccueil, joursRecherches, dateDebut, hasGarden, petsFilter, showOnlyAvailable }) => {
     if (!ville && !codePostal) {
       setError('Veuillez entrer une ville ou un code postal')
       return
@@ -38,6 +39,7 @@ export default function ParentDashboard() {
 
     setLoading(true)
     setError(null)
+    setCurrentDateDebut(dateDebut) // Store for display/filtering
 
     try {
       // Géocoder la recherche
@@ -128,11 +130,24 @@ export default function ParentDashboard() {
         filteredData = filteredData.filter(assistante => assistante.has_pets !== true)
       }
 
-      // Filter by availability (only show available assistants)
+      // Filter by availability at selected start date
       if (showOnlyAvailable) {
-        filteredData = filteredData.filter(assistante => assistante.availability !== null)
+        if (dateDebut) {
+          const selectedDate = parseLocalDate(dateDebut)
+          filteredData = filteredData.filter(assistante => {
+            if (!assistante.availability) return false
+            // Check if any day is available at the selected start date
+            const dayAvailability = assistante.availability.dayAvailability || {}
+            return Object.values(dayAvailability).some(dayInfo => {
+              if (dayInfo.isCDIFull || !dayInfo.availableFrom) return false
+              return selectedDate >= dayInfo.availableFrom
+            })
+          })
+        } else {
+          // If no start date, just filter those with any availability
+          filteredData = filteredData.filter(assistante => assistante.availability !== null)
+        }
       }
-
       setAssistantes(filteredData)
 
       if (filteredData.length === 0) {
@@ -277,6 +292,7 @@ export default function ParentDashboard() {
                     assistantes={assistantes}
                     searchCenter={searchCenter}
                     onSelectAssistante={handleSelectAssistante}
+                    dateDebut={currentDateDebut}
                   />
                 </ErrorBoundary>
               </div>

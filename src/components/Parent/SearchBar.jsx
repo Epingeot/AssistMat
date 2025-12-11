@@ -1,5 +1,13 @@
 import { useState } from 'react'
-import { JOURS, JOURS_COURTS } from '../../utils/scheduling'
+import { 
+  JOURS, 
+  JOURS_COURTS,
+  formatDateForDB,
+  getToday 
+} from '../../utils/scheduling'
+
+// Get today's date as a string
+const todayStr = formatDateForDB(getToday())
 
 export default function SearchBar({ onSearch }) {
   const [ville, setVille] = useState('')
@@ -7,10 +15,10 @@ export default function SearchBar({ onSearch }) {
   const [rayon, setRayon] = useState(10)
   const [typesAccueil, setTypesAccueil] = useState([])
   const [joursRecherches, setJoursRecherches] = useState([])
-  const [dateDebut, setDateDebut] = useState('')
+  const [dateDebut, setDateDebut] = useState(todayStr) // Default to today
   const [hasGarden, setHasGarden] = useState(null) // null = no filter, true = must have, false = not used
   const [petsFilter, setPetsFilter] = useState(null) // null = no filter, true = has pets, false = no pets
-  const [showOnlyAvailable, setShowOnlyAvailable] = useState(false)
+  const [showOnlyAvailable, setShowOnlyAvailable] = useState(true) // Default to showing only available
   const [showAdvanced, setShowAdvanced] = useState(false)
 
   const handleSubmit = (e) => {
@@ -36,7 +44,7 @@ export default function SearchBar({ onSearch }) {
     }
   }
 
-  const hasActiveFilters = typesAccueil.length > 0 || joursRecherches.length > 0 || dateDebut || hasGarden !== null || petsFilter !== null || showOnlyAvailable
+  const hasActiveFilters = typesAccueil.length > 0 || joursRecherches.length > 0 || hasGarden !== null || petsFilter !== null
 
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-4 md:p-6">
@@ -95,6 +103,38 @@ export default function SearchBar({ onSearch }) {
         </div>
       </div>
 
+      {/* Display options: Start date and availability filter */}
+      <div className="mt-4 pt-4 border-t border-gray-200">
+        <div className="flex flex-wrap items-center gap-4">
+          {/* Start date */}
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700">
+              Date de début :
+            </label>
+            <input
+              type="date"
+              value={dateDebut}
+              onChange={(e) => setDateDebut(e.target.value)}
+              min={todayStr}
+              className="px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+            />
+          </div>
+
+          {/* Availability toggle */}
+          <button
+            type="button"
+            onClick={() => setShowOnlyAvailable(!showOnlyAvailable)}
+            className={`flex items-center gap-2 px-3 py-1.5 border-2 rounded-lg text-sm font-medium transition ${
+              showOnlyAvailable
+                ? 'border-green-500 bg-green-50 text-green-700'
+                : 'border-gray-300 text-gray-700 hover:border-gray-400'
+            }`}
+          >
+            {showOnlyAvailable ? '✓' : ''} Uniquement les disponibles
+          </button>
+        </div>
+      </div>
+
       {/* Toggle advanced filters */}
       <div className="mt-4 pt-4 border-t border-gray-200">
         <button
@@ -111,10 +151,8 @@ export default function SearchBar({ onSearch }) {
               {[
                 typesAccueil.length,
                 joursRecherches.length,
-                dateDebut ? 1 : 0,
                 hasGarden !== null ? 1 : 0,
-                petsFilter !== null ? 1 : 0,
-                showOnlyAvailable ? 1 : 0
+                petsFilter !== null ? 1 : 0
               ].reduce((a, b) => a + b, 0)} actif(s)
             </span>
           )}
@@ -147,22 +185,6 @@ export default function SearchBar({ onSearch }) {
             </div>
             <p className="text-xs text-gray-500 mt-1">
               Filtrer par assistantes travaillant ces jours
-            </p>
-          </div>
-
-          {/* Start date */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Date de debut souhaitee
-            </label>
-            <input
-              type="date"
-              value={dateDebut}
-              onChange={(e) => setDateDebut(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Pour information (non filtrant)
             </p>
           </div>
 
@@ -252,27 +274,6 @@ export default function SearchBar({ onSearch }) {
             </div>
           </div>
 
-          {/* Availability filter */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Disponibilité
-            </label>
-            <button
-              type="button"
-              onClick={() => setShowOnlyAvailable(!showOnlyAvailable)}
-              className={`px-3 py-2 border-2 rounded-lg text-sm font-medium transition ${
-                showOnlyAvailable
-                  ? 'border-green-500 bg-green-50 text-green-700'
-                  : 'border-gray-300 text-gray-700 hover:border-gray-400'
-              }`}
-            >
-              {showOnlyAvailable ? '✓ ' : ''}Uniquement les disponibles
-            </button>
-            <p className="text-xs text-gray-500 mt-1">
-              Masquer les assistantes complètes (tous jours réservés)
-            </p>
-          </div>
-
           {/* Clear filters button */}
           {hasActiveFilters && (
             <div className="pt-2">
@@ -281,14 +282,12 @@ export default function SearchBar({ onSearch }) {
                 onClick={() => {
                   setTypesAccueil([])
                   setJoursRecherches([])
-                  setDateDebut('')
                   setHasGarden(null)
                   setPetsFilter(null)
-                  setShowOnlyAvailable(true)
                 }}
                 className="text-sm text-red-600 hover:text-red-700 font-medium"
               >
-                Effacer tous les filtres
+                Effacer les filtres avancés
               </button>
             </div>
           )}

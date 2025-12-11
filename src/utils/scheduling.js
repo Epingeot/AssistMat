@@ -21,6 +21,20 @@ export function getToday() {
 }
 
 /**
+ * Format a Date object to yyyy-MM-dd string for database storage and form inputs
+ * Uses local date components to avoid timezone shift issues
+ * @param {Date} date - Date object to format
+ * @returns {string} Date string in yyyy-MM-dd format
+ */
+export function formatDateForDB(date) {
+  if (!date) return ''
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+/**
  * Parse date string (yyyy-MM-dd) as local date to avoid timezone shift
  * Using new Date("2026-01-15") interprets as UTC midnight, which shifts to
  * the previous day in negative UTC offset timezones. This function parses

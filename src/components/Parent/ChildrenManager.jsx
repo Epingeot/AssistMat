@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
+import { formatDateForDB, getToday, parseLocalDate } from '../../utils/scheduling'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import toast from 'react-hot-toast'
@@ -233,7 +234,7 @@ export default function ChildrenManager() {
                   type="date"
                   value={formData.date_naissance}
                   onChange={(e) => setFormData({ ...formData, date_naissance: e.target.value })}
-                  max={format(new Date(), 'yyyy-MM-dd')}
+                  max={formatDateForDB(getToday())}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
@@ -317,7 +318,7 @@ export default function ChildrenManager() {
                   <div className="text-sm text-gray-500">
                     {child.date_naissance ? (
                       <>
-                        {format(new Date(child.date_naissance), 'd MMMM yyyy', { locale: fr })}
+                        {format(parseLocalDate(child.date_naissance), 'd MMMM yyyy', { locale: fr })}
                         {' '}
                         <span className="text-gray-400">({calculateAge(child.date_naissance)})</span>
                       </>
