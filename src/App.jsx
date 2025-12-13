@@ -6,6 +6,7 @@ import ParentDashboard from './pages/ParentDashboard'
 import Disclaimer from './pages/Disclaimer'
 import { logger } from './utils/logger'
 import ErrorBoundary from './components/ErrorBoundary'
+import UpdateNotification from './components/UpdateNotification'
 import { Toaster } from 'react-hot-toast'
 
 function ProtectedRoute({ children }) {
@@ -123,6 +124,7 @@ export default function App() {
           },
         }}
       />
+      <UpdateNotification />
     </ErrorBoundary>
   )
 }

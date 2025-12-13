@@ -14,6 +14,7 @@
 - [ ] add notifications (email/txt/in app) when reservations are received/accepted/denied
 - [ ] allow parents to search/view assistants without login in/registering. only require auth to make a reservation. at this point present the registration page in the reservation form (option to login if already registered). Home page is now a landing page (explains how the app works, highlight features, show reviews). use https://www.nounou-top.fr/annonces as example
 - [ ] add a system of scoring (stars) and comments on assistants. Show the stars in the assistant card, with a way to see comments. assistants can see their score and comments too
+- [x] My latest changes are deployed but the app on my iPhone is not loading the changes and page in my browser is not upadted either. Force a refresh when a latest veriosn is available OR Add an "app version detector" so the UI tells users: "A new version is available — refresh" (with instructions) - Fixed 2025-12-13 (added SW version tracking, UpdateNotification component, and cache headers)
 
 ## 🔧 Enhancements
 - [x] Remove "/an" in the vacation weeks combo box (redundant text) - Fixed 2025-12-07
