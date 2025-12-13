@@ -1,5 +1,24 @@
 # Project Tasks & Improvements
 
+## 🔄 Session Context (Last updated: 2025-12-13)
+
+**Recent work:**
+- Added app version update notification (UpdateNotification component + SW versioning)
+- Added in-app real-time notifications for reservations (NotificationContext using Supabase Realtime)
+
+**Key files for notifications:**
+- `src/contexts/NotificationContext.jsx` - Real-time subscription to reservations table
+- `src/components/UpdateNotification.jsx` - PWA version update banner
+- `public/sw.js` - Service worker with SW_VERSION constant
+
+**Pending notification phases:**
+- Phase 2: Email notifications (blocked: need custom domain for Resend)
+- Phase 3: Push notifications (can use Web Push API, no domain needed)
+
+**Branch status:** All merged to main, ready to push
+
+---
+
 ## 🐞 Bugs
 - [x] in assistante/reservationList.jsx when getting the reservations from supabase, the child and slots fields always return NULL
 - [x] in both assistante and parents reservation list the slots are not showing up - Fixed 2025-12-08 (converted integer jour to day name)

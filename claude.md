@@ -44,6 +44,13 @@ The application must work both in a browser and as a mobile application (PWA or 
 
 Whenever you start working on this project or respond to a request about bugs, features, enhancements, or pending work, first read the file `claude_tasks.md`. Use it as the authoritative backlog.
 
+### Session Context Management
+
+At the end of a work session (when committing final changes or when I say "update context" or "end session"):
+- Update the "Session Context" section at the top of `claude_tasks.md`
+- Include: recent work done, key files modified, pending items, branch status
+- Keep it concise (5-10 lines max) to minimize token usage
+
 ### File Inspection Policy
 
 When analyzing or modifying code:
