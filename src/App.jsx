@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
+import { NotificationProvider } from './contexts/NotificationContext'
 import AuthForm from './components/Auth/AuthForm'
 import AssistanteDashboard from './pages/AssistanteDashboard'
 import ParentDashboard from './pages/ParentDashboard'
@@ -96,7 +97,9 @@ export default function App() {
     >
       <BrowserRouter>
         <AuthProvider>
-          <AppRoutes />
+          <NotificationProvider>
+            <AppRoutes />
+          </NotificationProvider>
         </AuthProvider>
       </BrowserRouter>
       <Toaster
