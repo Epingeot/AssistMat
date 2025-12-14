@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
-import { format, differenceInMonths } from 'date-fns'
+import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { logger } from '../../utils/logger'
 import toast from 'react-hot-toast'
-import { JOURS, formatTime, getDayName, parseLocalDate } from '../../utils/scheduling'
+import { JOURS, formatTime, getDayName, parseLocalDate, formatDuration } from '../../utils/scheduling'
 
 export default function ReservationsList() {
   const { user } = useAuth()
@@ -156,7 +156,7 @@ export default function ReservationsList() {
         {filteredReservations.map(reservation => {
           const isRemplacement = !!reservation.date_fin
           const duree = isRemplacement
-            ? differenceInMonths(new Date(reservation.date_fin), new Date(reservation.date_debut))
+            ? formatDuration(parseLocalDate(reservation.date_debut), parseLocalDate(reservation.date_fin))
             : null
 
           // Group slots by day
@@ -277,8 +277,8 @@ export default function ReservationsList() {
 
               <div className="flex justify-between items-center pt-4 border-t">
                 <div className="text-sm text-gray-600">
-                  {isRemplacement && (
-                      <p>Durée : {duree} mois</p>
+                  {isRemplacement && duree && (
+                      <p>Durée : {duree}</p>
                   )}
                   <p>Demandé le {format(new Date(reservation.created_at), 'dd/MM/yyyy à HH:mm', { locale: fr })}</p>
                 </div>

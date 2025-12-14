@@ -327,6 +327,38 @@ export function summarizeSchedule(schedule) {
  */
 
 /**
+ * Format a duration between two dates in a human-readable French format
+ * Handles partial months by showing days when needed
+ * @param {Date} startDate - Start date
+ * @param {Date} endDate - End date
+ * @returns {string} Formatted duration (e.g., "2 mois", "15 jours", "1 mois et 10 jours")
+ */
+export function formatDuration(startDate, endDate) {
+  if (!startDate || !endDate) return ''
+
+  // Calculate total days difference
+  const msPerDay = 24 * 60 * 60 * 1000
+  const totalDays = Math.round((endDate - startDate) / msPerDay)
+
+  if (totalDays < 0) return ''
+
+  // Approximate months (using 30.44 days per month average)
+  const months = Math.floor(totalDays / 30.44)
+  const remainingDays = Math.round(totalDays - (months * 30.44))
+
+  if (months === 0) {
+    // Less than a month - show only days
+    return `${totalDays} jour${totalDays > 1 ? 's' : ''}`
+  } else if (remainingDays <= 2) {
+    // Close to a full month - show only months
+    return `${months} mois`
+  } else {
+    // Partial month - show both
+    return `${months} mois et ${remainingDays} jour${remainingDays > 1 ? 's' : ''}`
+  }
+}
+
+/**
  * Calculate availability for an assistante by day of week
  * Returns which days are available and when
  * @param {string} assistanteId - The assistante's ID

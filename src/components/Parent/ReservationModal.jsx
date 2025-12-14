@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
-import { addMonths, format, differenceInMonths } from 'date-fns'
+import { addMonths, format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { logger } from '../../utils/logger'
 import {
@@ -13,7 +13,8 @@ import {
   formatTime,
   formatDateForDB,
   parseLocalDate,
-  getToday
+  getToday,
+  formatDuration
 } from '../../utils/scheduling'
 
 export default function ReservationModal({ assistante, onClose, onSuccess }) {
@@ -203,8 +204,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
       if (!dateFin) {
         return "Veuillez sélectionner la date de fin pour un remplacement"
       }
-      const months = differenceInMonths(parseLocalDate(dateFin), parseLocalDate(dateDebut))
-      if (months < 0) {
+      if (parseLocalDate(dateFin) < parseLocalDate(dateDebut)) {
         return "La date de fin doit être après la date de début"
       }
     }
@@ -455,7 +455,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
 
             {isRemplacement && dateDebut && dateFin && (
               <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
-                Durée du remplacement : {differenceInMonths(parseLocalDate(dateFin), parseLocalDate(dateDebut))} mois
+                Durée du remplacement : {formatDuration(parseLocalDate(dateDebut), parseLocalDate(dateFin))}
               </div>
             )}
 

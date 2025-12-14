@@ -23,7 +23,7 @@
 - [x] in assistante/reservationList.jsx when getting the reservations from supabase, the child and slots fields always return NULL
 - [x] in both assistante and parents reservation list the slots are not showing up - Fixed 2025-12-08 (converted integer jour to day name)
 - [x] in the assistant schedule reserved/pending slots slots are not showing
-- [ ] in the reservation list, if the "duree" of a remplacement is less than a month or not a full mont hvalue, the duree is not correct (eg ig the remplacement is for 15 days, duree = 0 months)
+- [x] in the reservation list, if the "duree" of a remplacement is less than a month or not a full month value, the duree is not correct (eg if the remplacement is for 15 days, duree = 0 months) - Fixed 2025-12-13 (added formatDuration utility that shows days/months properly)
 
 ## ✨ Features
 - [x] when an assistant accepts or denies a reservation let them add a message. is it easy to add an in-app messaging system? is it worth it? an better idea to facilitate the reservation flow. probably not necessary beyond that as the parent and assistant will exchange numbers from there on
