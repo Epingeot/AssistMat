@@ -225,6 +225,7 @@ export default function ReservationsList() {
                     <p className="font-semibold">
                       {format(parseLocalDate(reservation.date_fin), 'dd MMMM yyyy', { locale: fr })}
                     </p>
+                    <p className="text-sm text-gray-600">Durée : {duree}</p>
                   </div>
                 )}
               </div>
@@ -277,9 +278,6 @@ export default function ReservationsList() {
 
               <div className="flex justify-between items-center pt-4 border-t">
                 <div className="text-sm text-gray-600">
-                  {isRemplacement && duree && (
-                      <p>Durée : {duree}</p>
-                  )}
                   <p>Demandé le {format(new Date(reservation.created_at), 'dd/MM/yyyy à HH:mm', { locale: fr })}</p>
                 </div>
                 {reservation.statut === 'en_attente' && (

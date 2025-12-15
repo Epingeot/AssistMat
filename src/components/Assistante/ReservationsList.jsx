@@ -5,7 +5,7 @@ import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { logger } from '../../utils/logger'
 import toast from 'react-hot-toast'
-import { JOURS, formatTime, getDayName, parseLocalDate } from '../../utils/scheduling'
+import { JOURS, formatTime, getDayName, parseLocalDate, formatDuration } from '../../utils/scheduling'
 
 export default function ReservationsList() {
   const { user } = useAuth()
@@ -117,7 +117,11 @@ export default function ReservationsList() {
         const childName = reservation.child?.rgpd_consent_display_name
           ? reservation.child.prenom
           : 'Enfant (nom masqué)'
+
         const isRemplacement = !!reservation.date_fin
+        const duree = isRemplacement
+          ? formatDuration(parseLocalDate(reservation.date_debut), parseLocalDate(reservation.date_fin))
+          : null
 
           // Group slots by day
         const slotsByDay = {}
@@ -177,8 +181,9 @@ export default function ReservationsList() {
                 <div>
                   <p className="text-sm text-gray-600">Fin</p>
                   <p className="font-semibold">
-                    {format(new Date(reservation.date_fin), 'dd MMMM yyyy', { locale: fr })}
+                    {format(parseLocalDate(reservation.date_fin), 'dd MMMM yyyy', { locale: fr })}
                   </p>
+                  <p className="text-sm text-gray-600">Durée : {duree}</p>
                 </div>
               )}
             </div>
@@ -215,10 +220,23 @@ export default function ReservationsList() {
             {reservation.notes && (
               <div className="mb-4 p-3 bg-gray-50 rounded-lg">
                 <p className="text-sm text-gray-600">
-                  <span className="font-medium">Note :</span> {reservation.notes}
+                  <span className="font-medium">Note du parent :</span> {reservation.notes}
                 </p>
               </div>
             )}
+
+            {/* Assistante Response */}
+            {reservation.assistante_response && (
+              <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <p className="text-sm text-blue-800">
+                  <span className="font-medium">Votre réponse :</span> {reservation.assistante_response}
+                </p>
+              </div>
+            )}
+
+            <div className="text-sm text-gray-600">
+              <p>Reçu le {format(new Date(reservation.created_at), 'dd/MM/yyyy à HH:mm', { locale: fr })}</p>
+            </div>
 
             {reservation.statut === 'en_attente' && (
               respondingTo?.reservationId === reservation.id ? (
