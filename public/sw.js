@@ -1,6 +1,6 @@
 // Service Worker for AssistMat PWA
 // VERSION is updated on each deploy - change this to force cache refresh
-const SW_VERSION = '2024.12.13.1';
+const SW_VERSION = '2024.12.15.1';
 const CACHE_NAME = `assistmat-v${SW_VERSION}`;
 const RUNTIME_CACHE = `assistmat-runtime-v${SW_VERSION}`;
 
@@ -58,7 +58,8 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch event - network first, fallback to cache
+// Fetch event - NETWORK FIRST, fallback to cache
+// This ensures users always get the latest version when online
 self.addEventListener('fetch', (event) => {
   // Skip cross-origin requests
   if (!event.request.url.startsWith(self.location.origin)) {
@@ -71,34 +72,33 @@ self.addEventListener('fetch', (event) => {
   }
 
   event.respondWith(
-    caches.match(event.request)
-      .then(cachedResponse => {
-        // Return cached response if found
-        if (cachedResponse) {
-          return cachedResponse;
+    // Try network first
+    fetch(event.request)
+      .then(response => {
+        // Don't cache if not successful
+        if (!response || response.status !== 200 || response.type !== 'basic') {
+          return response;
         }
 
-        // Otherwise fetch from network
-        return fetch(event.request)
-          .then(response => {
-            // Don't cache if not successful
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
+        // Clone the response
+        const responseToCache = response.clone();
+
+        // Cache the new response for offline use
+        caches.open(RUNTIME_CACHE)
+          .then(cache => {
+            cache.put(event.request, responseToCache);
+          });
+
+        return response;
+      })
+      .catch(() => {
+        // Network failed - try cache as fallback (offline mode)
+        return caches.match(event.request)
+          .then(cachedResponse => {
+            if (cachedResponse) {
+              return cachedResponse;
             }
-
-            // Clone the response
-            const responseToCache = response.clone();
-
-            // Cache the new response
-            caches.open(RUNTIME_CACHE)
-              .then(cache => {
-                cache.put(event.request, responseToCache);
-              });
-
-            return response;
-          })
-          .catch(() => {
-            // Offline fallback - return cached index if available
+            // Last resort: return cached index.html for navigation
             return caches.match('/index.html');
           });
       })
