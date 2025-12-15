@@ -188,6 +188,21 @@ export default function ReservationsList() {
                   <p className="text-sm text-gray-600">
                     {reservation.assistante.adresse}, {reservation.assistante.ville}
                   </p>
+                  {/* Show contact info when reservation is confirmed */}
+                  {reservation.statut === 'confirmee' && (reservation.assistante.telephone || reservation.assistante.email) && (
+                    <div className="mt-2 text-sm">
+                      {reservation.assistante.telephone && (
+                        <a href={`tel:${reservation.assistante.telephone}`} className="text-blue-600 hover:underline mr-3">
+                          📞 {reservation.assistante.telephone}
+                        </a>
+                      )}
+                      {reservation.assistante.email && (
+                        <a href={`mailto:${reservation.assistante.email}`} className="text-blue-600 hover:underline">
+                          ✉️ {reservation.assistante.email}
+                        </a>
+                      )}
+                    </div>
+                  )}
                   {isRemplacement && (
                     <p className="text-xs text-green-600 mt-1">Remplacement</p>
                   )}
@@ -258,37 +273,44 @@ export default function ReservationsList() {
                 )}
               </div>
 
-              {/* Notes */}
-              {reservation.notes && (
-                <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-                  <p className="text-sm text-gray-600">
-                    <span className="font-medium">Votre message :</span> {reservation.notes}
-                  </p>
+              {/* Chat-style messages */}
+              {(reservation.notes || reservation.assistante_response) && (
+                <div className="mb-4 space-y-2">
+                  {/* Parent message - right side (sent by me) */}
+                  {reservation.notes && (
+                    <div className="flex justify-end">
+                      <div className="max-w-[80%] p-3 bg-blue-500 text-white rounded-2xl rounded-br-md">
+                        <p className="text-sm">{reservation.notes}</p>
+                        <p className="text-xs text-blue-100 mt-1 text-right">
+                          Vous · {format(new Date(reservation.created_at), 'dd/MM à HH:mm', { locale: fr })}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  {/* Assistante response - left side (received) */}
+                  {reservation.assistante_response && (
+                    <div className="flex justify-start">
+                      <div className="max-w-[80%] p-3 bg-gray-100 text-gray-800 rounded-2xl rounded-bl-md">
+                        <p className="text-sm">{reservation.assistante_response}</p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {reservation.assistante.profile.prenom} · {format(new Date(reservation.responded_at), 'dd/MM à HH:mm', { locale: fr })}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
-              {/* Assistante Response */}
-              {reservation.assistante_response && (
-                <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                  <p className="text-sm text-blue-800">
-                    <span className="font-medium">Réponse de l'assistante :</span> {reservation.assistante_response}
-                  </p>
-                </div>
-              )}
-
-              <div className="flex justify-between items-center pt-4 border-t">
-                <div className="text-sm text-gray-600">
-                  <p>Demandé le {format(new Date(reservation.created_at), 'dd/MM/yyyy à HH:mm', { locale: fr })}</p>
-                </div>
-                {reservation.statut === 'en_attente' && (
+              {reservation.statut === 'en_attente' && (
+                <div className="flex justify-end pt-4 border-t">
                   <button
                     onClick={() => cancelReservation(reservation.id)}
                     className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-semibold"
                   >
                     Annuler la demande
                   </button>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           )
         })}

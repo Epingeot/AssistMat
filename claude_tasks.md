@@ -40,6 +40,7 @@
 - [x] during reservation, if a day is not available at the start date but available later, display "complet jusqu'au [date]". If start date is after that day's available date, the day should be selectable. Return full dayAvailability structure from calculateAvailability, compute earliestDate/availableDays/isFullyAvailable outside if only used in assistant card - Fixed 2025-12-10
 - [x] move the "start date" and "Uniquement les disponibles" filters out of the "filtres avances" and make it a dynamic display option. Start date is today by default. in map view assistant that are not disponible for the start date are marked with a red marker - Fixed 2025-12-10
 - [ ] availability granularity to the hour: if an assistant has a 4+ hour block available during the day, show that day as available in the reservation form but reduce the time range to the available range and add a comment (e.g., "from 12h to 16h only")
+- [x] in the request list (both parent and assistant) make the parent note and assistant response look like a text message conversation (parent on the left, assistant on the right) - Fixed 2025-12-15
 
 
 ## 📘 Notes for Claude

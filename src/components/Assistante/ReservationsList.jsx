@@ -59,7 +59,8 @@ export default function ReservationsList() {
         .from('reservations')
         .update({
           statut: newStatut,
-          assistante_response: message.trim() || null
+          assistante_response: message.trim() || null,
+          responded_at: new Date().toISOString()
         })
         .eq('id', reservationId)
 
@@ -216,27 +217,33 @@ export default function ReservationsList() {
               )}
             </div>
 
-            {/* Notes */}
-            {reservation.notes && (
-              <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-600">
-                  <span className="font-medium">Note du parent :</span> {reservation.notes}
-                </p>
+            {/* Chat-style messages */}
+            {(reservation.notes || reservation.assistante_response) && (
+              <div className="mb-4 space-y-2">
+                {/* Parent message - left side (received) */}
+                {reservation.notes && (
+                  <div className="flex justify-start">
+                    <div className="max-w-[80%] p-3 bg-gray-100 text-gray-800 rounded-2xl rounded-bl-md">
+                      <p className="text-sm">{reservation.notes}</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {reservation.parent.prenom} · {format(new Date(reservation.created_at), 'dd/MM à HH:mm', { locale: fr })}
+                      </p>
+                    </div>
+                  </div>
+                )}
+                {/* Assistante response - right side (sent by me) */}
+                {reservation.assistante_response && (
+                  <div className="flex justify-end">
+                    <div className="max-w-[80%] p-3 bg-purple-500 text-white rounded-2xl rounded-br-md">
+                      <p className="text-sm">{reservation.assistante_response}</p>
+                      <p className="text-xs text-purple-100 mt-1 text-right">
+                        Vous · {format(new Date(reservation.responded_at), 'dd/MM à HH:mm', { locale: fr })}
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
-
-            {/* Assistante Response */}
-            {reservation.assistante_response && (
-              <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                <p className="text-sm text-blue-800">
-                  <span className="font-medium">Votre réponse :</span> {reservation.assistante_response}
-                </p>
-              </div>
-            )}
-
-            <div className="text-sm text-gray-600">
-              <p>Reçu le {format(new Date(reservation.created_at), 'dd/MM/yyyy à HH:mm', { locale: fr })}</p>
-            </div>
 
             {reservation.statut === 'en_attente' && (
               respondingTo?.reservationId === reservation.id ? (
