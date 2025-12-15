@@ -8,26 +8,64 @@ import ErrorBoundary from '../components/ErrorBoundary'
 
 export default function AssistanteDashboard() {
   const { user, profile, signOut } = useAuth()
-  const [activeTab, setActiveTab] = useState('profil')
+  const [activeTab, setActiveTab] = useState(null) // null until we determine the default
   const [assistanteId, setAssistanteId] = useState(null)
+  const [profileComplete, setProfileComplete] = useState(false)
 
-  // Load assistante ID for calendar
+  // Load assistante data and determine default tab
   useEffect(() => {
     if (user) {
-      loadAssistanteId()
+      checkProfileAndSetTab()
     }
   }, [user])
 
-  const loadAssistanteId = async () => {
-    const { data } = await supabase
+  const checkProfileAndSetTab = async () => {
+    // Get assistante profile with required fields
+    const { data: assistante } = await supabase
       .from('assistantes_maternelles')
-      .select('id')
+      .select('id, adresse, ville, max_kids')
       .eq('user_id', user.id)
       .maybeSingle()
 
-    if (data) {
-      setAssistanteId(data.id)
+    if (!assistante) {
+      setActiveTab('profil')
+      return
     }
+
+    setAssistanteId(assistante.id)
+
+    // Check required fields
+    const hasRequiredFields = assistante.adresse && assistante.ville && assistante.max_kids
+
+    if (!hasRequiredFields) {
+      setActiveTab('profil')
+      return
+    }
+
+    // Check if working hours are defined
+    const { data: horaires } = await supabase
+      .from('horaires_travail')
+      .select('id')
+      .eq('assistante_id', assistante.id)
+      .limit(1)
+
+    if (!horaires || horaires.length === 0) {
+      setActiveTab('profil')
+      return
+    }
+
+    // Profile is complete - default to planning tab
+    setProfileComplete(true)
+    setActiveTab('planning')
+  }
+
+  // Show loading while determining default tab
+  if (activeTab === null) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 flex items-center justify-center">
+        <div className="text-lg text-gray-600">Chargement...</div>
+      </div>
+    )
   }
 
   return (
