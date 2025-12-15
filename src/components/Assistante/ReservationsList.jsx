@@ -11,6 +11,7 @@ export default function ReservationsList() {
   const { user } = useAuth()
   const [reservations, setReservations] = useState([])
   const [loading, setLoading] = useState(true)
+  const [filter, setFilter] = useState('en_attente') // Default to pending - 'all', 'en_attente', 'confirmee', 'annulee'
   const [respondingTo, setRespondingTo] = useState(null) // {reservationId, action: 'accept' | 'deny'}
   const [responseMessage, setResponseMessage] = useState('')
 
@@ -89,6 +90,17 @@ export default function ReservationsList() {
     updateStatut(respondingTo.reservationId, newStatut, responseMessage)
   }
 
+  const filteredReservations = filter === 'all'
+    ? reservations
+    : reservations.filter(r => r.statut === filter)
+
+  const counts = {
+    all: reservations.length,
+    en_attente: reservations.filter(r => r.statut === 'en_attente').length,
+    confirmee: reservations.filter(r => r.statut === 'confirmee').length,
+    annulee: reservations.filter(r => r.statut === 'annulee').length,
+  }
+
   if (loading) {
     return <div className="text-center py-8">Chargement...</div>
   }
@@ -109,11 +121,67 @@ export default function ReservationsList() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">
-        Demandes de réservation ({reservations.length})
+      <h2 className="text-2xl font-bold text-gray-800">
+        Demandes de réservation
       </h2>
 
-      {reservations.map(reservation => {
+      {/* Filtres */}
+      <div className="flex gap-2 flex-wrap">
+        <button
+          onClick={() => setFilter('en_attente')}
+          className={`px-4 py-2 rounded-lg font-semibold transition ${
+            filter === 'en_attente'
+              ? 'bg-yellow-500 text-white'
+              : 'bg-white text-gray-700 hover:bg-gray-50'
+          }`}
+        >
+          ⏳ En attente ({counts.en_attente})
+        </button>
+        <button
+          onClick={() => setFilter('confirmee')}
+          className={`px-4 py-2 rounded-lg font-semibold transition ${
+            filter === 'confirmee'
+              ? 'bg-green-600 text-white'
+              : 'bg-white text-gray-700 hover:bg-gray-50'
+          }`}
+        >
+          ✅ Confirmées ({counts.confirmee})
+        </button>
+        <button
+          onClick={() => setFilter('annulee')}
+          className={`px-4 py-2 rounded-lg font-semibold transition ${
+            filter === 'annulee'
+              ? 'bg-red-600 text-white'
+              : 'bg-white text-gray-700 hover:bg-gray-50'
+          }`}
+        >
+          ❌ Refusées ({counts.annulee})
+        </button>
+        <button
+          onClick={() => setFilter('all')}
+          className={`px-4 py-2 rounded-lg font-semibold transition ${
+            filter === 'all'
+              ? 'bg-purple-600 text-white'
+              : 'bg-white text-gray-700 hover:bg-gray-50'
+          }`}
+        >
+          Toutes ({counts.all})
+        </button>
+      </div>
+
+      {/* Empty state for filtered results */}
+      {filteredReservations.length === 0 && (
+        <div className="bg-white rounded-lg shadow-md p-6 text-center">
+          <p className="text-gray-600">
+            {filter === 'en_attente' && 'Aucune demande en attente'}
+            {filter === 'confirmee' && 'Aucune réservation confirmée'}
+            {filter === 'annulee' && 'Aucune réservation refusée'}
+            {filter === 'all' && 'Aucune réservation'}
+          </p>
+        </div>
+      )}
+
+      {filteredReservations.map(reservation => {
         // Get child display name based on RGPD consent
         const childName = reservation.child?.rgpd_consent_display_name
           ? reservation.child.prenom
