@@ -339,6 +339,18 @@ export default function AssistanteProfile() {
           </div>
         )}
 
+        {/* Show message if profile exists but is incomplete */}
+        {assistanteData && (
+          !formData.adresse || !formData.ville || !formData.max_kids || !schedule.some(day => day.enabled)
+        ) && (
+          <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg mb-6">
+            <p className="font-semibold">⚠️ Profil incomplet</p>
+            <p className="text-sm mt-1">
+              Veuillez renseigner votre adresse, ville, nombre d'enfants maximum et vos horaires de travail pour apparaître dans les recherches.
+            </p>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Photo de profil */}
           <div>
