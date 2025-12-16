@@ -2,13 +2,15 @@
   "permissions": {
     "allow": [
       "Bash(find:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(npm run build:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []
   },
+  "model": "opus",
   "guidance": {
     "mode": "balanced"
-  },
-  "model": "opus"
+  }
 }
