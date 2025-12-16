@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { addMonths, format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { logger } from '../../utils/logger'
+import toast from 'react-hot-toast'
 import {
   JOURS,
   generateTimeOptions,
@@ -18,7 +19,7 @@ import {
 } from '../../utils/scheduling'
 
 export default function ReservationModal({ assistante, onClose, onSuccess }) {
-  const { user } = useAuth()
+  const { user, signIn, signUp } = useAuth()
 
   // Form state
   const [dateDebut, setDateDebut] = useState('')
@@ -37,12 +38,26 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
   const [showAddChild, setShowAddChild] = useState(false)
   const [newChildName, setNewChildName] = useState('')
 
+  // Auth form state (for unauthenticated users)
+  const [authMode, setAuthMode] = useState('login') // 'login' or 'signup'
+  const [authEmail, setAuthEmail] = useState('')
+  const [authPassword, setAuthPassword] = useState('')
+  const [authNom, setAuthNom] = useState('')
+  const [authPrenom, setAuthPrenom] = useState('')
+  const [authLoading, setAuthLoading] = useState(false)
+  const [authError, setAuthError] = useState(null)
+
   const timeOptions = generateTimeOptions('06:00', '22:00')
 
-  // Load children and assistante schedule
+  // Load children and assistante schedule (only when authenticated)
   useEffect(() => {
-    loadData()
-  }, [])
+    if (user) {
+      loadData()
+    } else {
+      // Only load schedule for unauthenticated users
+      loadScheduleOnly()
+    }
+  }, [user])
 
   // Auto-populate start date with earliest availability
   useEffect(() => {
@@ -101,6 +116,49 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
       logger.error('Error loading data:', err)
     } finally {
       setLoadingData(false)
+    }
+  }
+
+  // Load only schedule for unauthenticated users
+  const loadScheduleOnly = async () => {
+    setLoadingData(true)
+    try {
+      const { data: horaires } = await supabase
+        .from('horaires_travail')
+        .select('jour, heure_debut, heure_fin')
+        .eq('assistante_id', assistante.id)
+
+      setSchedule(horaires || [])
+    } catch (err) {
+      logger.error('Error loading schedule:', err)
+    } finally {
+      setLoadingData(false)
+    }
+  }
+
+  // Handle auth form submission
+  const handleAuthSubmit = async (e) => {
+    e.preventDefault()
+    setAuthLoading(true)
+    setAuthError(null)
+
+    try {
+      if (authMode === 'login') {
+        const { error } = await signIn(authEmail, authPassword)
+        if (error) throw error
+        toast.success('Connexion reussie !')
+      } else {
+        // Sign up as parent
+        const { error } = await signUp(authEmail, authPassword, 'parent', authNom, authPrenom)
+        if (error) throw error
+        toast.success('Compte cree ! Vous pouvez maintenant reserver.')
+      }
+      // After successful auth, loadData will be called by the useEffect
+    } catch (err) {
+      logger.error('Auth error:', err)
+      setAuthError(err.message)
+    } finally {
+      setAuthLoading(false)
     }
   }
 
@@ -286,6 +344,165 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
     )
   }
 
+  // If user is not authenticated, show login/signup form
+  if (!user) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]">
+        <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+          <div className="p-6">
+            {/* Header */}
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <h2 className="text-xl font-bold text-gray-800">
+                  Reserver chez {assistante.prenom} {assistante.nom}
+                </h2>
+                <p className="text-gray-600 text-sm mt-1">
+                  {assistante.code_postal} {assistante.ville}
+                </p>
+              </div>
+              <button
+                onClick={onClose}
+                className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Auth required message */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <p className="text-blue-800 font-medium">
+                Connectez-vous pour envoyer une demande de reservation
+              </p>
+              <p className="text-sm text-blue-600 mt-1">
+                Creez un compte gratuit ou connectez-vous pour contacter cette assistante maternelle.
+              </p>
+            </div>
+
+            {/* Auth error */}
+            {authError && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+                {authError}
+              </div>
+            )}
+
+            {/* Auth form */}
+            <form onSubmit={handleAuthSubmit} className="space-y-4">
+              {authMode === 'signup' && (
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Prenom
+                    </label>
+                    <input
+                      type="text"
+                      value={authPrenom}
+                      onChange={(e) => setAuthPrenom(e.target.value)}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Nom
+                    </label>
+                    <input
+                      type="text"
+                      value={authNom}
+                      onChange={(e) => setAuthNom(e.target.value)}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={authEmail}
+                  onChange={(e) => setAuthEmail(e.target.value)}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Mot de passe
+                </label>
+                <input
+                  type="password"
+                  value={authPassword}
+                  onChange={(e) => setAuthPassword(e.target.value)}
+                  required
+                  minLength={6}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={authLoading}
+                className="w-full py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition disabled:opacity-50"
+              >
+                {authLoading
+                  ? 'Chargement...'
+                  : authMode === 'login'
+                  ? 'Se connecter'
+                  : 'Creer mon compte'}
+              </button>
+            </form>
+
+            {/* Toggle auth mode */}
+            <div className="mt-4 text-center text-sm">
+              {authMode === 'login' ? (
+                <p className="text-gray-600">
+                  Pas encore de compte ?{' '}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAuthMode('signup')
+                      setAuthError(null)
+                    }}
+                    className="text-purple-600 font-medium hover:underline"
+                  >
+                    Creer un compte
+                  </button>
+                </p>
+              ) : (
+                <p className="text-gray-600">
+                  Deja un compte ?{' '}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAuthMode('login')
+                      setAuthError(null)
+                    }}
+                    className="text-purple-600 font-medium hover:underline"
+                  >
+                    Se connecter
+                  </button>
+                </p>
+              )}
+            </div>
+
+            {/* Cancel button */}
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full mt-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition"
+            >
+              Annuler
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]">
       <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
@@ -294,7 +511,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
           <div className="flex justify-between items-start mb-6">
             <div>
               <h2 className="text-2xl font-bold text-gray-800">
-                Réserver chez {assistante.prenom} {assistante.nom}
+                Reserver chez {assistante.prenom} {assistante.nom}
               </h2>
               <p className="text-gray-600 text-sm mt-1">
                 {assistante.adresse}, {assistante.ville}

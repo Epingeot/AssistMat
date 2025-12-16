@@ -9,9 +9,9 @@ import {
 // Get today's date as a string
 const todayStr = formatDateForDB(getToday())
 
-export default function SearchBar({ onSearch }) {
-  const [ville, setVille] = useState('')
-  const [codePostal, setCodePostal] = useState('')
+export default function SearchBar({ onSearch, initialVille = '', initialCodePostal = '' }) {
+  const [ville, setVille] = useState(initialVille)
+  const [codePostal, setCodePostal] = useState(initialCodePostal)
   const [rayon, setRayon] = useState(10)
   const [typesAccueil, setTypesAccueil] = useState([])
   const [joursRecherches, setJoursRecherches] = useState([])

@@ -1,6 +1,6 @@
 import { JOURS, JOURS_COURTS, formatTime, calculateAvgHoursPerMonth, calculateWeeklyHours, getToday } from '../../utils/scheduling'
 
-export default function AssistanteCard({ assistante, onSelect }) {
+export default function AssistanteCard({ assistante, onSelect, showContactInfo = true }) {
   // Build schedule summary from horaires_travail if available
   const getScheduleSummary = () => {
     if (!assistante.horaires_travail || assistante.horaires_travail.length === 0) {
@@ -47,7 +47,7 @@ export default function AssistanteCard({ assistante, onSelect }) {
             {assistante.prenom} {assistante.nom}
           </h3>
           <p className="text-sm text-gray-600">
-            📍 {assistante.adresse}, {assistante.code_postal} {assistante.ville}
+            📍 {showContactInfo ? `${assistante.adresse}, ` : ''}{assistante.code_postal} {assistante.ville}
           </p>
         </div>
 
@@ -208,33 +208,41 @@ export default function AssistanteCard({ assistante, onSelect }) {
       {/* Contact Information */}
       {(assistante.telephone || assistante.email) && (
         <div className="mt-3 pt-3 border-t border-gray-200">
-          <p className="text-xs font-medium text-gray-700 mb-2">Contact :</p>
-          <div className="space-y-1">
-            {assistante.telephone && (
-              <div className="flex items-center gap-2">
-                <span className="text-sm">📞</span>
-                <a
-                  href={`tel:${assistante.telephone}`}
-                  className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {assistante.telephone}
-                </a>
+          {showContactInfo ? (
+            <>
+              <p className="text-xs font-medium text-gray-700 mb-2">Contact :</p>
+              <div className="space-y-1">
+                {assistante.telephone && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">📞</span>
+                    <a
+                      href={`tel:${assistante.telephone}`}
+                      className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {assistante.telephone}
+                    </a>
+                  </div>
+                )}
+                {assistante.email && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">✉️</span>
+                    <a
+                      href={`mailto:${assistante.email}`}
+                      className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {assistante.email}
+                    </a>
+                  </div>
+                )}
               </div>
-            )}
-            {assistante.email && (
-              <div className="flex items-center gap-2">
-                <span className="text-sm">✉️</span>
-                <a
-                  href={`mailto:${assistante.email}`}
-                  className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {assistante.email}
-                </a>
-              </div>
-            )}
-          </div>
+            </>
+          ) : (
+            <p className="text-xs text-gray-500 italic">
+              Connectez-vous pour voir les coordonnées
+            </p>
+          )}
         </div>
       )}
     </div>

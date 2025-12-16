@@ -4,6 +4,8 @@ import { NotificationProvider } from './contexts/NotificationContext'
 import AuthForm from './components/Auth/AuthForm'
 import AssistanteDashboard from './pages/AssistanteDashboard'
 import ParentDashboard from './pages/ParentDashboard'
+import LandingPage from './pages/LandingPage'
+import PublicSearchPage from './pages/PublicSearchPage'
 import Disclaimer from './pages/Disclaimer'
 import { logger } from './utils/logger'
 import ErrorBoundary from './components/ErrorBoundary'
@@ -52,13 +54,16 @@ function AppRoutes() {
 
   return (
     <Routes>
-      <Route 
-        path="/login" 
+      {/* Public routes */}
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/search" element={<PublicSearchPage />} />
+      <Route
+        path="/login"
         element={
           user ? (
             <>
-              {logger.log('🚦 Login route: User exists, redirecting to /')}
-              <Navigate to="/" replace />
+              {logger.log('🚦 Login route: User exists, redirecting to /dashboard')}
+              <Navigate to="/dashboard" replace />
             </>
           ) : (
             <>
@@ -66,13 +71,16 @@ function AppRoutes() {
               <AuthForm />
             </>
           )
-        }  
+        }
       />
+      <Route path="/disclaimer" element={<Disclaimer />} />
+
+      {/* Protected routes */}
       <Route
-        path="/"
+        path="/dashboard"
         element={
           <ProtectedRoute>
-            {logger.log('🚦 Home route: Showing dashboard for role:', profile?.role)}
+            {logger.log('🚦 Dashboard route: Showing dashboard for role:', profile?.role)}
             {profile?.role === 'assistante' ? (
               <AssistanteDashboard />
             ) : (
@@ -81,7 +89,6 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
-      <Route path="/disclaimer" element={<Disclaimer />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
