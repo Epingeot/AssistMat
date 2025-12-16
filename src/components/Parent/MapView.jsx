@@ -24,7 +24,7 @@ const redIcon = L.divIcon({
       width: 25px;
       height: 25px;
       background-color: #ef4444;
-      border: 3px solid white;
+      border: 2px solid white;
       border-radius: 50%;
       box-shadow: 0 2px 4px rgba(0,0,0,0.3);
       position: relative;
@@ -36,8 +36,8 @@ const redIcon = L.divIcon({
         transform: translate(-50%, -50%);
         color: white;
         font-weight: bold;
-        font-size: 16px;
-      ">⚠</div>
+        font-size: 12px;
+      ">✗</div>
     </div>
   `,
   iconSize: [25, 25],
@@ -52,7 +52,7 @@ const greenIcon = L.divIcon({
       width: 25px;
       height: 25px;
       background-color: #10b981;
-      border: 3px solid white;
+      border: 2px solid white;
       border-radius: 50%;
       box-shadow: 0 2px 4px rgba(0,0,0,0.3);
       position: relative;
