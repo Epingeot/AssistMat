@@ -237,6 +237,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
           child_id: selectedChild,
           date_debut: dateDebut,
           date_fin: isRemplacement && dateFin ? dateFin : null,
+          is_remplacement: isRemplacement,
           statut: 'en_attente',
           notes: notes.trim() || null
         }])

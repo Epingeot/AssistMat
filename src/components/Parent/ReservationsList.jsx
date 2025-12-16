@@ -154,7 +154,7 @@ export default function ReservationsList() {
       {/* Liste des réservations */}
       <div className="space-y-4">
         {filteredReservations.map(reservation => {
-          const isRemplacement = !!reservation.date_fin
+          const isRemplacement = reservation.is_remplacement
           const duree = isRemplacement
             ? formatDuration(parseLocalDate(reservation.date_debut), parseLocalDate(reservation.date_fin))
             : null
