@@ -23,7 +23,7 @@ export default function Disclaimer() {
             </p>
 
             <p>
-              Les informations affichées (disponibilités, tarifs, horaires, agrément, présentation) sont déclarées directement par les assistant(e)s maternel(le)s, qui en sont seules responsables.
+              Les informations affichées (disponibilités, horaires, agrément, présentation) sont déclarées directement par les assistant(e)s maternel(le)s, qui en sont seules responsables.
             </p>
 
             <p>
