@@ -12,7 +12,6 @@ When you help me:
 - Be explicit and concrete
 - Show full file paths and complete code files when needed, not just fragments, unless we’re clearly editing an existing section.
 - Specify exact commands to run, where to run them (e.g., project root, terminal, browser), and any prerequisites.
-- Explain web-specific concepts in simple terms
 - When you use web concepts (e.g., REST APIs, frontend vs backend, routing, components, build tools, frameworks), give a short, practical explanation. Relate them to things I might know from C/C++/C# where possible.
 - Error handling and debugging
 If something might fail, tell me what common errors look like and how to diagnose them.
@@ -59,3 +58,34 @@ When analyzing or modifying code:
 - Avoid scanning the entire repository unless I specifically request it.
 - Prefer working within a scope of 1–3 files at a time.
 - Ask before expanding to additional directories or modules.
+
+## Design System
+
+Brand colors are defined in `tailwind.config.js` under `theme.extend.colors`.
+
+### Rules for all UI work
+- Always use Tailwind color utilities for colors (`bg-primary`, `text-base`, `border-azure`, etc.).
+- Never hardcode hex values directly in components or inline styles.
+- Use **semantic names** (`primary`, `secondary`, `surface`) in components.
+- Use **brand names** (`lime`, `azure`, `magenta`) only for explicit brand moments.
+
+**Exception — email templates:** Supabase auth emails (and any other HTML emails) must use inline hex values, because most email clients strip `<style>` blocks and do not support Tailwind or external CSS. When editing email templates, reference the hex values from the token table below and keep them in sync if brand colors change.
+
+### Color token reference
+
+| Token       | Hex       | Use for                               |
+|-------------|-----------|---------------------------------------|
+| `primary`   | #95D2DB   | Buttons, links, interactive elements  |
+| `secondary` | #EC52A6   | Accents, badges, highlights           |
+| `accent`    | #C5D300   | Active states, brand pop              |
+| `surface`   | #F4F1E2   | Cards, panels, modals                 |
+| `text-base` | #2D3035   | All body and heading text             |
+| `success`   | #C5D300   | Available slots, confirmations        |
+| `warning`   | #FFAC33   | Caution, pending states               |
+| `error`     | #F25833   | Errors, destructive actions           |
+| `info`      | #5672BC   | Informational messages                |
+| `azure`     | #95D2DB   | Childminder identity                  |
+| `magenta`   | #EC52A6   | Child identity                        |
+| `lime`      | #C5D300   | Brand background                      |
+| `peach`     | #DD8573   | Warmth, skin tone accents             |
+| `cream`     | #F4F1E2   | Soft neutral backgrounds              |

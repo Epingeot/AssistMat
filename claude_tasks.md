@@ -1,21 +1,20 @@
 # Project Tasks & Improvements
 
-## 🔄 Session Context (Last updated: 2025-12-13)
+## 🔄 Session Context (Last updated: 2026-04-13)
 
 **Recent work:**
-- Added app version update notification (UpdateNotification component + SW versioning)
-- Added in-app real-time notifications for reservations (NotificationContext using Supabase Realtime)
+- Linked custom domain `assistmat.com` (Gandi) to Vercel with SSL on apex and `www`
+- Updated Supabase Auth URL Configuration (Site URL + redirect allowlist for new domain)
+- Set up Resend as custom SMTP provider, sending from `noreply@assistmat.com`
+  - DNS records at Gandi: DKIM (TXT), SPF (MX + TXT), DMARC (TXT)
+  - Supabase SMTP: host `smtp.resend.com`, port 465, user `resend`, password = Resend API key
+- Customized Supabase auth email templates with AssistMat branding (French, brand colors):
+  - Confirm signup, Reset Password, Change Email Address (Magic Link / Invite / Reauth left default)
+- Added brand color tokens + email-template hex exception note in CLAUDE.md
 
-**Key files for notifications:**
-- `src/contexts/NotificationContext.jsx` - Real-time subscription to reservations table
-- `src/components/UpdateNotification.jsx` - PWA version update banner
-- `public/sw.js` - Service worker with SW_VERSION constant
+**Previous session (2025-12-16):** Public search + landing page (LandingPage.jsx, PublicSearchPage.jsx, showContactInfo prop, inline auth in ReservationModal)
 
-**Pending notification phases:**
-- Phase 2: Email notifications (blocked: need custom domain for Resend)
-- Phase 3: Push notifications (can use Web Push API, no domain needed)
-
-**Branch status:** All merged to main, ready to push
+**Branch status:** main, up to date with origin. No code changes this session — config (Vercel, Gandi, Supabase, Resend) + CLAUDE.md.
 
 ---
 
@@ -31,7 +30,7 @@
 - [x] in the assistant schedule, in the reservations popup, clicking on one of the reservations opens the reservation details (in popup?) with possibility to add/edit the end date. this is in cases when a parent ends/changes the contract - Fixed 2025-12-15
 - [x] assistants see only pending reservations by default. with an option to see confirmed or denied demands - Fixed 2025-12-15 (added filter buttons with pending as default)
 - [x] add notifications (email/txt/in app) when reservations are received/accepted/denied - In progress: Phase 1 (in-app) done 2025-12-13, email/push pending domain setup
-- [ ] allow parents to search/view assistants without login in/registering. only require auth to make a reservation. at this point present the registration page in the reservation form (option to login if already registered). Home page is now a landing page (explains how the app works, highlight features, show reviews). use https://www.nounou-top.fr/annonces as example
+- [x] allow parents to search/view assistants without login in/registering. only require auth to make a reservation. at this point present the registration page in the reservation form (option to login if already registered). Home page is now a landing page (explains how the app works, highlight features, show reviews). use https://www.nounou-top.fr/annonces as example - Fixed 2025-12-16
 - [ ] add a system of scoring (stars) and comments on assistants. Show the stars in the assistant card, with a way to see comments. assistants can see their score and comments too
 
 
@@ -42,7 +41,10 @@
 - [x] move the "start date" and "Uniquement les disponibles" filters out of the "filtres avances" and make it a dynamic display option. Start date is today by default. in map view assistant that are not disponible for the start date are marked with a red marker - Fixed 2025-12-10
 - [ ] availability granularity to the hour: if an assistant has a 4+ hour block available during the day, show that day as available in the reservation form but reduce the time range to the available range and add a comment (e.g., "from 12h to 16h only")
 - [x] in the request list (both parent and assistant) make the parent note and assistant response look like a text message conversation (parent on the left, assistant on the right) - Fixed 2025-12-15
-
+- [ ] add a home link to the Register/login pages to go back to the landing page
+- [x] customize Supabase auth emails with AssistMat branding in French + configure Resend SMTP to send from `noreply@assistmat.com` - Fixed 2026-04-13 (Confirm signup, Reset password, Change email done; Magic Link/Invite/Reauth left default)
+- [ ] improve post-signup UX: after "Inscription réussie ! Vérifiez votre email." the S'inscrire button stays enabled. Disable it after success, and/or redirect to the login page after a few seconds (with a visible countdown/message)
+- [ ] Apply brand color tokens from tailwind.config.js across all existing components, replacing any hardcoded hex values or generic Tailwind colors (e.g. blue-500) with semantic tokens (primary, secondary, accent, surface, text-base, success, warning, error, info).
 
 ## 📘 Notes for Claude
 - Always avoid scanning the entire repo.
