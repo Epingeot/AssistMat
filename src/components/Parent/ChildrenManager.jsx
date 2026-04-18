@@ -198,7 +198,7 @@ export default function ChildrenManager() {
         {!showAddForm && (
           <button
             onClick={() => setShowAddForm(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium text-sm"
+            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition font-medium text-sm"
           >
             + Ajouter un enfant
           </button>
@@ -207,7 +207,7 @@ export default function ChildrenManager() {
 
       {/* Add/Edit Form */}
       {showAddForm && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
           <h3 className="font-semibold text-gray-800 mb-4">
             {editingChild ? 'Modifier un enfant' : 'Ajouter un enfant'}
           </h3>
@@ -223,7 +223,7 @@ export default function ChildrenManager() {
                   onChange={(e) => setFormData({ ...formData, prenom: e.target.value })}
                   placeholder="Ex: Emma"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
               </div>
               <div>
@@ -235,7 +235,7 @@ export default function ChildrenManager() {
                   value={formData.date_naissance}
                   onChange={(e) => setFormData({ ...formData, date_naissance: e.target.value })}
                   max={formatDateForDB(getToday())}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
               </div>
             </div>
@@ -247,7 +247,7 @@ export default function ChildrenManager() {
                   type="checkbox"
                   checked={formData.rgpd_consent_display_name}
                   onChange={(e) => setFormData({ ...formData, rgpd_consent_display_name: e.target.checked })}
-                  className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="mt-1 h-4 w-4 accent-primary focus:ring-primary border-gray-300 rounded"
                 />
                 <div>
                   <div className="font-medium text-gray-900">
@@ -274,7 +274,7 @@ export default function ChildrenManager() {
               <button
                 type="submit"
                 disabled={saving}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium disabled:opacity-50"
+                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition font-medium disabled:opacity-50"
               >
                 {saving ? 'Enregistrement...' : editingChild ? 'Modifier' : 'Ajouter'}
               </button>
@@ -293,7 +293,7 @@ export default function ChildrenManager() {
           {!showAddForm && (
             <button
               onClick={() => setShowAddForm(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
+              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition font-medium"
             >
               Ajouter votre premier enfant
             </button>
@@ -308,7 +308,7 @@ export default function ChildrenManager() {
             >
               <div className="flex items-center gap-4">
                 {/* Avatar */}
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                <div className="w-12 h-12 bg-gradient-to-br from-secondary to-peach rounded-full flex items-center justify-center text-white font-bold text-lg">
                   {child.prenom.charAt(0).toUpperCase()}
                 </div>
 
@@ -336,7 +336,7 @@ export default function ChildrenManager() {
                   onClick={() => toggleConsent(child)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
                     child.rgpd_consent_display_name
-                      ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                      ? 'bg-accent/20 text-text-base hover:bg-accent/30'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
                   title={child.rgpd_consent_display_name
@@ -349,7 +349,7 @@ export default function ChildrenManager() {
                 {/* Edit */}
                 <button
                   onClick={() => handleEdit(child)}
-                  className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                  className="p-2 text-gray-500 hover:text-primary hover:bg-primary/10 rounded-lg transition"
                   title="Modifier"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -360,7 +360,7 @@ export default function ChildrenManager() {
                 {/* Delete */}
                 <button
                   onClick={() => handleDelete(child.id)}
-                  className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+                  className="p-2 text-gray-500 hover:text-error hover:bg-error/10 rounded-lg transition"
                   title="Supprimer"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

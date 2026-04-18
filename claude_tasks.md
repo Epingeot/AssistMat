@@ -1,20 +1,16 @@
 # Project Tasks & Improvements
 
-## 🔄 Session Context (Last updated: 2026-04-13)
+## 🔄 Session Context (Last updated: 2026-04-17)
 
 **Recent work:**
-- Linked custom domain `assistmat.com` (Gandi) to Vercel with SSL on apex and `www`
-- Updated Supabase Auth URL Configuration (Site URL + redirect allowlist for new domain)
-- Set up Resend as custom SMTP provider, sending from `noreply@assistmat.com`
-  - DNS records at Gandi: DKIM (TXT), SPF (MX + TXT), DMARC (TXT)
-  - Supabase SMTP: host `smtp.resend.com`, port 465, user `resend`, password = Resend API key
-- Customized Supabase auth email templates with AssistMat branding (French, brand colors):
-  - Confirm signup, Reset Password, Change Email Address (Magic Link / Invite / Reauth left default)
-- Added brand color tokens + email-template hex exception note in CLAUDE.md
+- Applied brand color tokens across all UI components (chose Option 1: colored/branded uses only, gray/neutral deferred)
+- Files updated: ScheduleEditor, ParentDashboard, ChildrenManager, SearchBar, AssistanteCard, both ReservationsLists, NotificationContext, AssistanteProfile, AvailabilityCalendar, ReservationModal, LandingPage
+- Established semantic mapping: assistante=primary/azure, child=secondary/magenta, garden=accent/lime, pets=peach, pending/CDD=warning, confirmed=success, errors=error
+- Native checkboxes switched from `text-*` to `accent-*` (only `accent-color` actually fills the checkbox)
+- Gradients on submit buttons replaced with solid `bg-primary` per user pref
+- Documented hex exceptions: react-hot-toast inline styles (App.jsx, NotificationContext.jsx) + Leaflet divIcon HTML (MapView.jsx)
 
-**Previous session (2025-12-16):** Public search + landing page (LandingPage.jsx, PublicSearchPage.jsx, showContactInfo prop, inline auth in ReservationModal)
-
-**Branch status:** main, up to date with origin. No code changes this session — config (Vercel, Gandi, Supabase, Resend) + CLAUDE.md.
+**Branch status:** main, uncommitted changes across ~12 component files. `claude_tasks.md` and `"Resend API key.txt"` still untracked.
 
 ---
 
@@ -23,6 +19,9 @@
 - [x] in both assistante and parents reservation list the slots are not showing up - Fixed 2025-12-08 (converted integer jour to day name)
 - [x] in the assistant schedule reserved/pending slots slots are not showing
 - [x] in the reservation list, if the "duree" of a remplacement is less than a month or not a full month value, the duree is not correct (eg if the remplacement is for 15 days, duree = 0 months) - Fixed 2025-12-13 (added formatDuration utility that shows days/months properly)
+- [ ] on the login page, when entering wrong credentials an error message shows at the top of the login window. Clicking "S'inscrire" to switch to signup mode does not clear the message — it should reset when toggling between login and signup.
+- [ ] when adding a child in the parent profile with an empty first name, the browser shows an English validation message "Please fill out this field". All validation messages must be in French (likely caused by a native HTML `required` attribute — replace with custom French validation or set the input's `title`/use `setCustomValidity`).
+- [ ] clicking "Rechercher" on the public search / parent dashboard fails with Postgres error `column am.location does not exist`. The error is raised inside the RPC function `rechercher_assistantes_par_distance`. Investigate: check if the `location` column (PostGIS point) still exists on `assistantes_maternelles`, or if the function uses a wrong table alias / out-of-date reference. Fix in Supabase SQL editor (Database → Functions).
 
 ## ✨ Features
 - [x] when an assistant accepts or denies a reservation let them add a message. is it easy to add an in-app messaging system? is it worth it? an better idea to facilitate the reservation flow. probably not necessary beyond that as the parent and assistant will exchange numbers from there on
@@ -32,6 +31,9 @@
 - [x] add notifications (email/txt/in app) when reservations are received/accepted/denied - In progress: Phase 1 (in-app) done 2025-12-13, email/push pending domain setup
 - [x] allow parents to search/view assistants without login in/registering. only require auth to make a reservation. at this point present the registration page in the reservation form (option to login if already registered). Home page is now a landing page (explains how the app works, highlight features, show reviews). use https://www.nounou-top.fr/annonces as example - Fixed 2025-12-16
 - [ ] add a system of scoring (stars) and comments on assistants. Show the stars in the assistant card, with a way to see comments. assistants can see their score and comments too
+- [ ] make a landing page for assistantes maternelles, with ability to switch between parent and assistante maternelle landing pages
+- [ ] change the reservation mechanism to a conversation/messaging flow with a few back-and-forth exchanges. The assistante then manually enters confirmed reservations in her planning
+- [ ] add extra optional information checkboxes for assistantes (complete list to follow)
 
 
 ## 🔧 Enhancements
@@ -44,7 +46,11 @@
 - [ ] add a home link to the Register/login pages to go back to the landing page
 - [x] customize Supabase auth emails with AssistMat branding in French + configure Resend SMTP to send from `noreply@assistmat.com` - Fixed 2026-04-13 (Confirm signup, Reset password, Change email done; Magic Link/Invite/Reauth left default)
 - [ ] improve post-signup UX: after "Inscription réussie ! Vérifiez votre email." the S'inscrire button stays enabled. Disable it after success, and/or redirect to the login page after a few seconds (with a visible countdown/message)
-- [ ] Apply brand color tokens from tailwind.config.js across all existing components, replacing any hardcoded hex values or generic Tailwind colors (e.g. blue-500) with semantic tokens (primary, secondary, accent, surface, text-base, success, warning, error, info).
+- [x] Apply brand color tokens from tailwind.config.js across all existing components, replacing any hardcoded hex values or generic Tailwind colors (e.g. blue-500) with semantic tokens (primary, secondary, accent, surface, text-base, success, warning, error, info). - Fixed 2026-04-17 (colored/branded uses only; gray/neutral deferred per follow-up task)
+- [ ] Follow-up to brand color pass: decide how to handle generic gray/neutral Tailwind classes (`bg-gray-*`, `text-gray-*`, `border-gray-*`, `slate/zinc/neutral/stone-*`). Options: leave as-is, map to existing `surface`/`text-base`/`text-muted` tokens, or add a neutral scale token to `tailwind.config.js`. ~400 occurrences across components — requires visual review before bulk replace.
+- [ ] replace the term "reservation" with "mise en relation" throughout the UI (labels, buttons, messages, emails)
+- [ ] rename "Semaines de vacances" to "Semaines d'absence" on the assistante profile/availability, and raise the max value to 20
+- [ ] make the optional criteria non-filtering in search: instead of excluding assistantes that don't match, use them to sort results by number of matching criteria (descending)
 
 ## 📘 Notes for Claude
 - Always avoid scanning the entire repo.

@@ -319,19 +319,19 @@ export default function AssistanteProfile() {
         </h2>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+          <div className="bg-error/10 border border-error/30 text-error px-4 py-3 rounded-lg mb-4">
             {error}
           </div>
         )}
 
         {message && (
-          <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-4">
+          <div className="bg-success/10 border border-success/30 text-text-base px-4 py-3 rounded-lg mb-4">
             {message}
           </div>
         )}
 
         {!assistanteData && (
-          <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-lg mb-6">
+          <div className="bg-primary/10 border border-primary/30 text-primary px-4 py-3 rounded-lg mb-6">
             <p className="font-semibold">👋 Bienvenue !</p>
             <p className="text-sm mt-1">
               Complétez votre profil professionnel pour que les parents puissent vous trouver.
@@ -343,7 +343,7 @@ export default function AssistanteProfile() {
         {assistanteData && (
           !formData.adresse || !formData.ville || !formData.max_kids || !schedule.some(day => day.enabled)
         ) && (
-          <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg mb-6">
+          <div className="bg-warning/10 border border-warning/30 text-warning px-4 py-3 rounded-lg mb-6">
             <p className="font-semibold">⚠️ Profil incomplet</p>
             <p className="text-sm mt-1">
               Veuillez renseigner votre adresse, ville, nombre d'enfants maximum et vos horaires de travail pour apparaître dans les recherches.
@@ -364,7 +364,7 @@ export default function AssistanteProfile() {
                   <img
                     src={photoPreview}
                     alt="Aperçu photo"
-                    className="w-24 h-24 rounded-full object-cover border-2 border-purple-200"
+                    className="w-24 h-24 rounded-full object-cover border-2 border-primary/30"
                   />
                 ) : (
                   <div className="w-24 h-24 rounded-full bg-gray-100 border-2 border-gray-300 flex items-center justify-center">
@@ -414,11 +414,11 @@ export default function AssistanteProfile() {
           />
           {/* Afficher l'adresse validée seulement si nouvellement sélectionnée */}
           {validatedAddress && validatedAddress.latitude && validatedAddress.longitude && (
-            <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-sm font-semibold text-green-800 mb-1">
+            <div className="p-3 bg-success/10 border border-success/30 rounded-lg">
+              <p className="text-sm font-semibold text-text-base mb-1">
                 ✅ Adresse validée
               </p>
-              <p className="text-sm text-green-700">
+              <p className="text-sm text-text-base">
                 {validatedAddress.fullAddress}
               </p>
             </div>
@@ -473,7 +473,7 @@ export default function AssistanteProfile() {
                   onChange={handleChange}
                   placeholder="06 12 34 56 78"
                   autoComplete="tel"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
               </div>
               <div>
@@ -487,7 +487,7 @@ export default function AssistanteProfile() {
                   onChange={handleChange}
                   placeholder="votre@email.com"
                   autoComplete="email"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
               </div>
             </div>
@@ -507,7 +507,7 @@ export default function AssistanteProfile() {
                 value={formData.max_kids}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               >
                 {[1, 2, 3, 4].map(n => (
                   <option key={n} value={n}>{n} enfant{n > 1 ? 's' : ''}</option>
@@ -523,7 +523,7 @@ export default function AssistanteProfile() {
                 name="max_days_per_week_per_kid"
                 value={formData.max_days_per_week_per_kid}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               >
                 {[1, 2, 3, 4, 5, 6, 7].map(n => (
                   <option key={n} value={n}>{n} jour{n > 1 ? 's' : ''}/semaine</option>
@@ -539,7 +539,7 @@ export default function AssistanteProfile() {
                 name="vacation_weeks"
                 value={formData.vacation_weeks}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               >
                 {[0, 1, 2, 3, 4, 5, 6, 7, 8].map(n => (
                   <option key={n} value={n}>{n} semaine{n > 1 ? 's' : ''}</option>
@@ -562,26 +562,26 @@ export default function AssistanteProfile() {
               Services proposés (optionnel)
             </label>
             <div className="space-y-2">
-              <label className="flex items-start gap-3 p-3 border border-gray-300 rounded-lg hover:bg-purple-50 cursor-pointer transition">
+              <label className="flex items-start gap-3 p-3 border border-gray-300 rounded-lg hover:bg-primary/5 cursor-pointer transition">
                 <input
                   type="checkbox"
                   name="accepts_periscolaire"
                   checked={formData.accepts_periscolaire}
                   onChange={handleChange}
-                  className="mt-1 h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                  className="mt-1 h-4 w-4 accent-primary focus:ring-primary border-gray-300 rounded"
                 />
                 <div className="flex-1">
                   <div className="font-medium text-gray-900">Accueil périscolaire</div>
                   <div className="text-xs text-gray-500">Avant/après l'école, mercredis, vacances scolaires</div>
                 </div>
               </label>
-              <label className="flex items-start gap-3 p-3 border border-gray-300 rounded-lg hover:bg-purple-50 cursor-pointer transition">
+              <label className="flex items-start gap-3 p-3 border border-gray-300 rounded-lg hover:bg-primary/5 cursor-pointer transition">
                 <input
                   type="checkbox"
                   name="accepts_remplacements"
                   checked={formData.accepts_remplacements}
                   onChange={handleChange}
-                  className="mt-1 h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                  className="mt-1 h-4 w-4 accent-primary focus:ring-primary border-gray-300 rounded"
                 />
                 <div className="flex-1">
                   <div className="font-medium text-gray-900">Disponible pour remplacements</div>
@@ -604,7 +604,7 @@ export default function AssistanteProfile() {
                 onChange={handleChange}
                 placeholder="Ex: 075123456"
                 autoComplete="off"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               />
             </div>
             <div>
@@ -616,7 +616,7 @@ export default function AssistanteProfile() {
                 name="agrement_date"
                 value={formData.agrement_date}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               />
             </div>
           </div>
@@ -632,7 +632,7 @@ export default function AssistanteProfile() {
               onChange={handleChange}
               rows="4"
               placeholder="Présentez-vous et décrivez votre cadre d'accueil..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
             />
           </div>
 
@@ -643,13 +643,13 @@ export default function AssistanteProfile() {
             </label>
             <div className="space-y-3">
               {/* Jardin */}
-              <label className="flex items-center gap-3 p-3 border border-gray-300 rounded-lg hover:bg-purple-50 cursor-pointer transition">
+              <label className="flex items-center gap-3 p-3 border border-gray-300 rounded-lg hover:bg-primary/5 cursor-pointer transition">
                 <input
                   type="checkbox"
                   name="has_garden"
                   checked={formData.has_garden}
                   onChange={handleChange}
-                  className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                  className="h-4 w-4 accent-primary focus:ring-primary border-gray-300 rounded"
                 />
                 <div className="flex-1">
                   <div className="font-medium text-gray-900">Jardin disponible</div>
@@ -658,13 +658,13 @@ export default function AssistanteProfile() {
               </label>
 
               {/* Animaux */}
-              <label className="flex items-center gap-3 p-3 border border-gray-300 rounded-lg hover:bg-purple-50 cursor-pointer transition">
+              <label className="flex items-center gap-3 p-3 border border-gray-300 rounded-lg hover:bg-primary/5 cursor-pointer transition">
                 <input
                   type="checkbox"
                   name="has_pets"
                   checked={formData.has_pets}
                   onChange={handleChange}
-                  className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                  className="h-4 w-4 accent-primary focus:ring-primary border-gray-300 rounded"
                 />
                 <div className="flex-1">
                   <div className="font-medium text-gray-900">Présence d'animaux</div>
@@ -681,7 +681,7 @@ export default function AssistanteProfile() {
                     value={formData.pets_description}
                     onChange={handleChange}
                     placeholder="Ex: 1 chat, 1 petit chien (Yorkshire)..."
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
                   />
                   <p className="text-xs text-gray-500 mt-1 ml-1">
                     Précisez le type et la race des animaux
@@ -695,7 +695,7 @@ export default function AssistanteProfile() {
           <button
             type="submit"
             disabled={saving}
-            className="w-full bg-gradient-to-r from-purple-500 to-pink-600 text-white py-3 md:py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-700 transition disabled:opacity-50 disabled:cursor-not-allowed text-base active:scale-98"
+            className="w-full bg-primary text-white py-3 md:py-3 rounded-lg font-semibold hover:bg-primary/90 transition disabled:opacity-50 disabled:cursor-not-allowed text-base active:scale-98"
           >
             {saving ? 'Sauvegarde en cours...' : 'Enregistrer mon profil'}
           </button>

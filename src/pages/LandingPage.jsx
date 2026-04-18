@@ -31,12 +31,12 @@ export default function LandingPage() {
       {/* Navigation */}
       <nav className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-purple-600">AssistMat</h1>
+          <h1 className="text-2xl font-bold text-primary">AssistMat</h1>
           <div className="flex items-center gap-4">
             {user ? (
               <button
                 onClick={handleDashboardClick}
-                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-semibold"
+                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition font-semibold"
               >
                 Mon espace
               </button>
@@ -44,13 +44,13 @@ export default function LandingPage() {
               <>
                 <Link
                   to="/login"
-                  className="text-gray-600 hover:text-purple-600 font-medium"
+                  className="text-gray-600 hover:text-primary font-medium"
                 >
                   Connexion
                 </Link>
                 <Link
                   to="/login"
-                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-semibold"
+                  className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition font-semibold"
                 >
                   Inscription
                 </Link>
@@ -61,7 +61,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-purple-600 to-pink-500 text-white py-20 px-4">
+      <section className="bg-gradient-to-br from-peach to-secondary text-white py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
             Trouvez l'assistante maternelle idéale
@@ -78,11 +78,11 @@ export default function LandingPage() {
                 value={searchCity}
                 onChange={(e) => setSearchCity(e.target.value)}
                 placeholder="Entrez votre ville ou code postal..."
-                className="flex-1 px-5 py-4 rounded-lg text-gray-800 text-lg focus:ring-4 focus:ring-purple-300 outline-none"
+                className="flex-1 px-5 py-4 rounded-lg text-gray-800 text-lg focus:ring-4 focus:ring-primary/50 outline-none"
               />
               <button
                 type="submit"
-                className="px-8 py-4 bg-yellow-400 text-gray-900 rounded-lg font-bold text-lg hover:bg-yellow-300 transition shadow-lg"
+                className="px-8 py-4 bg-accent text-gray-900 rounded-lg font-bold text-lg hover:bg-accent/90 transition shadow-lg"
               >
                 Rechercher
               </button>
@@ -105,8 +105,8 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-3 gap-8">
             {/* Feature 1 */}
             <div className="text-center p-6">
-              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                 </svg>
               </div>
@@ -118,8 +118,8 @@ export default function LandingPage() {
 
             {/* Feature 2 */}
             <div className="text-center p-6">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
@@ -131,8 +131,8 @@ export default function LandingPage() {
 
             {/* Feature 3 */}
             <div className="text-center p-6">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
@@ -157,7 +157,7 @@ export default function LandingPage() {
             {/* Step 1 */}
             <div className="relative">
               <div className="bg-white rounded-lg p-6 shadow-md">
-                <div className="w-10 h-10 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-lg mb-4">
+                <div className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold text-lg mb-4">
                   1
                 </div>
                 <h4 className="text-xl font-semibold text-gray-800 mb-3">Recherchez</h4>
@@ -170,7 +170,7 @@ export default function LandingPage() {
             {/* Step 2 */}
             <div className="relative">
               <div className="bg-white rounded-lg p-6 shadow-md">
-                <div className="w-10 h-10 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-lg mb-4">
+                <div className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold text-lg mb-4">
                   2
                 </div>
                 <h4 className="text-xl font-semibold text-gray-800 mb-3">Comparez</h4>
@@ -183,7 +183,7 @@ export default function LandingPage() {
             {/* Step 3 */}
             <div className="relative">
               <div className="bg-white rounded-lg p-6 shadow-md">
-                <div className="w-10 h-10 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-lg mb-4">
+                <div className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold text-lg mb-4">
                   3
                 </div>
                 <h4 className="text-xl font-semibold text-gray-800 mb-3">Reservez</h4>
@@ -207,7 +207,7 @@ export default function LandingPage() {
             <div className="bg-gray-50 rounded-lg p-6">
               <div className="flex items-center mb-4">
                 {[1, 2, 3, 4, 5].map((star) => (
-                  <svg key={star} className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                  <svg key={star} className="w-5 h-5 text-warning" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                   </svg>
                 ))}
@@ -224,7 +224,7 @@ export default function LandingPage() {
       */}
 
       {/* CTA Section */}
-      <section className="py-20 px-4 bg-gradient-to-br from-purple-600 to-pink-500 text-white">
+      <section className="py-20 px-4 bg-gradient-to-br from-peach to-secondary text-white">
         <div className="max-w-4xl mx-auto text-center">
           <h3 className="text-3xl md:text-4xl font-bold mb-6">
             Prêt à trouver votre assistante maternelle ?
@@ -235,7 +235,7 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/search"
-              className="px-8 py-4 bg-yellow-400 text-gray-900 rounded-lg font-bold text-lg hover:bg-yellow-300 transition shadow-lg"
+              className="px-8 py-4 bg-accent text-gray-900 rounded-lg font-bold text-lg hover:bg-accent/90 transition shadow-lg"
             >
               Commencer la recherche
             </Link>

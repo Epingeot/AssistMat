@@ -250,7 +250,7 @@ export const AuthProvider = ({ children }) => {
         <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
           <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
             <div className="text-center mb-6">
-              <div className="text-red-500 text-6xl mb-4">🔒</div>
+              <div className="text-error text-6xl mb-4">🔒</div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
                 Erreur d'authentification
               </h2>
@@ -264,7 +264,7 @@ export const AuthProvider = ({ children }) => {
                 <summary className="cursor-pointer text-gray-600 hover:text-gray-900">
                   Détails de l'erreur
                 </summary>
-                <pre className="mt-2 p-3 bg-gray-100 rounded overflow-auto text-red-600 max-h-32">
+                <pre className="mt-2 p-3 bg-gray-100 rounded overflow-auto text-error max-h-32">
                   {error?.toString()}
                 </pre>
               </details>
@@ -275,7 +275,7 @@ export const AuthProvider = ({ children }) => {
                 await supabase.auth.signOut()
                 window.location.href = '/login'
               }}
-              className="w-full bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition font-medium"
+              className="w-full bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition font-medium"
             >
               Se déconnecter et réessayer
             </button>

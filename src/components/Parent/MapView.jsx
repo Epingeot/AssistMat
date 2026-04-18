@@ -16,6 +16,9 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 })
 
+// Hex values in the marker HTML mirror tokens in tailwind.config.js —
+// Leaflet's divIcon takes a CSS string, not classNames, so Tailwind utilities don't apply.
+
 // Custom red marker for fully booked assistants
 const redIcon = L.divIcon({
   className: 'custom-marker',
@@ -23,7 +26,7 @@ const redIcon = L.divIcon({
     <div style="
       width: 25px;
       height: 25px;
-      background-color: #ef4444;
+      background-color: #F25833;
       border: 2px solid white;
       border-radius: 50%;
       box-shadow: 0 2px 4px rgba(0,0,0,0.3);
@@ -51,7 +54,7 @@ const greenIcon = L.divIcon({
     <div style="
       width: 25px;
       height: 25px;
-      background-color: #10b981;
+      background-color: #C5D300;
       border: 2px solid white;
       border-radius: 50%;
       box-shadow: 0 2px 4px rgba(0,0,0,0.3);
@@ -159,7 +162,7 @@ export default function MapView({ assistantes, searchCenter, onSelectAssistante,
                       <img
                         src={assistante.photo_url}
                         alt={`${assistante.prenom} ${assistante.nom}`}
-                        className="w-16 h-16 rounded-full object-cover border-2 border-purple-200"
+                        className="w-16 h-16 rounded-full object-cover border-2 border-primary/30"
                       />
                     </div>
                   )}
@@ -171,7 +174,7 @@ export default function MapView({ assistantes, searchCenter, onSelectAssistante,
                   <div className="text-gray-600 text-xs">{assistante.code_postal} {assistante.ville}</div>
 
                   {assistante.max_kids && (
-                    <p className="text-purple-600 font-semibold mt-2">
+                    <p className="text-primary font-semibold mt-2">
                       {assistante.max_kids} enfant{assistante.max_kids > 1 ? 's' : ''} max
                     </p>
                   )}
@@ -180,12 +183,12 @@ export default function MapView({ assistantes, searchCenter, onSelectAssistante,
                   {(assistante.has_garden || assistante.has_pets) && (
                     <div className="mt-2 flex gap-1 flex-wrap">
                       {assistante.has_garden && (
-                        <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                        <span className="px-2 py-0.5 bg-accent/10 text-accent text-xs rounded-full">
                           🌳 Jardin
                         </span>
                       )}
                       {assistante.has_pets && (
-                        <span className="px-2 py-0.5 bg-orange-100 text-orange-700 text-xs rounded-full">
+                        <span className="px-2 py-0.5 bg-peach/20 text-peach text-xs rounded-full">
                           🐾 Animaux
                         </span>
                       )}
@@ -194,22 +197,22 @@ export default function MapView({ assistantes, searchCenter, onSelectAssistante,
 
                   {/* Availability badge */}
                   {!isAvailable ? (
-                    <div className="mt-2 px-2 py-1 bg-red-100 border border-red-300 rounded text-xs text-center">
-                      <span className="text-red-800 font-semibold">⚠️ Non disponible à cette date</span>
+                    <div className="mt-2 px-2 py-1 bg-error/10 border border-error/30 rounded text-xs text-center">
+                      <span className="text-error font-semibold">⚠️ Non disponible à cette date</span>
                     </div>
                   ) : assistante.availability?.isFullyAvailable ? (
-                    <div className="mt-2 px-2 py-1 bg-green-100 border border-green-300 rounded text-xs text-center">
-                      <span className="text-green-800 font-semibold">✅ Disponible</span>
+                    <div className="mt-2 px-2 py-1 bg-success/10 border border-success/30 rounded text-xs text-center">
+                      <span className="text-success font-semibold">✅ Disponible</span>
                     </div>
                   ) : (
-                    <div className="mt-2 px-2 py-1 bg-blue-100 border border-blue-300 rounded text-xs text-center">
-                      <span className="text-blue-800 font-semibold">📅 Disponible</span>
+                    <div className="mt-2 px-2 py-1 bg-info/10 border border-info/30 rounded text-xs text-center">
+                      <span className="text-info font-semibold">📅 Disponible</span>
                     </div>
                   )}
 
                   <button
                     onClick={() => onSelectAssistante(assistante)}
-                    className="mt-2 w-full bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600"
+                    className="mt-2 w-full bg-primary text-white px-3 py-1 rounded text-xs hover:bg-primary/90"
                   >
                     Réserver
                   </button>

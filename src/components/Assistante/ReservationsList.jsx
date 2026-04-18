@@ -131,7 +131,7 @@ export default function ReservationsList() {
           onClick={() => setFilter('en_attente')}
           className={`px-4 py-2 rounded-lg font-semibold transition ${
             filter === 'en_attente'
-              ? 'bg-yellow-500 text-white'
+              ? 'bg-warning text-white'
               : 'bg-white text-gray-700 hover:bg-gray-50'
           }`}
         >
@@ -141,7 +141,7 @@ export default function ReservationsList() {
           onClick={() => setFilter('confirmee')}
           className={`px-4 py-2 rounded-lg font-semibold transition ${
             filter === 'confirmee'
-              ? 'bg-green-600 text-white'
+              ? 'bg-accent text-text-base'
               : 'bg-white text-gray-700 hover:bg-gray-50'
           }`}
         >
@@ -151,7 +151,7 @@ export default function ReservationsList() {
           onClick={() => setFilter('annulee')}
           className={`px-4 py-2 rounded-lg font-semibold transition ${
             filter === 'annulee'
-              ? 'bg-red-600 text-white'
+              ? 'bg-error text-white'
               : 'bg-white text-gray-700 hover:bg-gray-50'
           }`}
         >
@@ -161,7 +161,7 @@ export default function ReservationsList() {
           onClick={() => setFilter('all')}
           className={`px-4 py-2 rounded-lg font-semibold transition ${
             filter === 'all'
-              ? 'bg-purple-600 text-white'
+              ? 'bg-primary text-white'
               : 'bg-white text-gray-700 hover:bg-gray-50'
           }`}
         >
@@ -207,7 +207,7 @@ export default function ReservationsList() {
         return (
           <div
             key={reservation.id}
-            className="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500"
+            className="bg-white rounded-lg shadow-md p-6 border-l-4 border-primary"
           >
             <div className="flex justify-between items-start mb-4">
               <div>
@@ -216,10 +216,10 @@ export default function ReservationsList() {
                 </h3>
                 <p className="text-sm text-gray-600">{reservation.parent.email}</p>
                 {isRemplacement && (
-                  <p className="text-xs text-green-600 mt-1">Remplacement</p>
+                  <p className="text-xs text-accent mt-1">Remplacement</p>
                 )}
                 {reservation.child && (
-                  <p className="text-sm text-purple-600 font-medium mt-1">
+                  <p className="text-sm text-secondary font-medium mt-1">
                     👶 Pour : {childName}
                   </p>
                 )}
@@ -227,10 +227,10 @@ export default function ReservationsList() {
               <span
                 className={`px-3 py-1 rounded-full text-sm font-semibold ${
                   reservation.statut === 'en_attente'
-                    ? 'bg-yellow-100 text-yellow-800'
+                    ? 'bg-warning/20 text-warning'
                     : reservation.statut === 'confirmee'
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-red-100 text-red-800'
+                    ? 'bg-success/20 text-text-base'
+                    : 'bg-error/20 text-error'
                 }`}
               >
                 {reservation.statut === 'en_attente' && '⏳ En attente'}
@@ -271,7 +271,7 @@ export default function ReservationsList() {
                         {slotsByDay[jour].map((slot, idx) => (
                           <span
                             key={idx}
-                            className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs"
+                            className="px-2 py-1 bg-primary/20 text-primary rounded text-xs"
                           >
                             {formatTime(slot.heure_debut)} - {formatTime(slot.heure_fin)}
                           </span>
@@ -302,9 +302,9 @@ export default function ReservationsList() {
                 {/* Assistante response - right side (sent by me) */}
                 {reservation.assistante_response && (
                   <div className="flex justify-end">
-                    <div className="max-w-[80%] p-3 bg-purple-500 text-white rounded-2xl rounded-br-md">
+                    <div className="max-w-[80%] p-3 bg-primary text-white rounded-2xl rounded-br-md">
                       <p className="text-sm">{reservation.assistante_response}</p>
-                      <p className="text-xs text-purple-100 mt-1 text-right">
+                      <p className="text-xs text-white/70 mt-1 text-right">
                         Vous · {format(new Date(reservation.responded_at), 'dd/MM à HH:mm', { locale: fr })}
                       </p>
                     </div>
@@ -329,7 +329,7 @@ export default function ReservationsList() {
                     }
                     rows={3}
                     maxLength={300}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 resize-none text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary resize-none text-sm"
                   />
                   <p className="text-xs text-gray-500 mt-1 mb-3">
                     {responseMessage.length}/300 caractères
@@ -337,10 +337,10 @@ export default function ReservationsList() {
                   <div className="flex gap-2">
                     <button
                       onClick={confirmResponse}
-                      className={`flex-1 text-white py-2 rounded-lg font-semibold transition ${
+                      className={`flex-1 py-2 rounded-lg font-semibold transition ${
                         respondingTo.action === 'accept'
-                          ? 'bg-green-500 hover:bg-green-600'
-                          : 'bg-red-500 hover:bg-red-600'
+                          ? 'bg-success hover:bg-success/90 text-text-base'
+                          : 'bg-error hover:bg-error/90 text-white'
                       }`}
                     >
                       {respondingTo.action === 'accept' ? '✓ Confirmer acceptation' : '✗ Confirmer refus'}
@@ -360,13 +360,13 @@ export default function ReservationsList() {
                 <div className="flex gap-3 mt-4">
                   <button
                     onClick={() => handleResponse(reservation.id, 'accept')}
-                    className="flex-1 bg-green-500 text-white py-2 rounded-lg font-semibold hover:bg-green-600 transition"
+                    className="flex-1 bg-success text-text-base py-2 rounded-lg font-semibold hover:bg-success/90 transition"
                   >
                     ✓ Accepter
                   </button>
                   <button
                     onClick={() => handleResponse(reservation.id, 'deny')}
-                    className="flex-1 bg-red-500 text-white py-2 rounded-lg font-semibold hover:bg-red-600 transition"
+                    className="flex-1 bg-error text-white py-2 rounded-lg font-semibold hover:bg-error/90 transition"
                   >
                     ✗ Refuser
                   </button>

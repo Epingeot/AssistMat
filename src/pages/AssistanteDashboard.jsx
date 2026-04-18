@@ -62,19 +62,19 @@ export default function AssistanteDashboard() {
   // Show loading while determining default tab
   if (activeTab === null) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 flex items-center justify-center">
+      <div className="min-h-screen bg-surface flex items-center justify-center">
         <div className="text-lg text-gray-600">Chargement...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
+    <div className="min-h-screen bg-surface">
       {/* Header */}
       <nav className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-3 md:py-4 flex justify-between items-center">
           <div>
-            <h1 className="text-xl md:text-2xl font-bold text-purple-600">AssistMat</h1>
+            <h1 className="text-xl md:text-2xl font-bold text-primary">AssistMat</h1>
             <p className="text-xs md:text-sm text-gray-600 hidden sm:block">Espace Assistante Maternelle</p>
           </div>
           <div className="flex items-center gap-2 md:gap-4">
@@ -83,7 +83,7 @@ export default function AssistanteDashboard() {
             </span>
             <button
               onClick={signOut}
-              className="px-3 md:px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-sm md:text-base font-semibold active:bg-red-700"
+              className="px-3 md:px-4 py-2 bg-error text-white rounded-lg hover:bg-error/90 transition text-sm md:text-base font-semibold active:bg-error/80"
             >
               <span className="hidden sm:inline">Déconnexion</span>
               <span className="sm:hidden">✕</span>
@@ -100,7 +100,7 @@ export default function AssistanteDashboard() {
             onClick={() => setActiveTab('profil')}
             className={`px-4 md:px-6 py-2.5 md:py-3 rounded-lg font-semibold transition text-sm md:text-base ${
               activeTab === 'profil'
-                ? 'bg-purple-600 text-white'
+                ? 'bg-primary text-white'
                 : 'bg-white text-gray-700 hover:bg-gray-50 active:bg-gray-100'
             }`}
           >
@@ -110,7 +110,7 @@ export default function AssistanteDashboard() {
             onClick={() => setActiveTab('planning')}
             className={`px-4 md:px-6 py-2.5 md:py-3 rounded-lg font-semibold transition text-sm md:text-base ${
               activeTab === 'planning'
-                ? 'bg-purple-600 text-white'
+                ? 'bg-primary text-white'
                 : 'bg-white text-gray-700 hover:bg-gray-50 active:bg-gray-100'
             }`}
           >
@@ -120,7 +120,7 @@ export default function AssistanteDashboard() {
             onClick={() => setActiveTab('reservations')}
             className={`px-4 md:px-6 py-2.5 md:py-3 rounded-lg font-semibold transition text-sm md:text-base ${
               activeTab === 'reservations'
-                ? 'bg-purple-600 text-white'
+                ? 'bg-primary text-white'
                 : 'bg-white text-gray-700 hover:bg-gray-50 active:bg-gray-100'
             }`}
           >
@@ -159,7 +159,7 @@ export default function AssistanteDashboard() {
                   <p>Veuillez d'abord compléter votre profil pour voir votre planning.</p>
                   <button
                     onClick={() => setActiveTab('profil')}
-                    className="mt-4 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+                    className="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition"
                   >
                     Compléter mon profil
                   </button>

@@ -98,7 +98,7 @@ export default function AddressAutocomplete({ onSelectAddress, initialValue = ''
         onFocus={() => userHasTyped && suggestions.length > 0 && setShowSuggestions(true)}
         placeholder="Commencez à taper votre adresse..."
         autoComplete="street-address"
-        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
         required
       />
 
@@ -118,7 +118,7 @@ export default function AddressAutocomplete({ onSelectAddress, initialValue = ''
               key={index}
               type="button"
               onClick={() => handleSelect(feature)}
-              className="w-full text-left px-4 py-3 hover:bg-purple-50 border-b last:border-b-0 transition"
+              className="w-full text-left px-4 py-3 hover:bg-primary/10 border-b last:border-b-0 transition"
             >
               <div className="font-medium text-gray-900">
                 {feature.properties.label}
@@ -126,11 +126,11 @@ export default function AddressAutocomplete({ onSelectAddress, initialValue = ''
               <div className="text-xs text-gray-500 mt-1 flex items-center gap-2">
                 <span>📍 {feature.properties.city}</span>
                 <span className={`px-2 py-0.5 rounded ${
-                  feature.properties.score > 0.8 
-                    ? 'bg-green-100 text-green-700' 
+                  feature.properties.score > 0.8
+                    ? 'bg-success/10 text-success'
                     : feature.properties.score > 0.5
-                    ? 'bg-yellow-100 text-yellow-700'
-                    : 'bg-red-100 text-red-700'
+                    ? 'bg-warning/10 text-warning'
+                    : 'bg-error/10 text-error'
                 }`}>
                   {(feature.properties.score * 100).toFixed(0)}% confiance
                 </span>

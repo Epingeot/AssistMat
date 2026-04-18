@@ -4,7 +4,7 @@ export default function Disclaimer() {
   const navigate = useNavigate()
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-surface flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 w-full max-w-3xl">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
@@ -44,7 +44,7 @@ export default function Disclaimer() {
         <div className="mt-8 flex justify-center">
           <button
             onClick={() => navigate(-1)}
-            className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-indigo-700 transition"
+            className="px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-lg font-semibold transition"
           >
             Retour
           </button>

@@ -23,7 +23,7 @@ export default function AssistanteCard({ assistante, onSelect, showContactInfo =
   return (
     <div
       onClick={() => onSelect(assistante)}
-      className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition cursor-pointer border-2 border-transparent hover:border-purple-300"
+      className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition cursor-pointer border-2 border-transparent hover:border-primary/40"
     >
       <div className="flex gap-3 mb-3">
         {/* Photo */}
@@ -31,7 +31,7 @@ export default function AssistanteCard({ assistante, onSelect, showContactInfo =
           <img
             src={assistante.photo_url}
             alt={`${assistante.prenom} ${assistante.nom}`}
-            className="w-16 h-16 rounded-full object-cover border-2 border-purple-200 flex-shrink-0"
+            className="w-16 h-16 rounded-full object-cover border-2 border-primary/30 flex-shrink-0"
           />
         ) : (
           <div className="w-16 h-16 rounded-full bg-gray-100 border-2 border-gray-200 flex items-center justify-center flex-shrink-0">
@@ -55,7 +55,7 @@ export default function AssistanteCard({ assistante, onSelect, showContactInfo =
         <div className="text-right flex-shrink-0">
           {assistante.max_kids && (
             <>
-              <p className="text-2xl font-bold text-purple-600">
+              <p className="text-2xl font-bold text-primary">
                 {assistante.max_kids}
               </p>
               <p className="text-xs text-gray-500">enfant{assistante.max_kids > 1 ? 's' : ''} max</p>
@@ -67,23 +67,23 @@ export default function AssistanteCard({ assistante, onSelect, showContactInfo =
       {/* Availability badge */}
       {assistante.availability && assistante.availability.isFullyAvailable && (
         <div className="mb-3">
-          <div className="inline-flex items-center gap-2 px-3 py-2 bg-green-100 border-2 border-green-400 rounded-lg">
+          <div className="inline-flex items-center gap-2 px-3 py-2 bg-success/20 border-2 border-success rounded-lg">
             <span className="text-xl">✅</span>
-            <p className="text-sm font-bold text-green-800">Disponible immédiatement !</p>
+            <p className="text-sm font-bold text-text-base">Disponible immédiatement !</p>
           </div>
         </div>
       )}
       {assistante.availability && !assistante.availability.isFullyAvailable && assistante.availability.earliestDate && (
         <div className="mb-3">
-          <div className="inline-flex items-center gap-2 px-3 py-2 bg-blue-100 border border-blue-300 rounded-lg">
+          <div className="inline-flex items-center gap-2 px-3 py-2 bg-info/10 border border-info/30 rounded-lg">
             <span className="text-lg">📅</span>
             <div>
-              <p className="text-xs text-blue-700 font-medium">
+              <p className="text-xs text-info font-medium">
                 Disponible les {assistante.availability.availableDays.length > 1 ? 
                 assistante.availability.availableDays.map(d => JOURS_COURTS[d]).join(', ')
               : JOURS[assistante.availability.availableDays[0]]}
               </p>
-              <p className="text-sm font-bold text-blue-800">
+              <p className="text-sm font-bold text-info">
                 {assistante.availability.earliestDate <= getToday() ?
                   'immédiatement'
                 : `dès le ${assistante.availability.earliestDate.toLocaleDateString('fr-FR', {
@@ -98,9 +98,9 @@ export default function AssistanteCard({ assistante, onSelect, showContactInfo =
       )}
       {!assistante.availability && assistante.horaires_travail?.length > 0 && (
         <div className="mb-3">
-          <div className="inline-flex items-center gap-2 px-3 py-2 bg-red-100 border border-red-300 rounded-lg">
+          <div className="inline-flex items-center gap-2 px-3 py-2 bg-error/10 border border-error/30 rounded-lg">
             <span className="text-lg">⚠️</span>
-            <p className="text-sm font-bold text-red-800">Complet (tous les jours réservés)</p>
+            <p className="text-sm font-bold text-error">Complet (tous les jours réservés)</p>
           </div>
         </div>
       )}
@@ -139,12 +139,12 @@ export default function AssistanteCard({ assistante, onSelect, showContactInfo =
         <div className="mb-3">
           <div className="flex gap-1 flex-wrap">
             {assistante.accepts_periscolaire && (
-              <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">
+              <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded-full font-medium">
                 🎒 Périscolaire
               </span>
             )}
             {assistante.accepts_remplacements && (
-              <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full font-medium">
+              <span className="px-2 py-1 bg-warning/20 text-warning text-xs rounded-full font-medium">
                 🔄 Accepte les remplacements
               </span>
             )}
@@ -163,7 +163,7 @@ export default function AssistanteCard({ assistante, onSelect, showContactInfo =
               return (
                 <span
                   key={jourNum}
-                  className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full"
+                  className="px-2 py-1 bg-primary/20 text-primary text-xs rounded-full"
                   title={h ? `${formatTime(h.heure_debut)} - ${formatTime(h.heure_fin)}` : ''}
                 >
                   {jourName ? jourName.substring(0, 3) : jourNum}
@@ -179,12 +179,12 @@ export default function AssistanteCard({ assistante, onSelect, showContactInfo =
         <div className="mb-3">
           <div className="flex gap-2 flex-wrap">
             {assistante.has_garden && (
-              <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">
+              <span className="px-2 py-1 bg-accent/20 text-accent text-xs rounded-full font-medium">
                 🌳 Jardin
               </span>
             )}
             {assistante.has_pets && (
-              <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full font-medium">
+              <span className="px-2 py-1 bg-peach/20 text-peach text-xs rounded-full font-medium">
                 🐾 Animaux {assistante.pets_description && `(${assistante.pets_description})`}
               </span>
             )}
@@ -217,7 +217,7 @@ export default function AssistanteCard({ assistante, onSelect, showContactInfo =
                     <span className="text-sm">📞</span>
                     <a
                       href={`tel:${assistante.telephone}`}
-                      className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                      className="text-sm text-primary hover:text-primary/80 hover:underline"
                       onClick={(e) => e.stopPropagation()}
                     >
                       {assistante.telephone}
@@ -229,7 +229,7 @@ export default function AssistanteCard({ assistante, onSelect, showContactInfo =
                     <span className="text-sm">✉️</span>
                     <a
                       href={`mailto:${assistante.email}`}
-                      className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                      className="text-sm text-primary hover:text-primary/80 hover:underline"
                       onClick={(e) => e.stopPropagation()}
                     >
                       {assistante.email}

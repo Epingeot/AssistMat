@@ -170,12 +170,12 @@ export default function PublicSearchPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-surface">
       {/* Header */}
       <nav className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-3 md:py-4 flex justify-between items-center">
           <Link to="/" className="flex items-center gap-2">
-            <h1 className="text-xl md:text-2xl font-bold text-purple-600">AssistMat</h1>
+            <h1 className="text-xl md:text-2xl font-bold text-primary">AssistMat</h1>
           </Link>
           <div className="flex items-center gap-4">
             {user ? (
@@ -185,7 +185,7 @@ export default function PublicSearchPage() {
                 </span>
                 <Link
                   to="/dashboard"
-                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-semibold text-sm"
+                  className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition font-semibold text-sm"
                 >
                   Mon espace
                 </Link>
@@ -194,13 +194,13 @@ export default function PublicSearchPage() {
               <>
                 <Link
                   to="/login"
-                  className="text-gray-600 hover:text-purple-600 font-medium text-sm"
+                  className="text-gray-600 hover:text-primary font-medium text-sm"
                 >
                   Connexion
                 </Link>
                 <Link
                   to="/login"
-                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-semibold text-sm"
+                  className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition font-semibold text-sm"
                 >
                   Inscription
                 </Link>
@@ -224,14 +224,14 @@ export default function PublicSearchPage() {
           <SearchBar onSearch={handleSearch} initialVille={initialVille} initialCodePostal={initialCodePostal} />
 
           {error && (
-            <div className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            <div className="mt-4 bg-error/10 border border-error/30 text-error px-4 py-3 rounded-lg">
               {error}
             </div>
           )}
 
           {loading && (
             <div className="mt-8 text-center">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
               <p className="mt-4 text-gray-600">Recherche en cours...</p>
             </div>
           )}
@@ -240,7 +240,7 @@ export default function PublicSearchPage() {
             <div className="mt-8 flex flex-col lg:grid lg:grid-cols-3 gap-6">
               {/* List */}
               <div className="lg:col-span-1 space-y-4 max-h-96 lg:max-h-screen overflow-y-auto">
-                <h3 className="text-xl font-bold text-gray-800 sticky top-0 bg-blue-50 py-2 z-10">
+                <h3 className="text-xl font-bold text-gray-800 sticky top-0 bg-surface py-2 z-10">
                   {assistantes.length} resultat{assistantes.length > 1 ? 's' : ''}
                 </h3>
                 {assistantes.map(assistante => (
@@ -258,13 +258,13 @@ export default function PublicSearchPage() {
                 <ErrorBoundary
                   name="Public MapView"
                   fallback={() => (
-                    <div className="h-full bg-yellow-50 border-2 border-yellow-300 rounded-lg flex items-center justify-center p-8">
+                    <div className="h-full bg-warning/10 border-2 border-warning/30 rounded-lg flex items-center justify-center p-8">
                       <div className="text-center">
                         <div className="text-6xl mb-4">🗺️</div>
-                        <h3 className="text-xl font-bold text-yellow-900 mb-2">
+                        <h3 className="text-xl font-bold text-warning mb-2">
                           Carte temporairement indisponible
                         </h3>
-                        <p className="text-yellow-800">
+                        <p className="text-warning">
                           Utilisez la liste a gauche pour voir les resultats.
                         </p>
                       </div>

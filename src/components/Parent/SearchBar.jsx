@@ -59,7 +59,7 @@ export default function SearchBar({ onSearch, initialVille = '', initialCodePost
             value={ville}
             onChange={(e) => setVille(e.target.value)}
             placeholder="Ex: Paris"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
           />
         </div>
 
@@ -73,7 +73,7 @@ export default function SearchBar({ onSearch, initialVille = '', initialCodePost
             onChange={(e) => setCodePostal(e.target.value)}
             placeholder="75001"
             pattern="[0-9]{5}"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
           />
         </div>
 
@@ -84,7 +84,7 @@ export default function SearchBar({ onSearch, initialVille = '', initialCodePost
           <select
             value={rayon}
             onChange={(e) => setRayon(Number(e.target.value))}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
           >
             <option value={5}>5 km</option>
             <option value={10}>10 km</option>
@@ -96,7 +96,7 @@ export default function SearchBar({ onSearch, initialVille = '', initialCodePost
         <div className="sm:col-span-2 md:col-span-1 flex items-end">
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-2.5 md:py-2 px-4 rounded-lg font-semibold hover:from-blue-600 hover:to-indigo-700 transition text-base md:text-sm"
+            className="w-full bg-primary text-white py-2.5 md:py-2 px-4 rounded-lg font-semibold hover:bg-primary/90 transition text-base md:text-sm"
           >
             Rechercher
           </button>
@@ -116,7 +116,7 @@ export default function SearchBar({ onSearch, initialVille = '', initialCodePost
               value={dateDebut}
               onChange={(e) => setDateDebut(e.target.value)}
               min={todayStr}
-              className="px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              className="px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
             />
           </div>
 
@@ -126,7 +126,7 @@ export default function SearchBar({ onSearch, initialVille = '', initialCodePost
             onClick={() => setShowOnlyAvailable(!showOnlyAvailable)}
             className={`flex items-center gap-2 px-3 py-1.5 border-2 rounded-lg text-sm font-medium transition ${
               showOnlyAvailable
-                ? 'border-green-500 bg-green-50 text-green-700'
+                ? 'border-success bg-success/10 text-text-base'
                 : 'border-gray-300 text-gray-700 hover:border-gray-400'
             }`}
           >
@@ -140,14 +140,14 @@ export default function SearchBar({ onSearch, initialVille = '', initialCodePost
         <button
           type="button"
           onClick={() => setShowAdvanced(!showAdvanced)}
-          className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition"
+          className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-primary transition"
         >
           <span className={`transform transition ${showAdvanced ? 'rotate-90' : ''}`}>
             ▶
           </span>
           Filtres avancés
           {hasActiveFilters && (
-            <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">
+            <span className="px-2 py-0.5 bg-primary/20 text-primary text-xs rounded-full">
               {[
                 typesAccueil.length,
                 joursRecherches.length,
@@ -175,7 +175,7 @@ export default function SearchBar({ onSearch, initialVille = '', initialCodePost
                   onClick={() => toggleJour(index)}
                   className={`px-3 py-2 border-2 rounded-lg text-sm font-medium transition capitalize ${
                     joursRecherches.includes(index)
-                      ? 'border-blue-500 bg-blue-50 text-blue-700'
+                      ? 'border-primary bg-primary/10 text-primary'
                       : 'border-gray-300 text-gray-700 hover:border-gray-400'
                   }`}
                 >
@@ -201,7 +201,7 @@ export default function SearchBar({ onSearch, initialVille = '', initialCodePost
                   onClick={() => setHasGarden(hasGarden === true ? null : true)}
                   className={`px-3 py-2 border-2 rounded-lg text-sm font-medium transition ${
                     hasGarden === true
-                      ? 'border-green-500 bg-green-50 text-green-700'
+                      ? 'border-accent bg-accent/10 text-text-base'
                       : 'border-gray-300 text-gray-700 hover:border-gray-400'
                   }`}
                 >
@@ -221,7 +221,7 @@ export default function SearchBar({ onSearch, initialVille = '', initialCodePost
                   onClick={() => setPetsFilter(petsFilter === true ? null : true)}
                   className={`px-3 py-2 border-2 rounded-lg text-sm font-medium transition ${
                     petsFilter === true
-                      ? 'border-orange-500 bg-orange-50 text-orange-700'
+                      ? 'border-peach bg-peach/10 text-peach'
                       : 'border-gray-300 text-gray-700 hover:border-gray-400'
                   }`}
                 >
@@ -232,7 +232,7 @@ export default function SearchBar({ onSearch, initialVille = '', initialCodePost
                   onClick={() => setPetsFilter(petsFilter === false ? null : false)}
                   className={`px-3 py-2 border-2 rounded-lg text-sm font-medium transition ${
                     petsFilter === false
-                      ? 'border-blue-500 bg-blue-50 text-blue-700'
+                      ? 'border-primary bg-primary/10 text-primary'
                       : 'border-gray-300 text-gray-700 hover:border-gray-400'
                   }`}
                 >
@@ -264,7 +264,7 @@ export default function SearchBar({ onSearch, initialVille = '', initialCodePost
                   }}
                   className={`px-3 py-2 border-2 rounded-lg text-sm font-medium transition ${
                     typesAccueil.includes(type.value)
-                      ? 'border-blue-500 bg-blue-50 text-blue-700'
+                      ? 'border-primary bg-primary/10 text-primary'
                       : 'border-gray-300 text-gray-700 hover:border-gray-400'
                   }`}
                 >
@@ -285,7 +285,7 @@ export default function SearchBar({ onSearch, initialVille = '', initialCodePost
                   setHasGarden(null)
                   setPetsFilter(null)
                 }}
-                className="text-sm text-red-600 hover:text-red-700 font-medium"
+                className="text-sm text-error hover:text-error/80 font-medium"
               >
                 Effacer les filtres avancés
               </button>

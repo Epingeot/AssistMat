@@ -58,7 +58,7 @@ export default function UpdateNotification() {
   if (!showUpdate) return null
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-violet-600 text-white shadow-lg">
+    <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-info text-white shadow-lg">
       <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           {/* Refresh icon */}
@@ -77,7 +77,7 @@ export default function UpdateNotification() {
           </svg>
           <div>
             <p className="font-semibold">Nouvelle version disponible</p>
-            <p className="text-sm text-violet-200">
+            <p className="text-sm text-white/70">
               Cliquez sur "Actualiser" pour obtenir les dernières mises à jour
             </p>
           </div>
@@ -86,7 +86,7 @@ export default function UpdateNotification() {
         <div className="flex items-center gap-2">
           <button
             onClick={handleDismiss}
-            className="px-4 py-2 text-sm text-violet-200 hover:text-white transition-colors"
+            className="px-4 py-2 text-sm text-white/70 hover:text-white transition-colors"
             disabled={isUpdating}
           >
             Plus tard
@@ -94,7 +94,7 @@ export default function UpdateNotification() {
           <button
             onClick={handleUpdate}
             disabled={isUpdating}
-            className="px-4 py-2 bg-white text-violet-600 rounded-lg font-medium hover:bg-violet-50 transition-colors disabled:opacity-50 flex items-center gap-2"
+            className="px-4 py-2 bg-white text-info rounded-lg font-medium hover:bg-info/10 transition-colors disabled:opacity-50 flex items-center gap-2"
           >
             {isUpdating ? (
               <>

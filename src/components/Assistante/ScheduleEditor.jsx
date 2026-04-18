@@ -80,7 +80,7 @@ export default function ScheduleEditor({ schedule, vacationWeeks = 5, onChange }
             key={index}
             className={`flex items-center gap-3 p-3 rounded-lg border-2 transition ${
               day.enabled
-                ? 'border-purple-300 bg-purple-50'
+                ? 'border-primary/40 bg-primary/10'
                 : 'border-gray-200 bg-gray-50'
             }`}
           >
@@ -90,7 +90,7 @@ export default function ScheduleEditor({ schedule, vacationWeeks = 5, onChange }
               onClick={() => toggleDay(index)}
               className={`w-24 py-2 px-3 rounded-lg font-medium text-sm capitalize transition ${
                 day.enabled
-                  ? 'bg-purple-600 text-white'
+                  ? 'bg-primary text-white'
                   : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
               }`}
             >
@@ -103,7 +103,7 @@ export default function ScheduleEditor({ schedule, vacationWeeks = 5, onChange }
                 <select
                   value={day.heure_debut}
                   onChange={(e) => updateStartTime(index, e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
                 >
                   {timeOptions.map(time => (
                     <option key={time} value={time}>
@@ -117,7 +117,7 @@ export default function ScheduleEditor({ schedule, vacationWeeks = 5, onChange }
                 <select
                   value={day.heure_fin}
                   onChange={(e) => updateEndTime(index, e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
                 >
                   {timeOptions
                     .filter(time => time > day.heure_debut)
@@ -144,11 +144,11 @@ export default function ScheduleEditor({ schedule, vacationWeeks = 5, onChange }
 
       {/* Summary */}
       {enabledDays.length > 0 && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
+        <div className="bg-peach/10 border border-peach/40 rounded-lg p-4 mt-4">
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
               <p className="text-gray-600">Heures par semaine</p>
-              <p className="text-xl font-bold text-blue-600">
+              <p className="text-xl font-bold text-peach">
                 {formatHours(weeklyHours)}
               </p>
             </div>
@@ -159,7 +159,7 @@ export default function ScheduleEditor({ schedule, vacationWeeks = 5, onChange }
                   (avec {vacationWeeks} sem. de vacances)
                 </span>
               </p>
-              <p className="text-xl font-bold text-blue-600">
+              <p className="text-xl font-bold text-peach">
                 {formatHours(avgMonthlyHours)}
               </p>
             </div>
@@ -168,7 +168,7 @@ export default function ScheduleEditor({ schedule, vacationWeeks = 5, onChange }
       )}
 
       {enabledDays.length === 0 && (
-        <p className="text-sm text-amber-600 bg-amber-50 p-3 rounded-lg">
+        <p className="text-sm text-warning bg-warning/10 p-3 rounded-lg">
           Veuillez sélectionner au moins un jour de travail
         </p>
       )}

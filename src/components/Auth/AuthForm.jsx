@@ -44,7 +44,7 @@ export default function AuthForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-surface flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
@@ -58,13 +58,13 @@ export default function AuthForm() {
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+          <div className="bg-error/10 border border-error/30 text-error px-4 py-3 rounded-lg mb-4">
             {error}
           </div>
         )}
 
         {message && (
-          <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-4">
+          <div className="bg-success/10 border border-success/30 text-success px-4 py-3 rounded-lg mb-4">
             {message}
           </div>
         )}
@@ -82,7 +82,7 @@ export default function AuthForm() {
                     onClick={() => setRole('parent')}
                     className={`p-3 rounded-lg border-2 transition ${
                       role === 'parent'
-                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                        ? 'border-secondary bg-secondary/10 text-secondary'
                         : 'border-gray-200 text-gray-600 hover:border-gray-300'
                     }`}
                   >
@@ -93,7 +93,7 @@ export default function AuthForm() {
                     onClick={() => setRole('assistante')}
                     className={`p-3 rounded-lg border-2 transition ${
                       role === 'assistante'
-                        ? 'border-purple-500 bg-purple-50 text-purple-700'
+                        ? 'border-primary bg-primary/10 text-primary'
                         : 'border-gray-200 text-gray-600 hover:border-gray-300'
                     }`}
                   >
@@ -113,7 +113,7 @@ export default function AuthForm() {
                     onChange={(e) => setPrenom(e.target.value)}
                     required
                     autoComplete="given-name"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                   />
                 </div>
                 <div>
@@ -126,7 +126,7 @@ export default function AuthForm() {
                     onChange={(e) => setNom(e.target.value)}
                     required
                     autoComplete="family-name"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                   />
                 </div>
               </div>
@@ -143,7 +143,7 @@ export default function AuthForm() {
               onChange={(e) => setEmail(e.target.value)}
               required
               autoComplete="email"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               placeholder="vous@exemple.com"
             />
           </div>
@@ -159,7 +159,7 @@ export default function AuthForm() {
               required
               minLength={6}
               autoComplete={isLogin ? "current-password" : "new-password"}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               placeholder="••••••••"
             />
           </div>
@@ -167,7 +167,7 @@ export default function AuthForm() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 md:py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed text-base active:scale-98"
+            className="w-full bg-primary hover:bg-primary/90 text-white py-3 md:py-3 rounded-lg font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed text-base active:scale-98"
           >
             {loading ? 'Chargement...' : isLogin ? 'Se connecter' : "S'inscrire"}
           </button>
@@ -176,7 +176,7 @@ export default function AuthForm() {
         <div className="mt-6 text-center">
           <button
             onClick={() => setIsLogin(!isLogin)}
-            className="text-blue-600 hover:text-blue-700 font-medium"
+            className="text-primary hover:text-primary/80 font-medium"
           >
             {isLogin
               ? "Pas de compte ? S'inscrire"

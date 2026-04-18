@@ -74,7 +74,7 @@ class ErrorBoundary extends React.Component {
           <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6">
             {/* Error Icon and Title */}
             <div className="flex items-center gap-3 mb-4">
-              <div className="text-red-500 text-4xl">⚠️</div>
+              <div className="text-error text-4xl">⚠️</div>
               <div>
                 <h2 className="text-xl font-bold text-gray-900">
                   {this.props.title || 'Une erreur est survenue'}
@@ -91,7 +91,7 @@ class ErrorBoundary extends React.Component {
                 <summary className="cursor-pointer text-gray-600 hover:text-gray-900 font-medium">
                   Détails techniques (dev only)
                 </summary>
-                <pre className="mt-2 p-3 bg-gray-100 rounded overflow-auto text-red-600 max-h-48">
+                <pre className="mt-2 p-3 bg-gray-100 rounded overflow-auto text-error max-h-48">
                   {this.state.error.toString()}
                   {'\n\n'}
                   {this.state.errorInfo?.componentStack}
@@ -103,7 +103,7 @@ class ErrorBoundary extends React.Component {
             <div className="mt-6 flex gap-3">
               <button
                 onClick={this.resetError}
-                className="flex-1 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+                className="flex-1 bg-primary text-white px-4 py-2 rounded hover:bg-primary/90 transition"
               >
                 Réessayer
               </button>

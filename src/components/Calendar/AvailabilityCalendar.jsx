@@ -358,7 +358,7 @@ export default function AvailabilityCalendar({
         <div className="flex items-center gap-4">
           <button
             onClick={goToToday}
-            className="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition"
+            className="px-3 py-1 text-sm bg-primary/20 text-primary rounded-lg hover:bg-primary/30 transition"
           >
             Aujourd'hui
           </button>
@@ -381,23 +381,23 @@ export default function AvailabilityCalendar({
       {/* Legend */}
       <div className="flex flex-wrap gap-4 p-3 border-b border-gray-200 text-xs">
         <div className="flex items-center gap-1">
-          <div className="w-4 h-4 bg-green-100 border border-green-300 rounded"></div>
+          <div className="w-4 h-4 bg-success/10 border border-success/30 rounded"></div>
           <span>Disponible</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-4 h-4 bg-blue-200 rounded"></div>
+          <div className="w-4 h-4 bg-primary/30 rounded"></div>
           <span>25% plein</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-4 h-4 bg-blue-300 rounded"></div>
+          <div className="w-4 h-4 bg-primary/50 rounded"></div>
           <span>50% plein</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-4 h-4 bg-blue-400 rounded"></div>
+          <div className="w-4 h-4 bg-primary/70 rounded"></div>
           <span>75% plein</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-4 h-4 bg-blue-500 rounded"></div>
+          <div className="w-4 h-4 bg-primary rounded"></div>
           <span>Complet</span>
         </div>
         <div className="flex items-center gap-1">
@@ -406,7 +406,7 @@ export default function AvailabilityCalendar({
         </div>
         {mode === 'select' && (
           <div className="flex items-center gap-1">
-            <div className="w-4 h-4 bg-purple-500 rounded"></div>
+            <div className="w-4 h-4 bg-secondary rounded"></div>
             <span>Sélectionné</span>
           </div>
         )}
@@ -427,13 +427,13 @@ export default function AvailabilityCalendar({
                   <th
                     key={index}
                     className={`p-2 text-center border-r border-gray-200 ${
-                      isToday ? 'bg-purple-50' : 'bg-gray-50'
+                      isToday ? 'bg-primary/10' : 'bg-gray-50'
                     } ${!workingHours ? 'opacity-50' : ''}`}
                   >
-                    <div className={`text-sm font-medium capitalize ${isToday ? 'text-purple-700' : 'text-gray-700'}`}>
+                    <div className={`text-sm font-medium capitalize ${isToday ? 'text-primary' : 'text-gray-700'}`}>
                       {JOURS_COURTS[index]}
                     </div>
-                    <div className={`text-xs ${isToday ? 'text-purple-600' : 'text-gray-500'}`}>
+                    <div className={`text-xs ${isToday ? 'text-primary' : 'text-gray-500'}`}>
                       {format(date, 'd MMM', { locale: fr })}
                     </div>
                   </th>
@@ -475,13 +475,13 @@ export default function AvailabilityCalendar({
 
                     // Color gradient based on capacity
                     if (capacityPercent <= 0.25) {
-                      cellClass += 'bg-blue-200'
+                      cellClass += 'bg-primary/30'
                     } else if (capacityPercent <= 0.5) {
-                      cellClass += 'bg-blue-300'
+                      cellClass += 'bg-primary/50'
                     } else if (capacityPercent <= 0.75) {
-                      cellClass += 'bg-blue-400'
+                      cellClass += 'bg-primary/70'
                     } else {
-                      cellClass += 'bg-blue-500'
+                      cellClass += 'bg-primary'
                     }
 
                     // Dots indicator
@@ -499,13 +499,13 @@ export default function AvailabilityCalendar({
                     )
                   } else if (selected) {
                     // Selected (in select mode)
-                    cellClass += 'bg-purple-500 cursor-pointer'
+                    cellClass += 'bg-secondary cursor-pointer'
                   } else if (isPast) {
                     // Past slots
                     cellClass += 'bg-gray-200'
                   } else {
                     // Available
-                    cellClass += 'bg-green-100 hover:bg-green-200'
+                    cellClass += 'bg-success/10 hover:bg-success/20'
                     if (mode === 'select') {
                       cellClass += ' cursor-pointer'
                     }
@@ -536,8 +536,8 @@ export default function AvailabilityCalendar({
 
       {/* Summary for select mode */}
       {mode === 'select' && selectedSlots.length > 0 && (
-        <div className="p-4 border-t border-gray-200 bg-purple-50">
-          <p className="text-sm text-purple-700">
+        <div className="p-4 border-t border-gray-200 bg-secondary/10">
+          <p className="text-sm text-secondary">
             <strong>{selectedSlots.length}</strong> créneau{selectedSlots.length > 1 ? 'x' : ''} sélectionné{selectedSlots.length > 1 ? 's' : ''}
           </p>
         </div>
@@ -594,8 +594,8 @@ export default function AvailabilityCalendar({
                     onClick={() => mode === 'view' && openReservationDetail(reservation)}
                     className={`p-4 rounded-lg border-2 ${
                       reservation.statut === 'confirmee'
-                        ? 'border-blue-300 bg-blue-50'
-                        : 'border-yellow-300 bg-yellow-50'
+                        ? 'border-success/40 bg-success/10'
+                        : 'border-warning/40 bg-warning/10'
                     } ${mode === 'view' ? 'cursor-pointer hover:shadow-md transition-shadow' : ''}`}
                   >
                     <div className="flex justify-between items-start mb-2">
@@ -605,8 +605,8 @@ export default function AvailabilityCalendar({
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-semibold ${
                           reservation.statut === 'confirmee'
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-yellow-100 text-yellow-800'
+                            ? 'bg-success/20 text-text-base'
+                            : 'bg-warning/20 text-warning'
                         }`}
                       >
                         {reservation.statut === 'confirmee' ? '✅ Confirmée' : '⏳ En attente'}
@@ -637,7 +637,7 @@ export default function AvailabilityCalendar({
                     </div>
 
                     {mode === 'view' && (
-                      <p className="text-xs text-purple-600 mt-2 flex items-center gap-1">
+                      <p className="text-xs text-primary mt-2 flex items-center gap-1">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -681,7 +681,7 @@ export default function AvailabilityCalendar({
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="p-4 border-b border-gray-200 bg-purple-50">
+            <div className="p-4 border-b border-gray-200 bg-primary/10">
               <div className="flex justify-between items-start">
                 <div>
                   <h3 className="text-lg font-bold text-gray-800">
@@ -690,8 +690,8 @@ export default function AvailabilityCalendar({
                   <span
                     className={`inline-block mt-1 px-2 py-1 rounded-full text-xs font-semibold ${
                       selectedReservation.statut === 'confirmee'
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-yellow-100 text-yellow-800'
+                        ? 'bg-success/20 text-text-base'
+                        : 'bg-warning/20 text-warning'
                     }`}
                   >
                     {selectedReservation.statut === 'confirmee' ? '✅ Confirmée' : '⏳ En attente'}
@@ -730,7 +730,7 @@ export default function AvailabilityCalendar({
                   {selectedReservation.parent.email && (
                     <a
                       href={`mailto:${selectedReservation.parent.email}`}
-                      className="text-sm text-blue-600 hover:underline"
+                      className="text-sm text-primary hover:underline"
                     >
                       {selectedReservation.parent.email}
                     </a>
@@ -760,7 +760,7 @@ export default function AvailabilityCalendar({
                       value={editingEndDate}
                       onChange={(e) => setEditingEndDate(e.target.value)}
                       min={selectedReservation.date_debut}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
                     />
                     {!editingEndDate && (
                       <p className="text-xs text-gray-500 mt-1">
@@ -800,7 +800,7 @@ export default function AvailabilityCalendar({
               <button
                 onClick={saveEndDate}
                 disabled={savingEndDate}
-                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition disabled:opacity-50"
+                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition disabled:opacity-50"
               >
                 {savingEndDate ? 'Enregistrement...' : 'Enregistrer'}
               </button>

@@ -172,12 +172,12 @@ export default function ParentDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-surface">
       {/* Header */}
       <nav className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-3 md:py-4 flex justify-between items-center">
           <div>
-            <h1 className="text-xl md:text-2xl font-bold text-blue-600">AssistMat</h1>
+            <h1 className="text-xl md:text-2xl font-bold text-primary">AssistMat</h1>
             <p className="text-xs md:text-sm text-gray-600 hidden sm:block">Trouvez votre assistante maternelle</p>
           </div>
           <div className="flex items-center gap-2 md:gap-4">
@@ -186,7 +186,7 @@ export default function ParentDashboard() {
             </span>
             <button
               onClick={signOut}
-              className="px-3 md:px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-sm md:text-base active:bg-red-700"
+              className="px-3 md:px-4 py-2 bg-error text-white rounded-lg hover:bg-error/90 transition text-sm md:text-base font-semibold active:bg-error/80"
             >
               <span className="hidden sm:inline">Déconnexion</span>
               <span className="sm:hidden">✕</span>
@@ -202,7 +202,7 @@ export default function ParentDashboard() {
             onClick={() => setActiveTab('recherche')}
             className={`px-4 md:px-6 py-2.5 md:py-3 rounded-lg font-semibold transition text-sm md:text-base ${
               activeTab === 'recherche'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-primary text-white'
                 : 'bg-white text-gray-700 hover:bg-gray-50 active:bg-gray-100'
             }`}
           >
@@ -212,7 +212,7 @@ export default function ParentDashboard() {
             onClick={() => setActiveTab('enfants')}
             className={`px-4 md:px-6 py-2.5 md:py-3 rounded-lg font-semibold transition text-sm md:text-base ${
               activeTab === 'enfants'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-primary text-white'
                 : 'bg-white text-gray-700 hover:bg-gray-50 active:bg-gray-100'
             }`}
           >
@@ -222,7 +222,7 @@ export default function ParentDashboard() {
             onClick={() => setActiveTab('reservations')}
             className={`px-4 md:px-6 py-2.5 md:py-3 rounded-lg font-semibold transition text-sm md:text-base ${
               activeTab === 'reservations'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-primary text-white'
                 : 'bg-white text-gray-700 hover:bg-gray-50 active:bg-gray-100'
             }`}
           >
@@ -242,14 +242,14 @@ export default function ParentDashboard() {
             <SearchBar onSearch={handleSearch} />
 
           {error && (
-            <div className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            <div className="mt-4 bg-error/10 border border-error/30 text-error px-4 py-3 rounded-lg">
               {error}
             </div>
           )}
 
           {loading && (
             <div className="mt-8 text-center">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
               <p className="mt-4 text-gray-600">Recherche en cours...</p>
             </div>
           )}
@@ -258,7 +258,7 @@ export default function ParentDashboard() {
             <div className="mt-8 flex flex-col lg:grid lg:grid-cols-3 gap-6">
               {/* Liste */}
               <div className="lg:col-span-1 space-y-4 max-h-96 lg:max-h-screen overflow-y-auto">
-                <h2 className="text-xl font-bold text-gray-800 sticky top-0 bg-blue-50 py-2 z-10">
+                <h2 className="text-xl font-bold text-gray-800 sticky top-0 bg-surface py-2 z-10">
                   {assistantes.length} résultat{assistantes.length > 1 ? 's' : ''}
                 </h2>
                 {assistantes.map(assistante => (
@@ -275,13 +275,13 @@ export default function ParentDashboard() {
                 <ErrorBoundary
                   name="Parent MapView"
                   fallback={() => (
-                    <div className="h-full bg-yellow-50 border-2 border-yellow-300 rounded-lg flex items-center justify-center p-8">
+                    <div className="h-full bg-warning/10 border-2 border-warning/30 rounded-lg flex items-center justify-center p-8">
                       <div className="text-center">
                         <div className="text-6xl mb-4">🗺️</div>
-                        <h3 className="text-xl font-bold text-yellow-900 mb-2">
+                        <h3 className="text-xl font-bold text-warning mb-2">
                           Carte temporairement indisponible
                         </h3>
-                        <p className="text-yellow-800">
+                        <p className="text-warning">
                           Utilisez la liste à gauche pour voir les résultats.
                         </p>
                       </div>

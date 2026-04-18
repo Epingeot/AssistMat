@@ -207,9 +207,11 @@ export const NotificationProvider = ({ children }) => {
           {
             duration: 6000,
             icon: '😔',
+            // Hex values mirror the `error` brand token — react-hot-toast style
+            // objects are inline CSS, not classNames (see CLAUDE.md exception).
             style: {
-              background: '#fef2f2',
-              color: '#991b1b',
+              background: '#FEE9E4',
+              color: '#F25833',
             },
           }
         )
