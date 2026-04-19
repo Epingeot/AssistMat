@@ -336,18 +336,18 @@ export default function AvailabilityCalendar({
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="text-gray-500">Chargement du calendrier...</div>
+        <div className="text-muted">Chargement du calendrier...</div>
       </div>
     )
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+    <div className="bg-white rounded-lg border border-hairline overflow-hidden">
       {/* Header with navigation */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
+      <div className="flex items-center justify-between p-4 border-b border-hairline bg-soft">
         <button
           onClick={goToPreviousWeek}
-          className="p-2 hover:bg-gray-200 rounded-lg transition"
+          className="p-2 hover:bg-chip rounded-lg transition"
           title="Semaine précédente"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -362,14 +362,14 @@ export default function AvailabilityCalendar({
           >
             Aujourd'hui
           </button>
-          <h3 className="text-lg font-semibold text-gray-800">
+          <h3 className="text-lg font-semibold text-ink">
             {format(weekStart, 'd MMM', { locale: fr })} - {format(addDays(weekStart, 6), 'd MMM yyyy', { locale: fr })}
           </h3>
         </div>
 
         <button
           onClick={goToNextWeek}
-          className="p-2 hover:bg-gray-200 rounded-lg transition"
+          className="p-2 hover:bg-chip rounded-lg transition"
           title="Semaine suivante"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -379,7 +379,7 @@ export default function AvailabilityCalendar({
       </div>
 
       {/* Legend */}
-      <div className="flex flex-wrap gap-4 p-3 border-b border-gray-200 text-xs">
+      <div className="flex flex-wrap gap-4 p-3 border-b border-hairline text-xs">
         <div className="flex items-center gap-1">
           <div className="w-4 h-4 bg-success/10 border border-success/30 rounded"></div>
           <span>Disponible</span>
@@ -401,7 +401,7 @@ export default function AvailabilityCalendar({
           <span>Complet</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-4 h-4 bg-gray-100 border border-gray-200 rounded"></div>
+          <div className="w-4 h-4 bg-chip border border-hairline rounded"></div>
           <span>Non travaillé</span>
         </div>
         {mode === 'select' && (
@@ -417,7 +417,7 @@ export default function AvailabilityCalendar({
         <table className="w-full border-collapse min-w-[700px]">
           <thead>
             <tr>
-              <th className="w-16 p-2 text-xs text-gray-500 border-r border-gray-200 bg-gray-50">
+              <th className="w-16 p-2 text-xs text-muted border-r border-hairline bg-soft">
                 Heure
               </th>
               {weekDates.map((date, index) => {
@@ -426,14 +426,14 @@ export default function AvailabilityCalendar({
                 return (
                   <th
                     key={index}
-                    className={`p-2 text-center border-r border-gray-200 ${
-                      isToday ? 'bg-primary/10' : 'bg-gray-50'
+                    className={`p-2 text-center border-r border-hairline ${
+                      isToday ? 'bg-primary/10' : 'bg-soft'
                     } ${!workingHours ? 'opacity-50' : ''}`}
                   >
-                    <div className={`text-sm font-medium capitalize ${isToday ? 'text-primary' : 'text-gray-700'}`}>
+                    <div className={`text-sm font-medium capitalize ${isToday ? 'text-primary' : 'text-ink'}`}>
                       {JOURS_COURTS[index]}
                     </div>
-                    <div className={`text-xs ${isToday ? 'text-primary' : 'text-gray-500'}`}>
+                    <div className={`text-xs ${isToday ? 'text-primary' : 'text-muted'}`}>
                       {format(date, 'd MMM', { locale: fr })}
                     </div>
                   </th>
@@ -443,8 +443,8 @@ export default function AvailabilityCalendar({
           </thead>
           <tbody>
             {displaySlots.map((timeSlot, slotIndex) => (
-              <tr key={slotIndex} className="border-t border-gray-100">
-                <td className="p-1 text-xs text-gray-500 text-center border-r border-gray-200 bg-gray-50">
+              <tr key={slotIndex} className="border-t border-hairline">
+                <td className="p-1 text-xs text-muted text-center border-r border-hairline bg-soft">
                   {formatTime(timeSlot.start)}
                 </td>
                 {weekDates.map((date, dayIndex) => {
@@ -463,12 +463,12 @@ export default function AvailabilityCalendar({
                   const isPast = date < new Date() && !isToday
                   const isFull = totalReservations >= maxKids
 
-                  let cellClass = 'h-8 border-r border-gray-100 transition-colors relative '
+                  let cellClass = 'h-8 border-r border-hairline transition-colors relative '
                   let content = null
 
                   if (!isWorking) {
                     // Non-working hours
-                    cellClass += 'bg-gray-100'
+                    cellClass += 'bg-chip'
                   } else if (totalReservations > 0) {
                     // Has reservations - show capacity gradient
                     cellClass += 'cursor-pointer '
@@ -502,7 +502,7 @@ export default function AvailabilityCalendar({
                     cellClass += 'bg-secondary cursor-pointer'
                   } else if (isPast) {
                     // Past slots
-                    cellClass += 'bg-gray-200'
+                    cellClass += 'bg-chip'
                   } else {
                     // Available
                     cellClass += 'bg-success/10 hover:bg-success/20'
@@ -536,7 +536,7 @@ export default function AvailabilityCalendar({
 
       {/* Summary for select mode */}
       {mode === 'select' && selectedSlots.length > 0 && (
-        <div className="p-4 border-t border-gray-200 bg-secondary/10">
+        <div className="p-4 border-t border-hairline bg-secondary/10">
           <p className="text-sm text-secondary">
             <strong>{selectedSlots.length}</strong> créneau{selectedSlots.length > 1 ? 'x' : ''} sélectionné{selectedSlots.length > 1 ? 's' : ''}
           </p>
@@ -554,29 +554,29 @@ export default function AvailabilityCalendar({
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="p-4 border-b border-gray-200 bg-gray-50">
+            <div className="p-4 border-b border-hairline bg-soft">
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="text-lg font-bold text-gray-800">
+                  <h3 className="text-lg font-bold text-ink">
                     Réservations - {JOURS[selectedSlot.dayIndex]}
                   </h3>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted">
                     {format(selectedSlot.date, 'd MMMM yyyy', { locale: fr })}
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted">
                     {formatTime(selectedSlot.timeStart)} - {formatTime(selectedSlot.timeEnd)}
                   </p>
                 </div>
                 <button
                   onClick={() => setSelectedSlot(null)}
-                  className="text-gray-400 hover:text-gray-600 transition"
+                  className="text-subtle hover:text-muted transition"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
-              <div className="mt-2 text-sm font-semibold text-gray-700">
+              <div className="mt-2 text-sm font-semibold text-ink">
                 Capacité: {selectedSlot.reservations.length}/{maxKids}
               </div>
             </div>
@@ -599,13 +599,13 @@ export default function AvailabilityCalendar({
                     } ${mode === 'view' ? 'cursor-pointer hover:shadow-md transition-shadow' : ''}`}
                   >
                     <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-semibold text-gray-800">
+                      <h4 className="font-semibold text-ink">
                         {idx + 1}. {childName}
                       </h4>
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-semibold ${
                           reservation.statut === 'confirmee'
-                            ? 'bg-success/20 text-text-base'
+                            ? 'bg-success/20 text-ink'
                             : 'bg-warning/20 text-warning'
                         }`}
                       >
@@ -614,7 +614,7 @@ export default function AvailabilityCalendar({
                     </div>
 
                     {reservation.parent && (
-                      <div className="text-sm text-gray-700 space-y-1">
+                      <div className="text-sm text-ink space-y-1">
                         <p>
                           <span className="font-medium">Parent:</span>{' '}
                           {reservation.parent.prenom} {reservation.parent.nom}
@@ -623,7 +623,7 @@ export default function AvailabilityCalendar({
                     )}
 
                     {/* Show dates */}
-                    <div className="text-sm text-gray-600 mt-2">
+                    <div className="text-sm text-muted mt-2">
                       <p>
                         <span className="font-medium">Début:</span>{' '}
                         {format(parseLocalDate(reservation.date_debut), 'd MMM yyyy', { locale: fr })}
@@ -651,8 +651,8 @@ export default function AvailabilityCalendar({
             </div>
 
             {/* Modal Footer */}
-            <div className="p-4 border-t border-gray-200 bg-gray-50">
-              <div className="flex justify-between items-center text-sm text-gray-600">
+            <div className="p-4 border-t border-hairline bg-soft">
+              <div className="flex justify-between items-center text-sm text-muted">
                 <span>
                   {selectedSlot.reservations.length === maxKids
                     ? 'Créneau complet'
@@ -660,7 +660,7 @@ export default function AvailabilityCalendar({
                 </span>
                 <button
                   onClick={() => setSelectedSlot(null)}
-                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition"
+                  className="px-4 py-2 border border-line text-ink rounded-lg hover:bg-soft transition"
                 >
                   Fermer
                 </button>
@@ -681,16 +681,16 @@ export default function AvailabilityCalendar({
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="p-4 border-b border-gray-200 bg-primary/10">
+            <div className="p-4 border-b border-hairline bg-primary/10">
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="text-lg font-bold text-gray-800">
+                  <h3 className="text-lg font-bold text-ink">
                     Détails de la réservation
                   </h3>
                   <span
                     className={`inline-block mt-1 px-2 py-1 rounded-full text-xs font-semibold ${
                       selectedReservation.statut === 'confirmee'
-                        ? 'bg-success/20 text-text-base'
+                        ? 'bg-success/20 text-ink'
                         : 'bg-warning/20 text-warning'
                     }`}
                   >
@@ -699,7 +699,7 @@ export default function AvailabilityCalendar({
                 </div>
                 <button
                   onClick={() => setSelectedReservation(null)}
-                  className="text-gray-400 hover:text-gray-600 transition"
+                  className="text-subtle hover:text-muted transition"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -712,8 +712,8 @@ export default function AvailabilityCalendar({
             <div className="p-4 space-y-4">
               {/* Child info */}
               <div>
-                <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Enfant</h4>
-                <p className="text-lg font-semibold text-gray-800">
+                <h4 className="text-sm font-semibold text-muted uppercase tracking-wide mb-1">Enfant</h4>
+                <p className="text-lg font-semibold text-ink">
                   {selectedReservation.child?.rgpd_consent_display_name
                     ? selectedReservation.child.prenom
                     : 'Nom masqué (RGPD)'}
@@ -723,8 +723,8 @@ export default function AvailabilityCalendar({
               {/* Parent info */}
               {selectedReservation.parent && (
                 <div>
-                  <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Parent</h4>
-                  <p className="text-gray-800">
+                  <h4 className="text-sm font-semibold text-muted uppercase tracking-wide mb-1">Parent</h4>
+                  <p className="text-ink">
                     {selectedReservation.parent.prenom} {selectedReservation.parent.nom}
                   </p>
                   {selectedReservation.parent.email && (
@@ -739,38 +739,38 @@ export default function AvailabilityCalendar({
               )}
 
               {/* Dates */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Période</h4>
+              <div className="bg-soft rounded-lg p-4">
+                <h4 className="text-sm font-semibold text-muted uppercase tracking-wide mb-3">Période</h4>
 
                 <div className="space-y-3">
                   <div>
-                    <label className="block text-sm text-gray-600 mb-1">Date de début</label>
-                    <p className="font-semibold text-gray-800">
+                    <label className="block text-sm text-muted mb-1">Date de début</label>
+                    <p className="font-semibold text-ink">
                       {format(parseLocalDate(selectedReservation.date_debut), 'd MMMM yyyy', { locale: fr })}
                     </p>
                   </div>
 
                   <div>
-                    <label className="block text-sm text-gray-600 mb-1">
+                    <label className="block text-sm text-muted mb-1">
                       Date de fin
-                      <span className="text-xs text-gray-400 ml-1">(modifiable)</span>
+                      <span className="text-xs text-subtle ml-1">(modifiable)</span>
                     </label>
                     <input
                       type="date"
                       value={editingEndDate}
                       onChange={(e) => setEditingEndDate(e.target.value)}
                       min={selectedReservation.date_debut}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                      className="w-full px-3 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
                     />
                     {!editingEndDate && (
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-muted mt-1">
                         Contrat permanent (pas de date de fin définie)
                       </p>
                     )}
                   </div>
 
                   {editingEndDate && selectedReservation.date_debut && (
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-muted">
                       <span className="font-medium">Durée:</span>{' '}
                       {formatDuration(parseLocalDate(selectedReservation.date_debut), parseLocalDate(editingEndDate))}
                     </div>
@@ -781,8 +781,8 @@ export default function AvailabilityCalendar({
               {/* Notes */}
               {selectedReservation.notes && (
                 <div>
-                  <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Note du parent</h4>
-                  <p className="text-gray-700 bg-gray-50 p-3 rounded-lg text-sm">
+                  <h4 className="text-sm font-semibold text-muted uppercase tracking-wide mb-1">Note du parent</h4>
+                  <p className="text-ink bg-soft p-3 rounded-lg text-sm">
                     {selectedReservation.notes}
                   </p>
                 </div>
@@ -790,10 +790,10 @@ export default function AvailabilityCalendar({
             </div>
 
             {/* Modal Footer */}
-            <div className="p-4 border-t border-gray-200 bg-gray-50 flex justify-end gap-3">
+            <div className="p-4 border-t border-hairline bg-soft flex justify-end gap-3">
               <button
                 onClick={() => setSelectedReservation(null)}
-                className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+                className="px-4 py-2 text-ink bg-white border border-line rounded-lg hover:bg-soft transition"
               >
                 Annuler
               </button>

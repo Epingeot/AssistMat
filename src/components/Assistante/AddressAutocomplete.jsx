@@ -84,7 +84,7 @@ export default function AddressAutocomplete({ onSelectAddress, initialValue = ''
 
   return (
     <div ref={wrapperRef} className="relative">
-      <label className="block text-sm font-medium text-gray-700 mb-2">
+      <label className="block text-sm font-medium text-ink mb-2">
         Adresse *
       </label>
       
@@ -98,12 +98,12 @@ export default function AddressAutocomplete({ onSelectAddress, initialValue = ''
         onFocus={() => userHasTyped && suggestions.length > 0 && setShowSuggestions(true)}
         placeholder="Commencez à taper votre adresse..."
         autoComplete="street-address"
-        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+        className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent"
         required
       />
 
       {loading && (
-        <div className="absolute right-3 top-[42px] text-gray-400">
+        <div className="absolute right-3 top-[42px] text-subtle">
           <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
@@ -112,7 +112,7 @@ export default function AddressAutocomplete({ onSelectAddress, initialValue = ''
       )}
 
       {showSuggestions && suggestions.length > 0 && (
-        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+        <div className="absolute z-10 w-full mt-1 bg-white border border-line rounded-lg shadow-lg max-h-60 overflow-y-auto">
           {suggestions.map((feature, index) => (
             <button
               key={index}
@@ -120,10 +120,10 @@ export default function AddressAutocomplete({ onSelectAddress, initialValue = ''
               onClick={() => handleSelect(feature)}
               className="w-full text-left px-4 py-3 hover:bg-primary/10 border-b last:border-b-0 transition"
             >
-              <div className="font-medium text-gray-900">
+              <div className="font-medium text-ink">
                 {feature.properties.label}
               </div>
-              <div className="text-xs text-gray-500 mt-1 flex items-center gap-2">
+              <div className="text-xs text-muted mt-1 flex items-center gap-2">
                 <span>📍 {feature.properties.city}</span>
                 <span className={`px-2 py-0.5 rounded ${
                   feature.properties.score > 0.8
@@ -141,7 +141,7 @@ export default function AddressAutocomplete({ onSelectAddress, initialValue = ''
       )}
 
       {userHasTyped && (
-        <p className="text-xs text-gray-500 mt-1">
+        <p className="text-xs text-muted mt-1">
           Tapez au moins 3 caractères pour voir les suggestions
         </p>
       )}

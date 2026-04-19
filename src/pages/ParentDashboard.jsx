@@ -178,10 +178,10 @@ export default function ParentDashboard() {
         <div className="max-w-7xl mx-auto px-4 py-3 md:py-4 flex justify-between items-center">
           <div>
             <h1 className="text-xl md:text-2xl font-bold text-primary">AssistMat</h1>
-            <p className="text-xs md:text-sm text-gray-600 hidden sm:block">Trouvez votre assistante maternelle</p>
+            <p className="text-xs md:text-sm text-muted hidden sm:block">Trouvez votre assistante maternelle</p>
           </div>
           <div className="flex items-center gap-2 md:gap-4">
-            <span className="text-sm md:text-base text-gray-700 hidden md:block">
+            <span className="text-sm md:text-base text-ink hidden md:block">
               {profile?.prenom} {profile?.nom}
             </span>
             <button
@@ -203,7 +203,7 @@ export default function ParentDashboard() {
             className={`px-4 md:px-6 py-2.5 md:py-3 rounded-lg font-semibold transition text-sm md:text-base ${
               activeTab === 'recherche'
                 ? 'bg-primary text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-50 active:bg-gray-100'
+                : 'bg-white text-ink hover:bg-soft active:bg-chip'
             }`}
           >
             🔍 Rechercher
@@ -213,7 +213,7 @@ export default function ParentDashboard() {
             className={`px-4 md:px-6 py-2.5 md:py-3 rounded-lg font-semibold transition text-sm md:text-base ${
               activeTab === 'enfants'
                 ? 'bg-primary text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-50 active:bg-gray-100'
+                : 'bg-white text-ink hover:bg-soft active:bg-chip'
             }`}
           >
             👶 <span className="hidden sm:inline">Mes </span>Enfants
@@ -223,7 +223,7 @@ export default function ParentDashboard() {
             className={`px-4 md:px-6 py-2.5 md:py-3 rounded-lg font-semibold transition text-sm md:text-base ${
               activeTab === 'reservations'
                 ? 'bg-primary text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-50 active:bg-gray-100'
+                : 'bg-white text-ink hover:bg-soft active:bg-chip'
             }`}
           >
             📅 <span className="hidden sm:inline">Mes </span>Réservations
@@ -250,7 +250,7 @@ export default function ParentDashboard() {
           {loading && (
             <div className="mt-8 text-center">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-              <p className="mt-4 text-gray-600">Recherche en cours...</p>
+              <p className="mt-4 text-muted">Recherche en cours...</p>
             </div>
           )}
 
@@ -258,7 +258,7 @@ export default function ParentDashboard() {
             <div className="mt-8 flex flex-col lg:grid lg:grid-cols-3 gap-6">
               {/* Liste */}
               <div className="lg:col-span-1 space-y-4 max-h-96 lg:max-h-screen overflow-y-auto">
-                <h2 className="text-xl font-bold text-gray-800 sticky top-0 bg-surface py-2 z-10">
+                <h2 className="text-xl font-bold text-ink sticky top-0 bg-surface py-2 z-10">
                   {assistantes.length} résultat{assistantes.length > 1 ? 's' : ''}
                 </h2>
                 {assistantes.map(assistante => (
@@ -302,10 +302,10 @@ export default function ParentDashboard() {
           {!loading && assistantes.length === 0 && !error && (
             <div className="mt-12 text-center">
               <div className="text-6xl mb-4">🔍</div>
-              <h3 className="text-xl font-semibold text-gray-700 mb-2">
+              <h3 className="text-xl font-semibold text-ink mb-2">
                 Lancez une recherche
               </h3>
-              <p className="text-gray-600">
+              <p className="text-muted">
                 Entrez une ville ou un code postal pour trouver des assistantes maternelles
               </p>
             </div>

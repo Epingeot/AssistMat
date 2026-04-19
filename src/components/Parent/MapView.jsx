@@ -169,9 +169,9 @@ export default function MapView({ assistantes, searchCenter, onSelectAssistante,
 
                   <p className="font-bold text-center">{assistante.prenom} {assistante.nom}</p>
                   {showContactInfo && (
-                    <div className="text-gray-600 text-xs">{assistante.adresse}</div>
+                    <div className="text-muted text-xs">{assistante.adresse}</div>
                   )}
-                  <div className="text-gray-600 text-xs">{assistante.code_postal} {assistante.ville}</div>
+                  <div className="text-muted text-xs">{assistante.code_postal} {assistante.ville}</div>
 
                   {assistante.max_kids && (
                     <p className="text-primary font-semibold mt-2">

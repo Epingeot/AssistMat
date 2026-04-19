@@ -70,16 +70,16 @@ class ErrorBoundary extends React.Component {
 
       // Default fallback UI
       return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+        <div className="min-h-screen flex items-center justify-center bg-soft px-4">
           <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6">
             {/* Error Icon and Title */}
             <div className="flex items-center gap-3 mb-4">
               <div className="text-error text-4xl">⚠️</div>
               <div>
-                <h2 className="text-xl font-bold text-gray-900">
+                <h2 className="text-xl font-bold text-ink">
                   {this.props.title || 'Une erreur est survenue'}
                 </h2>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-muted mt-1">
                   {this.props.message || 'Quelque chose s\'est mal passé'}
                 </p>
               </div>
@@ -88,10 +88,10 @@ class ErrorBoundary extends React.Component {
             {/* Error Details (dev mode only) */}
             {import.meta.env.DEV && this.state.error && (
               <details className="mt-4 text-xs">
-                <summary className="cursor-pointer text-gray-600 hover:text-gray-900 font-medium">
+                <summary className="cursor-pointer text-muted hover:text-ink font-medium">
                   Détails techniques (dev only)
                 </summary>
-                <pre className="mt-2 p-3 bg-gray-100 rounded overflow-auto text-error max-h-48">
+                <pre className="mt-2 p-3 bg-chip rounded overflow-auto text-error max-h-48">
                   {this.state.error.toString()}
                   {'\n\n'}
                   {this.state.errorInfo?.componentStack}
@@ -110,7 +110,7 @@ class ErrorBoundary extends React.Component {
               {this.props.showHomeButton && (
                 <button
                   onClick={() => window.location.href = '/'}
-                  className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300 transition"
+                  className="flex-1 bg-chip text-ink px-4 py-2 rounded hover:bg-line transition"
                 >
                   Retour accueil
                 </button>

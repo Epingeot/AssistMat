@@ -247,24 +247,24 @@ export const AuthProvider = ({ children }) => {
     <ErrorBoundary
       name="Auth Provider"
       fallback={({ error }) => (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+        <div className="min-h-screen flex items-center justify-center bg-soft px-4">
           <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
             <div className="text-center mb-6">
               <div className="text-error text-6xl mb-4">🔒</div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              <h2 className="text-2xl font-bold text-ink mb-2">
                 Erreur d'authentification
               </h2>
-              <p className="text-gray-600">
+              <p className="text-muted">
                 Impossible de charger votre session. Votre profil est peut-être corrompu ou votre session a expiré.
               </p>
             </div>
 
             {import.meta.env.DEV && (
               <details className="mb-6 text-xs">
-                <summary className="cursor-pointer text-gray-600 hover:text-gray-900">
+                <summary className="cursor-pointer text-muted hover:text-ink">
                   Détails de l'erreur
                 </summary>
-                <pre className="mt-2 p-3 bg-gray-100 rounded overflow-auto text-error max-h-32">
+                <pre className="mt-2 p-3 bg-chip rounded overflow-auto text-error max-h-32">
                   {error?.toString()}
                 </pre>
               </details>

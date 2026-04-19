@@ -338,7 +338,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]">
         <div className="bg-white rounded-lg p-8">
-          <div className="text-center text-gray-500">Chargement...</div>
+          <div className="text-center text-muted">Chargement...</div>
         </div>
       </div>
     )
@@ -353,16 +353,16 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
             {/* Header */}
             <div className="flex justify-between items-start mb-6">
               <div>
-                <h2 className="text-xl font-bold text-gray-800">
+                <h2 className="text-xl font-bold text-ink">
                   Reserver chez {assistante.prenom} {assistante.nom}
                 </h2>
-                <p className="text-gray-600 text-sm mt-1">
+                <p className="text-muted text-sm mt-1">
                   {assistante.code_postal} {assistante.ville}
                 </p>
               </div>
               <button
                 onClick={onClose}
-                className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+                className="text-subtle hover:text-muted text-2xl leading-none"
               >
                 ×
               </button>
@@ -370,7 +370,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
 
             {/* Auth required message */}
             <div className="bg-primary/10 border border-primary/30 rounded-lg p-4 mb-6">
-              <p className="text-text-base font-medium">
+              <p className="text-ink font-medium">
                 Connectez-vous pour envoyer une demande de reservation
               </p>
               <p className="text-sm text-primary mt-1">
@@ -390,7 +390,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
               {authMode === 'signup' && (
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-ink mb-1">
                       Prenom
                     </label>
                     <input
@@ -398,11 +398,11 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
                       value={authPrenom}
                       onChange={(e) => setAuthPrenom(e.target.value)}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                      className="w-full px-3 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-ink mb-1">
                       Nom
                     </label>
                     <input
@@ -410,14 +410,14 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
                       value={authNom}
                       onChange={(e) => setAuthNom(e.target.value)}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                      className="w-full px-3 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40"
                     />
                   </div>
                 </div>
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-ink mb-1">
                   Email
                 </label>
                 <input
@@ -425,12 +425,12 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
                   value={authEmail}
                   onChange={(e) => setAuthEmail(e.target.value)}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-ink mb-1">
                   Mot de passe
                 </label>
                 <input
@@ -439,7 +439,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
                   onChange={(e) => setAuthPassword(e.target.value)}
                   required
                   minLength={6}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40"
                 />
               </div>
 
@@ -459,7 +459,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
             {/* Toggle auth mode */}
             <div className="mt-4 text-center text-sm">
               {authMode === 'login' ? (
-                <p className="text-gray-600">
+                <p className="text-muted">
                   Pas encore de compte ?{' '}
                   <button
                     type="button"
@@ -473,7 +473,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
                   </button>
                 </p>
               ) : (
-                <p className="text-gray-600">
+                <p className="text-muted">
                   Deja un compte ?{' '}
                   <button
                     type="button"
@@ -493,7 +493,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
             <button
               type="button"
               onClick={onClose}
-              className="w-full mt-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition"
+              className="w-full mt-4 py-2 border border-line text-ink rounded-lg font-medium hover:bg-soft transition"
             >
               Annuler
             </button>
@@ -510,16 +510,16 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
           {/* Header */}
           <div className="flex justify-between items-start mb-6">
             <div>
-              <h2 className="text-2xl font-bold text-gray-800">
+              <h2 className="text-2xl font-bold text-ink">
                 Reserver chez {assistante.prenom} {assistante.nom}
               </h2>
-              <p className="text-gray-600 text-sm mt-1">
+              <p className="text-muted text-sm mt-1">
                 {assistante.adresse}, {assistante.ville}
               </p>
             </div>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+              className="text-subtle hover:text-muted text-2xl leading-none"
             >
               ×
             </button>
@@ -535,13 +535,13 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
           <div className="bg-primary/10 border border-primary/30 rounded-lg p-4 mb-6">
             <div className="flex flex-wrap gap-4 text-sm">
               <div>
-                <span className="text-gray-600">Capacité :</span>
+                <span className="text-muted">Capacité :</span>
                 <span className="ml-1 font-semibold text-primary">
                   {assistante.max_kids || 4} enfant{(assistante.max_kids || 4) > 1 ? 's' : ''}
                 </span>
               </div>
               <div>
-                <span className="text-gray-600">Vacances :</span>
+                <span className="text-muted">Vacances :</span>
                 <span className="ml-1 font-semibold text-primary">
                   {assistante.vacation_weeks || 5} sem/an
                 </span>
@@ -552,7 +552,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Child selection */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-ink mb-2">
                 Enfant concerné *
               </label>
               {children.length === 0 && !showAddChild ? (
@@ -563,7 +563,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
                   <button
                     type="button"
                     onClick={() => setShowAddChild(true)}
-                    className="px-4 py-2 bg-warning text-white rounded-lg hover:bg-warning/90 transition text-sm font-medium"
+                    className="px-4 py-2 bg-warning text-ink rounded-lg hover:bg-warning/90 transition text-sm font-medium"
                   >
                     + Ajouter un enfant
                   </button>
@@ -575,7 +575,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
                     value={newChildName}
                     onChange={(e) => setNewChildName(e.target.value)}
                     placeholder="Prénom de l'enfant"
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                    className="flex-1 px-4 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40"
                   />
                   <button
                     type="button"
@@ -587,7 +587,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
                   <button
                     type="button"
                     onClick={() => setShowAddChild(false)}
-                    className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                    className="px-4 py-2 border border-line rounded-lg hover:bg-soft"
                   >
                     Annuler
                   </button>
@@ -598,7 +598,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
                     value={selectedChild}
                     onChange={(e) => setSelectedChild(e.target.value)}
                     required
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                    className="flex-1 px-4 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40"
                   >
                     <option value="">Sélectionner un enfant</option>
                     {children.map(child => (
@@ -608,7 +608,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
                   <button
                     type="button"
                     onClick={() => setShowAddChild(true)}
-                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                    className="px-4 py-2 border border-line text-ink rounded-lg hover:bg-soft"
                   >
                     + Nouveau
                   </button>
@@ -628,11 +628,11 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
                       setDateFin('') // Clear date_fin when unchecking
                     }
                   }}
-                  className="h-5 w-5 accent-warning focus:ring-warning border-gray-300 rounded"
+                  className="h-5 w-5 accent-warning focus:ring-warning border-line rounded"
                 />
                 <div>
-                  <span className="font-medium text-gray-900">Remplacement (CDD)</span>
-                  <p className="text-xs text-gray-600 mt-0.5">
+                  <span className="font-medium text-ink">Remplacement (CDD)</span>
+                  <p className="text-xs text-muted mt-0.5">
                     Cochez si vous cherchez un accueil temporaire avec une date de fin définie
                   </p>
                 </div>
@@ -642,7 +642,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
             {/* Dates */}
             <div className={`grid gap-4 ${isRemplacement ? 'grid-cols-2' : 'grid-cols-1'}`}>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-ink mb-2">
                   Date de début *
                 </label>
                 <input
@@ -651,12 +651,12 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
                   onChange={(e) => setDateDebut(e.target.value)}
                   min={today}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                  className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40"
                 />
               </div>
               {isRemplacement && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-ink mb-2">
                     Date de fin *
                   </label>
                   <input
@@ -665,14 +665,14 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
                     onChange={(e) => setDateFin(e.target.value)}
                     min={dateDebut || today}
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                    className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40"
                   />
                 </div>
               )}
             </div>
 
             {isRemplacement && dateDebut && dateFin && (
-              <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+              <div className="text-sm text-muted bg-soft p-3 rounded-lg">
                 Durée du remplacement : {formatDuration(parseLocalDate(dateDebut), parseLocalDate(dateFin))}
               </div>
             )}
@@ -685,10 +685,10 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
 
             {/* Time slots selection */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
+              <label className="block text-sm font-medium text-ink mb-3">
                 Créneaux souhaités *
               </label>
-              <p className="text-xs text-gray-500 mb-4">
+              <p className="text-xs text-muted mb-4">
                 Sélectionnez les jours et horaires souhaités pour votre enfant
               </p>
 
@@ -734,10 +734,10 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
                       key={index}
                       className={`p-3 rounded-lg border-2 transition ${
                         !canSelectDay
-                          ? 'bg-gray-50 border-gray-200 opacity-60'
+                          ? 'bg-soft border-hairline opacity-60'
                           : isSelected
                           ? 'bg-primary/10 border-primary/40'
-                          : 'bg-white border-gray-200 hover:border-gray-300'
+                          : 'bg-white border-hairline hover:border-line'
                       }`}
                     >
                       <div className="flex items-center gap-4">
@@ -758,10 +758,10 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
                           }}
                           className={`w-24 py-2 px-3 rounded-lg font-medium text-sm capitalize transition ${
                             !canSelectDay
-                              ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                              ? 'bg-chip text-subtle cursor-not-allowed'
                               : isSelected
                               ? 'bg-primary text-white'
-                              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                              : 'bg-chip text-ink hover:bg-line'
                           }`}
                         >
                           {jourNom.substring(0, 3)}
@@ -774,7 +774,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
                               <select
                                 value={selectedSlot.heure_debut}
                                 onChange={(e) => updateDayTime(index, 'heure_debut', e.target.value)}
-                                className="px-2 py-1 border border-gray-300 rounded text-sm"
+                                className="px-2 py-1 border border-line rounded text-sm"
                               >
                                 {timeOptions
                                   .filter(t => t >= daySchedule.heure_debut && t < daySchedule.heure_fin)
@@ -782,11 +782,11 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
                                     <option key={t} value={t}>{formatTime(t)}</option>
                                   ))}
                               </select>
-                              <span className="text-gray-500">à</span>
+                              <span className="text-muted">à</span>
                               <select
                                 value={selectedSlot.heure_fin}
                                 onChange={(e) => updateDayTime(index, 'heure_fin', e.target.value)}
-                                className="px-2 py-1 border border-gray-300 rounded text-sm"
+                                className="px-2 py-1 border border-line rounded text-sm"
                               >
                                 {timeOptions
                                   .filter(t => t > selectedSlot.heure_debut && t <= daySchedule.heure_fin)
@@ -794,17 +794,17 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
                                     <option key={t} value={t}>{formatTime(t)}</option>
                                   ))}
                               </select>
-                              <span className="text-xs text-gray-500 ml-2">
+                              <span className="text-xs text-muted ml-2">
                                 ({calculateHours(selectedSlot.heure_debut, selectedSlot.heure_fin)}h)
                               </span>
                             </div>
                           ) : (
-                            <span className="text-sm text-gray-500">
+                            <span className="text-sm text-muted">
                               Disponible : {formatTime(daySchedule.heure_debut)} - {formatTime(daySchedule.heure_fin)}
                             </span>
                           )
                         ) : !isWorking ? (
-                          <span className="text-sm text-gray-400 italic">
+                          <span className="text-sm text-subtle italic">
                             Non travaillé
                           </span>
                         ) : isCDIFull ? (
@@ -829,7 +829,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
 
             {/* Notes/Message */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-ink mb-2">
                 Message pour l'assistante (optionnel)
               </label>
               <textarea
@@ -838,9 +838,9 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
                 placeholder="Ex: Besoin de places pour jumeaux, horaires flexibles, allergies particulières..."
                 rows={4}
                 maxLength={500}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+                className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent resize-none"
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-muted mt-1">
                 {notes.length}/500 caractères
               </p>
             </div>
@@ -848,28 +848,28 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
             {/* Summary */}
             {selectedSlots.length > 0 && (
               <div className="bg-success/10 border border-success/30 rounded-lg p-4">
-                <h4 className="font-medium text-gray-800 mb-3">Récapitulatif</h4>
+                <h4 className="font-medium text-ink mb-3">Récapitulatif</h4>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <p className="text-gray-600">Heures par semaine</p>
-                    <p className="text-xl font-bold text-text-base">
+                    <p className="text-muted">Heures par semaine</p>
+                    <p className="text-xl font-bold text-ink">
                       {formatHours(weeklyHours)}
                     </p>
                   </div>
                   <div>
-                    <p className="text-gray-600">
+                    <p className="text-muted">
                       Moyenne mensuelle
-                      <span className="text-xs text-gray-500 block">
+                      <span className="text-xs text-muted block">
                         (avec {assistante.vacation_weeks || 5} sem. de vacances)
                       </span>
                     </p>
-                    <p className="text-xl font-bold text-text-base">
+                    <p className="text-xl font-bold text-ink">
                       {formatHours(avgMonthlyHours)}
                     </p>
                   </div>
                 </div>
                 <div className="mt-3 pt-3 border-t border-success/30">
-                  <p className="text-xs text-gray-600">
+                  <p className="text-xs text-muted">
                     Jours sélectionnés : {selectedSlots.map(s => JOURS[s.jour].substring(0, 3)).join(', ')}
                   </p>
                 </div>
@@ -881,7 +881,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition"
+                className="flex-1 px-4 py-3 border border-line text-ink rounded-lg font-semibold hover:bg-soft transition"
               >
                 Annuler
               </button>
@@ -895,7 +895,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
             </div>
           </form>
 
-          <p className="text-xs text-gray-500 mt-4 text-center">
+          <p className="text-xs text-muted mt-4 text-center">
             Votre demande sera envoyée à l'assistante maternelle qui pourra l'accepter ou la refuser.
           </p>
         </div>

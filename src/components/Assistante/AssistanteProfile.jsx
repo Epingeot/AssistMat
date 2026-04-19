@@ -306,7 +306,7 @@ export default function AssistanteProfile() {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="text-lg text-gray-600">Chargement de votre profil...</div>
+        <div className="text-lg text-muted">Chargement de votre profil...</div>
       </div>
     )
   }
@@ -314,7 +314,7 @@ export default function AssistanteProfile() {
   return (
     <div className="max-w-3xl mx-auto px-4 md:px-0">
       <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">
+        <h2 className="text-2xl font-bold text-ink mb-6">
           Mon profil professionnel
         </h2>
 
@@ -325,7 +325,7 @@ export default function AssistanteProfile() {
         )}
 
         {message && (
-          <div className="bg-success/10 border border-success/30 text-text-base px-4 py-3 rounded-lg mb-4">
+          <div className="bg-success/10 border border-success/30 text-ink px-4 py-3 rounded-lg mb-4">
             {message}
           </div>
         )}
@@ -354,7 +354,7 @@ export default function AssistanteProfile() {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Photo de profil */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+            <label className="block text-sm font-medium text-ink mb-3">
               Photo de profil
             </label>
             <div className="flex items-start gap-4">
@@ -367,8 +367,8 @@ export default function AssistanteProfile() {
                     className="w-24 h-24 rounded-full object-cover border-2 border-primary/30"
                   />
                 ) : (
-                  <div className="w-24 h-24 rounded-full bg-gray-100 border-2 border-gray-300 flex items-center justify-center">
-                    <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-24 h-24 rounded-full bg-chip border-2 border-line flex items-center justify-center">
+                    <svg className="w-12 h-12 text-subtle" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                   </div>
@@ -386,11 +386,11 @@ export default function AssistanteProfile() {
                 />
                 <label
                   htmlFor="photo-upload"
-                  className="inline-block px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer transition"
+                  className="inline-block px-4 py-2 bg-white border border-line rounded-lg text-sm font-medium text-ink hover:bg-soft cursor-pointer transition"
                 >
                   {photoPreview ? 'Changer la photo' : 'Choisir une photo'}
                 </label>
-                <p className="text-xs text-gray-500 mt-2">
+                <p className="text-xs text-muted mt-2">
                   JPG, PNG ou WebP • Max 2 MB
                 </p>
               </div>
@@ -415,10 +415,10 @@ export default function AssistanteProfile() {
           {/* Afficher l'adresse validée seulement si nouvellement sélectionnée */}
           {validatedAddress && validatedAddress.latitude && validatedAddress.longitude && (
             <div className="p-3 bg-success/10 border border-success/30 rounded-lg">
-              <p className="text-sm font-semibold text-text-base mb-1">
+              <p className="text-sm font-semibold text-ink mb-1">
                 ✅ Adresse validée
               </p>
-              <p className="text-sm text-text-base">
+              <p className="text-sm text-ink">
                 {validatedAddress.fullAddress}
               </p>
             </div>
@@ -427,7 +427,7 @@ export default function AssistanteProfile() {
           {/* Ville et Code postal */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-ink mb-2">
                 Ville *
               </label>
               <input
@@ -437,11 +437,11 @@ export default function AssistanteProfile() {
                 readOnly
                 required
                 placeholder="Sélectionnez une adresse"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 cursor-not-allowed"
+                className="w-full px-4 py-2 border border-line rounded-lg bg-soft text-ink cursor-not-allowed"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-ink mb-2">
                 Code postal *
               </label>
               <input
@@ -451,19 +451,19 @@ export default function AssistanteProfile() {
                 readOnly
                 required
                 placeholder="00000"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 cursor-not-allowed"
+                className="w-full px-4 py-2 border border-line rounded-lg bg-soft text-ink cursor-not-allowed"
               />
             </div>
           </div>
 
           {/* Contact Information */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+            <label className="block text-sm font-medium text-ink mb-3">
               Informations de contact (optionnel)
             </label>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs text-gray-600 mb-2">
+                <label className="block text-xs text-muted mb-2">
                   Téléphone
                 </label>
                 <input
@@ -473,11 +473,11 @@ export default function AssistanteProfile() {
                   onChange={handleChange}
                   placeholder="06 12 34 56 78"
                   autoComplete="tel"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent"
                 />
               </div>
               <div>
-                <label className="block text-xs text-gray-600 mb-2">
+                <label className="block text-xs text-muted mb-2">
                   Email
                 </label>
                 <input
@@ -487,11 +487,11 @@ export default function AssistanteProfile() {
                   onChange={handleChange}
                   placeholder="votre@email.com"
                   autoComplete="email"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent"
                 />
               </div>
             </div>
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-muted mt-2">
               Ces informations seront visibles par les parents intéressés par vos services.
             </p>
           </div>
@@ -499,7 +499,7 @@ export default function AssistanteProfile() {
           {/* Capacité d'accueil */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-ink mb-2">
                 Nombre d'enfants max *
               </label>
               <select
@@ -507,45 +507,45 @@ export default function AssistanteProfile() {
                 value={formData.max_kids}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent"
               >
                 {[1, 2, 3, 4].map(n => (
                   <option key={n} value={n}>{n} enfant{n > 1 ? 's' : ''}</option>
                 ))}
               </select>
-              <p className="text-xs text-gray-500 mt-1">Capacité simultanée</p>
+              <p className="text-xs text-muted mt-1">Capacité simultanée</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-ink mb-2">
                 Jours max par enfant
               </label>
               <select
                 name="max_days_per_week_per_kid"
                 value={formData.max_days_per_week_per_kid}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent"
               >
                 {[1, 2, 3, 4, 5, 6, 7].map(n => (
                   <option key={n} value={n}>{n} jour{n > 1 ? 's' : ''}/semaine</option>
                 ))}
               </select>
-              <p className="text-xs text-gray-500 mt-1">Par enfant</p>
+              <p className="text-xs text-muted mt-1">Par enfant</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-ink mb-2">
                 Semaines de vacances
               </label>
               <select
                 name="vacation_weeks"
                 value={formData.vacation_weeks}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent"
               >
                 {[0, 1, 2, 3, 4, 5, 6, 7, 8].map(n => (
                   <option key={n} value={n}>{n} semaine{n > 1 ? 's' : ''}</option>
                 ))}
               </select>
-              <p className="text-xs text-gray-500 mt-1">Semaines de congés par an</p>
+              <p className="text-xs text-muted mt-1">Semaines de congés par an</p>
             </div>
           </div>
 
@@ -558,34 +558,34 @@ export default function AssistanteProfile() {
 
           {/* Options supplémentaires */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+            <label className="block text-sm font-medium text-ink mb-3">
               Services proposés (optionnel)
             </label>
             <div className="space-y-2">
-              <label className="flex items-start gap-3 p-3 border border-gray-300 rounded-lg hover:bg-primary/5 cursor-pointer transition">
+              <label className="flex items-start gap-3 p-3 border border-line rounded-lg hover:bg-primary/5 cursor-pointer transition">
                 <input
                   type="checkbox"
                   name="accepts_periscolaire"
                   checked={formData.accepts_periscolaire}
                   onChange={handleChange}
-                  className="mt-1 h-4 w-4 accent-primary focus:ring-primary border-gray-300 rounded"
+                  className="mt-1 h-4 w-4 accent-primary focus:ring-primary border-line rounded"
                 />
                 <div className="flex-1">
-                  <div className="font-medium text-gray-900">Accueil périscolaire</div>
-                  <div className="text-xs text-gray-500">Avant/après l'école, mercredis, vacances scolaires</div>
+                  <div className="font-medium text-ink">Accueil périscolaire</div>
+                  <div className="text-xs text-muted">Avant/après l'école, mercredis, vacances scolaires</div>
                 </div>
               </label>
-              <label className="flex items-start gap-3 p-3 border border-gray-300 rounded-lg hover:bg-primary/5 cursor-pointer transition">
+              <label className="flex items-start gap-3 p-3 border border-line rounded-lg hover:bg-primary/5 cursor-pointer transition">
                 <input
                   type="checkbox"
                   name="accepts_remplacements"
                   checked={formData.accepts_remplacements}
                   onChange={handleChange}
-                  className="mt-1 h-4 w-4 accent-primary focus:ring-primary border-gray-300 rounded"
+                  className="mt-1 h-4 w-4 accent-primary focus:ring-primary border-line rounded"
                 />
                 <div className="flex-1">
-                  <div className="font-medium text-gray-900">Disponible pour remplacements</div>
-                  <div className="text-xs text-gray-500">Contrats courts (CDD) pour remplacer une autre assistante</div>
+                  <div className="font-medium text-ink">Disponible pour remplacements</div>
+                  <div className="text-xs text-muted">Contrats courts (CDD) pour remplacer une autre assistante</div>
                 </div>
               </label>
             </div>
@@ -594,7 +594,7 @@ export default function AssistanteProfile() {
           {/* Agrément */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-ink mb-2">
                 Numéro d'agrément
               </label>
               <input
@@ -604,11 +604,11 @@ export default function AssistanteProfile() {
                 onChange={handleChange}
                 placeholder="Ex: 075123456"
                 autoComplete="off"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-ink mb-2">
                 Date d'obtention
               </label>
               <input
@@ -616,14 +616,14 @@ export default function AssistanteProfile() {
                 name="agrement_date"
                 value={formData.agrement_date}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent"
               />
             </div>
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-ink mb-2">
               Description
             </label>
             <textarea
@@ -632,43 +632,43 @@ export default function AssistanteProfile() {
               onChange={handleChange}
               rows="4"
               placeholder="Présentez-vous et décrivez votre cadre d'accueil..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent"
             />
           </div>
 
           {/* Informations complémentaires */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+            <label className="block text-sm font-medium text-ink mb-3">
               Informations complémentaires
             </label>
             <div className="space-y-3">
               {/* Jardin */}
-              <label className="flex items-center gap-3 p-3 border border-gray-300 rounded-lg hover:bg-primary/5 cursor-pointer transition">
+              <label className="flex items-center gap-3 p-3 border border-line rounded-lg hover:bg-primary/5 cursor-pointer transition">
                 <input
                   type="checkbox"
                   name="has_garden"
                   checked={formData.has_garden}
                   onChange={handleChange}
-                  className="h-4 w-4 accent-primary focus:ring-primary border-gray-300 rounded"
+                  className="h-4 w-4 accent-primary focus:ring-primary border-line rounded"
                 />
                 <div className="flex-1">
-                  <div className="font-medium text-gray-900">Jardin disponible</div>
-                  <div className="text-xs text-gray-500">Espace extérieur pour les enfants</div>
+                  <div className="font-medium text-ink">Jardin disponible</div>
+                  <div className="text-xs text-muted">Espace extérieur pour les enfants</div>
                 </div>
               </label>
 
               {/* Animaux */}
-              <label className="flex items-center gap-3 p-3 border border-gray-300 rounded-lg hover:bg-primary/5 cursor-pointer transition">
+              <label className="flex items-center gap-3 p-3 border border-line rounded-lg hover:bg-primary/5 cursor-pointer transition">
                 <input
                   type="checkbox"
                   name="has_pets"
                   checked={formData.has_pets}
                   onChange={handleChange}
-                  className="h-4 w-4 accent-primary focus:ring-primary border-gray-300 rounded"
+                  className="h-4 w-4 accent-primary focus:ring-primary border-line rounded"
                 />
                 <div className="flex-1">
-                  <div className="font-medium text-gray-900">Présence d'animaux</div>
-                  <div className="text-xs text-gray-500">Des animaux domestiques sont présents au domicile</div>
+                  <div className="font-medium text-ink">Présence d'animaux</div>
+                  <div className="text-xs text-muted">Des animaux domestiques sont présents au domicile</div>
                 </div>
               </label>
 
@@ -681,9 +681,9 @@ export default function AssistanteProfile() {
                     value={formData.pets_description}
                     onChange={handleChange}
                     placeholder="Ex: 1 chat, 1 petit chien (Yorkshire)..."
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+                    className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent text-sm"
                   />
-                  <p className="text-xs text-gray-500 mt-1 ml-1">
+                  <p className="text-xs text-muted mt-1 ml-1">
                     Précisez le type et la race des animaux
                   </p>
                 </div>

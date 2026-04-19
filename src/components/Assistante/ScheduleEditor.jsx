@@ -69,7 +69,7 @@ export default function ScheduleEditor({ schedule, vacationWeeks = 5, onChange }
 
   return (
     <div className="space-y-4">
-      <label className="block text-sm font-medium text-gray-700">
+      <label className="block text-sm font-medium text-ink">
         Horaires de travail
       </label>
 
@@ -81,7 +81,7 @@ export default function ScheduleEditor({ schedule, vacationWeeks = 5, onChange }
             className={`flex items-center gap-3 p-3 rounded-lg border-2 transition ${
               day.enabled
                 ? 'border-primary/40 bg-primary/10'
-                : 'border-gray-200 bg-gray-50'
+                : 'border-hairline bg-soft'
             }`}
           >
             {/* Day toggle */}
@@ -91,7 +91,7 @@ export default function ScheduleEditor({ schedule, vacationWeeks = 5, onChange }
               className={`w-24 py-2 px-3 rounded-lg font-medium text-sm capitalize transition ${
                 day.enabled
                   ? 'bg-primary text-white'
-                  : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                  : 'bg-chip text-muted hover:bg-line'
               }`}
             >
               {JOURS[index]}
@@ -103,7 +103,7 @@ export default function ScheduleEditor({ schedule, vacationWeeks = 5, onChange }
                 <select
                   value={day.heure_debut}
                   onChange={(e) => updateStartTime(index, e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent"
                 >
                   {timeOptions.map(time => (
                     <option key={time} value={time}>
@@ -112,12 +112,12 @@ export default function ScheduleEditor({ schedule, vacationWeeks = 5, onChange }
                   ))}
                 </select>
 
-                <span className="text-gray-500">à</span>
+                <span className="text-muted">à</span>
 
                 <select
                   value={day.heure_fin}
                   onChange={(e) => updateEndTime(index, e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="px-3 py-2 border border-line rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent"
                 >
                   {timeOptions
                     .filter(time => time > day.heure_debut)
@@ -129,12 +129,12 @@ export default function ScheduleEditor({ schedule, vacationWeeks = 5, onChange }
                 </select>
 
                 {/* Hours for this day */}
-                <span className="text-sm text-gray-500 ml-auto">
+                <span className="text-sm text-muted ml-auto">
                   {formatTimeRange(day.heure_debut, day.heure_fin)}
                 </span>
               </div>
             ) : (
-              <span className="text-sm text-gray-400 italic">
+              <span className="text-sm text-subtle italic">
                 Non travaillé
               </span>
             )}
@@ -147,15 +147,15 @@ export default function ScheduleEditor({ schedule, vacationWeeks = 5, onChange }
         <div className="bg-peach/10 border border-peach/40 rounded-lg p-4 mt-4">
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <p className="text-gray-600">Heures par semaine</p>
+              <p className="text-muted">Heures par semaine</p>
               <p className="text-xl font-bold text-peach">
                 {formatHours(weeklyHours)}
               </p>
             </div>
             <div>
-              <p className="text-gray-600">
+              <p className="text-muted">
                 Moyenne mensuelle
-                <span className="text-xs text-gray-500 block">
+                <span className="text-xs text-muted block">
                   (avec {vacationWeeks} sem. de vacances)
                 </span>
               </p>

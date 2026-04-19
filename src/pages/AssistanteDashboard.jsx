@@ -63,7 +63,7 @@ export default function AssistanteDashboard() {
   if (activeTab === null) {
     return (
       <div className="min-h-screen bg-surface flex items-center justify-center">
-        <div className="text-lg text-gray-600">Chargement...</div>
+        <div className="text-lg text-muted">Chargement...</div>
       </div>
     )
   }
@@ -75,10 +75,10 @@ export default function AssistanteDashboard() {
         <div className="max-w-7xl mx-auto px-4 py-3 md:py-4 flex justify-between items-center">
           <div>
             <h1 className="text-xl md:text-2xl font-bold text-primary">AssistMat</h1>
-            <p className="text-xs md:text-sm text-gray-600 hidden sm:block">Espace Assistante Maternelle</p>
+            <p className="text-xs md:text-sm text-muted hidden sm:block">Espace Assistante Maternelle</p>
           </div>
           <div className="flex items-center gap-2 md:gap-4">
-            <span className="text-sm md:text-base text-gray-700 hidden md:block">
+            <span className="text-sm md:text-base text-ink hidden md:block">
               {profile?.prenom} {profile?.nom}
             </span>
             <button
@@ -101,7 +101,7 @@ export default function AssistanteDashboard() {
             className={`px-4 md:px-6 py-2.5 md:py-3 rounded-lg font-semibold transition text-sm md:text-base ${
               activeTab === 'profil'
                 ? 'bg-primary text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-50 active:bg-gray-100'
+                : 'bg-white text-ink hover:bg-soft active:bg-chip'
             }`}
           >
             👤 <span className="hidden sm:inline">Mon </span>Profil
@@ -111,7 +111,7 @@ export default function AssistanteDashboard() {
             className={`px-4 md:px-6 py-2.5 md:py-3 rounded-lg font-semibold transition text-sm md:text-base ${
               activeTab === 'planning'
                 ? 'bg-primary text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-50 active:bg-gray-100'
+                : 'bg-white text-ink hover:bg-soft active:bg-chip'
             }`}
           >
             📆 Planning
@@ -121,7 +121,7 @@ export default function AssistanteDashboard() {
             className={`px-4 md:px-6 py-2.5 md:py-3 rounded-lg font-semibold transition text-sm md:text-base ${
               activeTab === 'reservations'
                 ? 'bg-primary text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-50 active:bg-gray-100'
+                : 'bg-white text-ink hover:bg-soft active:bg-chip'
             }`}
           >
             📋 Demandes
@@ -145,7 +145,7 @@ export default function AssistanteDashboard() {
             message="Impossible de charger le planning."
           >
             <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
-              <h2 className="text-xl font-bold text-gray-800 mb-4">
+              <h2 className="text-xl font-bold text-ink mb-4">
                 Mon planning
               </h2>
               {assistanteId ? (
@@ -155,7 +155,7 @@ export default function AssistanteDashboard() {
                   showChildNames={true}
                 />
               ) : (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-8 text-muted">
                   <p>Veuillez d'abord compléter votre profil pour voir votre planning.</p>
                   <button
                     onClick={() => setActiveTab('profil')}

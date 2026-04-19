@@ -1,10 +1,54 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { logger } from '../../utils/logger'
 
+// Must match Supabase server policy (Dashboard → Authentication → Providers → Email → Password Requirements).
+// Update both together or users will see mismatched rules vs. actual signup rejections.
+const PASSWORD_MIN_LENGTH = 8
+
+const passwordRules = [
+  { label: `Au moins ${PASSWORD_MIN_LENGTH} caractères`, test: (p) => p.length >= PASSWORD_MIN_LENGTH },
+  { label: 'Une lettre minuscule', test: (p) => /[a-z]/.test(p) },
+  { label: 'Une lettre majuscule', test: (p) => /[A-Z]/.test(p) },
+  { label: 'Un chiffre', test: (p) => /[0-9]/.test(p) },
+]
+
+const translateAuthError = (err) => {
+  if (!err) return 'Une erreur est survenue. Veuillez réessayer.'
+
+  switch (err.code) {
+    case 'invalid_credentials':
+      return 'Email ou mot de passe incorrect.'
+    case 'email_not_confirmed':
+      return 'Email non confirmé. Vérifiez votre boîte de réception.'
+    case 'user_already_exists':
+    case 'email_exists':
+      return 'Un compte existe déjà avec cet email.'
+    case 'weak_password':
+      return "Le mot de passe ne respecte pas les exigences de sécurité."
+    case 'email_address_invalid':
+    case 'validation_failed':
+      return 'Adresse email invalide.'
+    case 'over_email_send_rate_limit':
+    case 'over_request_rate_limit':
+      return 'Trop de tentatives. Veuillez réessayer dans quelques minutes.'
+    case 'signup_disabled':
+      return "Les inscriptions sont désactivées pour le moment."
+  }
+
+  // Non-AuthError fallbacks (network failures, etc. have no code)
+  const msg = (err.message || '').toLowerCase()
+  if (msg.includes('network') || msg.includes('failed to fetch')) {
+    return 'Erreur réseau. Vérifiez votre connexion.'
+  }
+
+  return 'Une erreur est survenue. Veuillez réessayer.'
+}
+
 export default function AuthForm() {
-  const [isLogin, setIsLogin] = useState(true)
+  const [searchParams] = useSearchParams()
+  const [isLogin, setIsLogin] = useState(searchParams.get('mode') !== 'signup')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [nom, setNom] = useState('')
@@ -36,7 +80,7 @@ export default function AuthForm() {
       }
     } catch (err) {
       logger.error('🔐 AuthForm: Error:', err)
-      setError(err.message)
+      setError(translateAuthError(err))
     } finally {
       setLoading(false)
       logger.log('🔐 AuthForm: Done')
@@ -47,10 +91,10 @@ export default function AuthForm() {
     <div className="min-h-screen bg-surface flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+          <h1 className="text-3xl font-bold text-ink mb-2">
             {isLogin ? 'Connexion' : 'Inscription'}
           </h1>
-          <p className="text-gray-600">
+          <p className="text-muted">
             {isLogin 
               ? 'Connectez-vous à votre compte' 
               : 'Créez votre compte'}
@@ -73,7 +117,7 @@ export default function AuthForm() {
           {!isLogin && (
             <>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-ink mb-2">
                   Rôle
                 </label>
                 <div className="grid grid-cols-2 gap-3">
@@ -83,7 +127,7 @@ export default function AuthForm() {
                     className={`p-3 rounded-lg border-2 transition ${
                       role === 'parent'
                         ? 'border-secondary bg-secondary/10 text-secondary'
-                        : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                        : 'border-hairline text-muted hover:border-line'
                     }`}
                   >
                     👨‍👩‍👧 Parent
@@ -94,7 +138,7 @@ export default function AuthForm() {
                     className={`p-3 rounded-lg border-2 transition ${
                       role === 'assistante'
                         ? 'border-primary bg-primary/10 text-primary'
-                        : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                        : 'border-hairline text-muted hover:border-line'
                     }`}
                   >
                     👶 Assistante
@@ -104,7 +148,7 @@ export default function AuthForm() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-ink mb-2">
                     Prénom
                   </label>
                   <input
@@ -113,11 +157,11 @@ export default function AuthForm() {
                     onChange={(e) => setPrenom(e.target.value)}
                     required
                     autoComplete="given-name"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-ink mb-2">
                     Nom
                   </label>
                   <input
@@ -126,7 +170,7 @@ export default function AuthForm() {
                     onChange={(e) => setNom(e.target.value)}
                     required
                     autoComplete="family-name"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent"
                   />
                 </div>
               </div>
@@ -134,7 +178,7 @@ export default function AuthForm() {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-ink mb-2">
               Email
             </label>
             <input
@@ -143,13 +187,13 @@ export default function AuthForm() {
               onChange={(e) => setEmail(e.target.value)}
               required
               autoComplete="email"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent"
               placeholder="vous@exemple.com"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-ink mb-2">
               Mot de passe
             </label>
             <input
@@ -157,11 +201,26 @@ export default function AuthForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              minLength={6}
+              minLength={PASSWORD_MIN_LENGTH}
               autoComplete={isLogin ? "current-password" : "new-password"}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent"
               placeholder="••••••••"
             />
+            {!isLogin && (
+              <ul className="mt-2 space-y-0.5 text-xs">
+                {passwordRules.map((rule) => {
+                  const ok = rule.test(password)
+                  return (
+                    <li
+                      key={rule.label}
+                      className={ok ? 'text-success' : 'text-muted'}
+                    >
+                      {ok ? '✓' : '○'} {rule.label}
+                    </li>
+                  )
+                })}
+              </ul>
+            )}
           </div>
 
           <button
@@ -175,7 +234,11 @@ export default function AuthForm() {
 
         <div className="mt-6 text-center">
           <button
-            onClick={() => setIsLogin(!isLogin)}
+            onClick={() => {
+              setIsLogin(!isLogin)
+              setError(null)
+              setMessage(null)
+            }}
             className="text-primary hover:text-primary/80 font-medium"
           >
             {isLogin
@@ -184,10 +247,10 @@ export default function AuthForm() {
           </button>
         </div>
 
-        <div className="mt-4 text-center text-sm text-gray-500">
+        <div className="mt-4 text-center text-sm text-muted">
           <Link
             to="/disclaimer"
-            className="hover:text-gray-700 underline"
+            className="hover:text-ink underline"
           >
             Mentions légales et avertissement
           </Link>

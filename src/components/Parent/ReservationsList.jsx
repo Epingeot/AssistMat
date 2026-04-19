@@ -73,7 +73,7 @@ export default function ReservationsList() {
   if (loading) {
     return (
       <div className="flex justify-center items-center p-8">
-        <div className="text-lg text-gray-600">Chargement...</div>
+        <div className="text-lg text-muted">Chargement...</div>
       </div>
     )
   }
@@ -82,10 +82,10 @@ export default function ReservationsList() {
     return (
       <div className="bg-white rounded-lg shadow-md p-8 text-center">
         <div className="text-6xl mb-4">📅</div>
-        <h3 className="text-xl font-semibold text-gray-700 mb-2">
+        <h3 className="text-xl font-semibold text-ink mb-2">
           Aucune réservation
         </h3>
-        <p className="text-gray-600">
+        <p className="text-muted">
           Vos demandes de réservation apparaîtront ici.
         </p>
       </div>
@@ -102,7 +102,7 @@ export default function ReservationsList() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800">
+        <h2 className="text-2xl font-bold text-ink">
           Mes réservations
         </h2>
       </div>
@@ -114,7 +114,7 @@ export default function ReservationsList() {
           className={`px-4 py-2 rounded-lg font-semibold transition ${
             filter === 'all'
               ? 'bg-primary text-white'
-              : 'bg-white text-gray-700 hover:bg-gray-50'
+              : 'bg-white text-ink hover:bg-soft'
           }`}
         >
           Toutes ({counts.all})
@@ -123,8 +123,8 @@ export default function ReservationsList() {
           onClick={() => setFilter('en_attente')}
           className={`px-4 py-2 rounded-lg font-semibold transition ${
             filter === 'en_attente'
-              ? 'bg-warning text-white'
-              : 'bg-white text-gray-700 hover:bg-gray-50'
+              ? 'bg-warning text-ink'
+              : 'bg-white text-ink hover:bg-soft'
           }`}
         >
           ⏳ En attente ({counts.en_attente})
@@ -133,8 +133,8 @@ export default function ReservationsList() {
           onClick={() => setFilter('confirmee')}
           className={`px-4 py-2 rounded-lg font-semibold transition ${
             filter === 'confirmee'
-              ? 'bg-accent text-text-base'
-              : 'bg-white text-gray-700 hover:bg-gray-50'
+              ? 'bg-accent text-ink'
+              : 'bg-white text-ink hover:bg-soft'
           }`}
         >
           ✅ Confirmées ({counts.confirmee})
@@ -144,7 +144,7 @@ export default function ReservationsList() {
           className={`px-4 py-2 rounded-lg font-semibold transition ${
             filter === 'annulee'
               ? 'bg-error text-white'
-              : 'bg-white text-gray-700 hover:bg-gray-50'
+              : 'bg-white text-ink hover:bg-soft'
           }`}
         >
           ❌ Annulées ({counts.annulee})
@@ -182,10 +182,10 @@ export default function ReservationsList() {
             >
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="text-lg font-bold text-gray-800">
+                  <h3 className="text-lg font-bold text-ink">
                     {reservation.assistante.profile.prenom} {reservation.assistante.profile.nom}
                   </h3>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted">
                     {reservation.assistante.adresse}, {reservation.assistante.ville}
                   </p>
                   {/* Show contact info when reservation is confirmed */}
@@ -217,7 +217,7 @@ export default function ReservationsList() {
                     reservation.statut === 'en_attente'
                       ? 'bg-warning/20 text-warning'
                       : reservation.statut === 'confirmee'
-                      ? 'bg-success/20 text-text-base'
+                      ? 'bg-success/20 text-ink'
                       : 'bg-error/20 text-error'
                   }`}
                 >
@@ -229,30 +229,30 @@ export default function ReservationsList() {
 
               <div className={`grid gap-4 mb-4 ${isRemplacement ? 'grid-cols-2' : 'grid-cols-1'}`}>
                 <div>
-                  <p className="text-sm text-gray-600">Début</p>
+                  <p className="text-sm text-muted">Début</p>
                   <p className="font-semibold">
                     {format(parseLocalDate(reservation.date_debut), 'dd MMMM yyyy', { locale: fr })}
                   </p>
                 </div>
                 {isRemplacement && (
                   <div>
-                    <p className="text-sm text-gray-600">Fin</p>
+                    <p className="text-sm text-muted">Fin</p>
                     <p className="font-semibold">
                       {format(parseLocalDate(reservation.date_fin), 'dd MMMM yyyy', { locale: fr })}
                     </p>
-                    <p className="text-sm text-gray-600">Durée : {duree}</p>
+                    <p className="text-sm text-muted">Durée : {duree}</p>
                   </div>
                 )}
               </div>
 
               {/* Time slots by day */}
               <div className="mb-4">
-                <p className="text-sm text-gray-600 mb-2">Créneaux réservés :</p>
+                <p className="text-sm text-muted mb-2">Créneaux réservés :</p>
                 {Object.keys(slotsByDay).length > 0 ? (
                   <div className="space-y-2">
                     {JOURS.filter(jour => slotsByDay[jour]).map(jour => (
                       <div key={jour} className="flex items-center gap-2">
-                        <span className="w-20 text-sm font-medium text-gray-700 capitalize">
+                        <span className="w-20 text-sm font-medium text-ink capitalize">
                           {jour}
                         </span>
                         <div className="flex gap-1 flex-wrap">
@@ -269,7 +269,7 @@ export default function ReservationsList() {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-500 italic">Aucun créneau spécifié</p>
+                  <p className="text-sm text-muted italic">Aucun créneau spécifié</p>
                 )}
               </div>
 
@@ -290,9 +290,9 @@ export default function ReservationsList() {
                   {/* Assistante response - left side (received) */}
                   {reservation.assistante_response && (
                     <div className="flex justify-start">
-                      <div className="max-w-[80%] p-3 bg-gray-100 text-gray-800 rounded-2xl rounded-bl-md">
+                      <div className="max-w-[80%] p-3 bg-chip text-ink rounded-2xl rounded-bl-md">
                         <p className="text-sm">{reservation.assistante_response}</p>
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-xs text-muted mt-1">
                           {reservation.assistante.profile.prenom} · {format(new Date(reservation.responded_at), 'dd/MM à HH:mm', { locale: fr })}
                         </p>
                       </div>

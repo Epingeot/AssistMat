@@ -180,7 +180,7 @@ export default function PublicSearchPage() {
           <div className="flex items-center gap-4">
             {user ? (
               <>
-                <span className="text-sm text-gray-600 hidden md:block">
+                <span className="text-sm text-muted hidden md:block">
                   {profile?.prenom} {profile?.nom}
                 </span>
                 <Link
@@ -194,7 +194,7 @@ export default function PublicSearchPage() {
               <>
                 <Link
                   to="/login"
-                  className="text-gray-600 hover:text-primary font-medium text-sm"
+                  className="text-muted hover:text-primary font-medium text-sm"
                 >
                   Connexion
                 </Link>
@@ -212,7 +212,7 @@ export default function PublicSearchPage() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">
+        <h2 className="text-2xl font-bold text-ink mb-6">
           Rechercher une assistante maternelle
         </h2>
 
@@ -232,7 +232,7 @@ export default function PublicSearchPage() {
           {loading && (
             <div className="mt-8 text-center">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-              <p className="mt-4 text-gray-600">Recherche en cours...</p>
+              <p className="mt-4 text-muted">Recherche en cours...</p>
             </div>
           )}
 
@@ -240,7 +240,7 @@ export default function PublicSearchPage() {
             <div className="mt-8 flex flex-col lg:grid lg:grid-cols-3 gap-6">
               {/* List */}
               <div className="lg:col-span-1 space-y-4 max-h-96 lg:max-h-screen overflow-y-auto">
-                <h3 className="text-xl font-bold text-gray-800 sticky top-0 bg-surface py-2 z-10">
+                <h3 className="text-xl font-bold text-ink sticky top-0 bg-surface py-2 z-10">
                   {assistantes.length} resultat{assistantes.length > 1 ? 's' : ''}
                 </h3>
                 {assistantes.map(assistante => (
@@ -286,10 +286,10 @@ export default function PublicSearchPage() {
           {!loading && assistantes.length === 0 && !error && (
             <div className="mt-12 text-center">
               <div className="text-6xl mb-4">🔍</div>
-              <h3 className="text-xl font-semibold text-gray-700 mb-2">
+              <h3 className="text-xl font-semibold text-ink mb-2">
                 Lancez une recherche
               </h3>
-              <p className="text-gray-600">
+              <p className="text-muted">
                 Entrez une ville ou un code postal pour trouver des assistantes maternelles
               </p>
             </div>

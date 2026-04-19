@@ -17,8 +17,8 @@ function ProtectedRoute({ children }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-xl font-semibold text-gray-600">Chargement...</div>
+      <div className="min-h-screen flex items-center justify-center bg-soft">
+        <div className="text-xl font-semibold text-muted">Chargement...</div>
       </div>
     )
   }
@@ -45,8 +45,8 @@ function AppRoutes() {
   if (loading) {
     logger.log('🚦 AppRoutes: Showing loading screen')
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-xl font-semibold text-gray-600">Chargement...</div>
+      <div className="min-h-screen flex items-center justify-center bg-soft">
+        <div className="text-xl font-semibold text-muted">Chargement...</div>
       </div>
     )
   }
@@ -117,7 +117,7 @@ export default function App() {
           duration: 4000,
           style: {
             background: '#fff',
-            color: '#2D3035',
+            color: '#4B5563',
             boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
             borderRadius: '8px',
             padding: '12px 16px',

@@ -44,12 +44,12 @@ export default function LandingPage() {
               <>
                 <Link
                   to="/login"
-                  className="text-gray-600 hover:text-primary font-medium"
+                  className="text-muted hover:text-primary font-medium"
                 >
                   Connexion
                 </Link>
                 <Link
-                  to="/login"
+                  to="/login?mode=signup"
                   className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition font-semibold"
                 >
                   Inscription
@@ -78,11 +78,11 @@ export default function LandingPage() {
                 value={searchCity}
                 onChange={(e) => setSearchCity(e.target.value)}
                 placeholder="Entrez votre ville ou code postal..."
-                className="flex-1 px-5 py-4 rounded-lg text-gray-800 text-lg focus:ring-4 focus:ring-primary/50 outline-none"
+                className="flex-1 px-5 py-4 rounded-lg text-ink text-lg focus:ring-4 focus:ring-primary/50 outline-none"
               />
               <button
                 type="submit"
-                className="px-8 py-4 bg-accent text-gray-900 rounded-lg font-bold text-lg hover:bg-accent/90 transition shadow-lg"
+                className="px-8 py-4 bg-accent text-ink rounded-lg font-bold text-lg hover:bg-accent/90 transition shadow-lg"
               >
                 Rechercher
               </button>
@@ -98,7 +98,7 @@ export default function LandingPage() {
       {/* Features Section */}
       <section className="py-20 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
-          <h3 className="text-3xl font-bold text-center text-gray-800 mb-12">
+          <h3 className="text-3xl font-bold text-center text-ink mb-12">
             Pourquoi choisir AssistMat ?
           </h3>
 
@@ -110,8 +110,8 @@ export default function LandingPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                 </svg>
               </div>
-              <h4 className="text-xl font-semibold text-gray-800 mb-3">Avis et notes</h4>
-              <p className="text-gray-600">
+              <h4 className="text-xl font-semibold text-ink mb-3">Avis et notes</h4>
+              <p className="text-muted">
                 Consultez les avis et notes laissés par d'autres parents pour choisir en toute confiance.
               </p>
             </div>
@@ -123,8 +123,8 @@ export default function LandingPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h4 className="text-xl font-semibold text-gray-800 mb-3">Reservation simple</h4>
-              <p className="text-gray-600">
+              <h4 className="text-xl font-semibold text-ink mb-3">Reservation simple</h4>
+              <p className="text-muted">
                 Consultez les disponibilités en temps réel et envoyez une demande de réservation en quelques clics.
               </p>
             </div>
@@ -137,8 +137,8 @@ export default function LandingPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
               </div>
-              <h4 className="text-xl font-semibold text-gray-800 mb-3">Recherche locale</h4>
-              <p className="text-gray-600">
+              <h4 className="text-xl font-semibold text-ink mb-3">Recherche locale</h4>
+              <p className="text-muted">
                 Trouvez des assistantes maternelles près de chez vous grâce à notre carte interactive.
               </p>
             </div>
@@ -147,9 +147,9 @@ export default function LandingPage() {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-20 px-4 bg-gray-50">
+      <section className="py-20 px-4 bg-soft">
         <div className="max-w-6xl mx-auto">
-          <h3 className="text-3xl font-bold text-center text-gray-800 mb-12">
+          <h3 className="text-3xl font-bold text-center text-ink mb-12">
             Comment ça marche ?
           </h3>
 
@@ -160,8 +160,8 @@ export default function LandingPage() {
                 <div className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold text-lg mb-4">
                   1
                 </div>
-                <h4 className="text-xl font-semibold text-gray-800 mb-3">Recherchez</h4>
-                <p className="text-gray-600">
+                <h4 className="text-xl font-semibold text-ink mb-3">Recherchez</h4>
+                <p className="text-muted">
                   Entrez votre ville et trouvez des assistantes maternelles disponibles près de chez vous.
                 </p>
               </div>
@@ -173,8 +173,8 @@ export default function LandingPage() {
                 <div className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold text-lg mb-4">
                   2
                 </div>
-                <h4 className="text-xl font-semibold text-gray-800 mb-3">Comparez</h4>
-                <p className="text-gray-600">
+                <h4 className="text-xl font-semibold text-ink mb-3">Comparez</h4>
+                <p className="text-muted">
                   Consultez les profils, les disponibilités et choisissez l'assistante idéale.
                 </p>
               </div>
@@ -186,8 +186,8 @@ export default function LandingPage() {
                 <div className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold text-lg mb-4">
                   3
                 </div>
-                <h4 className="text-xl font-semibold text-gray-800 mb-3">Reservez</h4>
-                <p className="text-gray-600">
+                <h4 className="text-xl font-semibold text-ink mb-3">Reservez</h4>
+                <p className="text-muted">
                   Envoyez une demande de réservation et attendez la confirmation de l'assistante.
                 </p>
               </div>
@@ -199,12 +199,12 @@ export default function LandingPage() {
       {/* Testimonials Section - TODO: Uncomment when we have real testimonials
       <section className="py-20 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
-          <h3 className="text-3xl font-bold text-center text-gray-800 mb-12">
+          <h3 className="text-3xl font-bold text-center text-ink mb-12">
             Ce que disent nos utilisateurs
           </h3>
 
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-gray-50 rounded-lg p-6">
+            <div className="bg-soft rounded-lg p-6">
               <div className="flex items-center mb-4">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <svg key={star} className="w-5 h-5 text-warning" fill="currentColor" viewBox="0 0 20 20">
@@ -212,11 +212,11 @@ export default function LandingPage() {
                   </svg>
                 ))}
               </div>
-              <p className="text-gray-600 italic mb-4">
+              <p className="text-muted italic mb-4">
                 "Testimonial text here"
               </p>
-              <p className="font-semibold text-gray-800">Name</p>
-              <p className="text-sm text-gray-500">Role / Location</p>
+              <p className="font-semibold text-ink">Name</p>
+              <p className="text-sm text-muted">Role / Location</p>
             </div>
           </div>
         </div>
@@ -235,13 +235,13 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/search"
-              className="px-8 py-4 bg-accent text-gray-900 rounded-lg font-bold text-lg hover:bg-accent/90 transition shadow-lg"
+              className="px-8 py-4 bg-accent text-ink rounded-lg font-bold text-lg hover:bg-accent/90 transition shadow-lg"
             >
               Commencer la recherche
             </Link>
             {!user && (
               <Link
-                to="/login"
+                to="/login?mode=signup"
                 className="px-8 py-4 bg-white/20 text-white rounded-lg font-bold text-lg hover:bg-white/30 transition border-2 border-white/50"
               >
                 Créer un compte gratuit
@@ -252,7 +252,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-800 text-gray-300 py-8 px-4">
+      <footer className="bg-ink text-subtle py-8 px-4">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="text-center md:text-left">
             <h4 className="text-xl font-bold text-white mb-2">AssistMat</h4>

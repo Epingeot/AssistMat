@@ -109,10 +109,10 @@ export default function ReservationsList() {
     return (
       <div className="bg-white rounded-lg shadow-md p-8 text-center">
         <div className="text-6xl mb-4">📅</div>
-        <h3 className="text-xl font-semibold text-gray-700 mb-2">
+        <h3 className="text-xl font-semibold text-ink mb-2">
           Aucune réservation
         </h3>
-        <p className="text-gray-600">
+        <p className="text-muted">
           Les demandes de réservation apparaîtront ici.
         </p>
       </div>
@@ -121,7 +121,7 @@ export default function ReservationsList() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold text-gray-800">
+      <h2 className="text-2xl font-bold text-ink">
         Demandes de réservation
       </h2>
 
@@ -131,8 +131,8 @@ export default function ReservationsList() {
           onClick={() => setFilter('en_attente')}
           className={`px-4 py-2 rounded-lg font-semibold transition ${
             filter === 'en_attente'
-              ? 'bg-warning text-white'
-              : 'bg-white text-gray-700 hover:bg-gray-50'
+              ? 'bg-warning text-ink'
+              : 'bg-white text-ink hover:bg-soft'
           }`}
         >
           ⏳ En attente ({counts.en_attente})
@@ -141,8 +141,8 @@ export default function ReservationsList() {
           onClick={() => setFilter('confirmee')}
           className={`px-4 py-2 rounded-lg font-semibold transition ${
             filter === 'confirmee'
-              ? 'bg-accent text-text-base'
-              : 'bg-white text-gray-700 hover:bg-gray-50'
+              ? 'bg-accent text-ink'
+              : 'bg-white text-ink hover:bg-soft'
           }`}
         >
           ✅ Confirmées ({counts.confirmee})
@@ -152,7 +152,7 @@ export default function ReservationsList() {
           className={`px-4 py-2 rounded-lg font-semibold transition ${
             filter === 'annulee'
               ? 'bg-error text-white'
-              : 'bg-white text-gray-700 hover:bg-gray-50'
+              : 'bg-white text-ink hover:bg-soft'
           }`}
         >
           ❌ Refusées ({counts.annulee})
@@ -162,7 +162,7 @@ export default function ReservationsList() {
           className={`px-4 py-2 rounded-lg font-semibold transition ${
             filter === 'all'
               ? 'bg-primary text-white'
-              : 'bg-white text-gray-700 hover:bg-gray-50'
+              : 'bg-white text-ink hover:bg-soft'
           }`}
         >
           Toutes ({counts.all})
@@ -172,7 +172,7 @@ export default function ReservationsList() {
       {/* Empty state for filtered results */}
       {filteredReservations.length === 0 && (
         <div className="bg-white rounded-lg shadow-md p-6 text-center">
-          <p className="text-gray-600">
+          <p className="text-muted">
             {filter === 'en_attente' && 'Aucune demande en attente'}
             {filter === 'confirmee' && 'Aucune réservation confirmée'}
             {filter === 'annulee' && 'Aucune réservation refusée'}
@@ -211,10 +211,10 @@ export default function ReservationsList() {
           >
             <div className="flex justify-between items-start mb-4">
               <div>
-                <h3 className="text-lg font-bold text-gray-800">
+                <h3 className="text-lg font-bold text-ink">
                   {reservation.parent.prenom} {reservation.parent.nom}
                 </h3>
-                <p className="text-sm text-gray-600">{reservation.parent.email}</p>
+                <p className="text-sm text-muted">{reservation.parent.email}</p>
                 {isRemplacement && (
                   <p className="text-xs text-accent mt-1">Remplacement</p>
                 )}
@@ -229,7 +229,7 @@ export default function ReservationsList() {
                   reservation.statut === 'en_attente'
                     ? 'bg-warning/20 text-warning'
                     : reservation.statut === 'confirmee'
-                    ? 'bg-success/20 text-text-base'
+                    ? 'bg-success/20 text-ink'
                     : 'bg-error/20 text-error'
                 }`}
               >
@@ -241,30 +241,30 @@ export default function ReservationsList() {
 
             <div className={`grid gap-4 mb-4 ${isRemplacement ? 'grid-cols-2' : 'grid-cols-1'}`}>
               <div>
-                <p className="text-sm text-gray-600">Début</p>
+                <p className="text-sm text-muted">Début</p>
                 <p className="font-semibold">
                   {format(parseLocalDate(reservation.date_debut), 'dd MMMM yyyy', { locale: fr })}
                 </p>
               </div>
               {isRemplacement && (
                 <div>
-                  <p className="text-sm text-gray-600">Fin</p>
+                  <p className="text-sm text-muted">Fin</p>
                   <p className="font-semibold">
                     {format(parseLocalDate(reservation.date_fin), 'dd MMMM yyyy', { locale: fr })}
                   </p>
-                  <p className="text-sm text-gray-600">Durée : {duree}</p>
+                  <p className="text-sm text-muted">Durée : {duree}</p>
                 </div>
               )}
             </div>
 
             {/* Time slots by day */}
             <div className="mb-4">
-              <p className="text-sm text-gray-600 mb-2">Créneaux demandés :</p>
+              <p className="text-sm text-muted mb-2">Créneaux demandés :</p>
               {Object.keys(slotsByDay).length > 0 ? (
                 <div className="space-y-2">
                   {JOURS.filter(jour => slotsByDay[jour]).map(jour => (
                     <div key={jour} className="flex items-center gap-2">
-                      <span className="w-20 text-sm font-medium text-gray-700 capitalize">
+                      <span className="w-20 text-sm font-medium text-ink capitalize">
                         {jour}
                       </span>
                       <div className="flex gap-1 flex-wrap">
@@ -281,7 +281,7 @@ export default function ReservationsList() {
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-gray-500 italic">Aucun créneau spécifié</p>
+                <p className="text-sm text-muted italic">Aucun créneau spécifié</p>
               )}
             </div>
 
@@ -291,9 +291,9 @@ export default function ReservationsList() {
                 {/* Parent message - left side (received) */}
                 {reservation.notes && (
                   <div className="flex justify-start">
-                    <div className="max-w-[80%] p-3 bg-gray-100 text-gray-800 rounded-2xl rounded-bl-md">
+                    <div className="max-w-[80%] p-3 bg-chip text-ink rounded-2xl rounded-bl-md">
                       <p className="text-sm">{reservation.notes}</p>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-muted mt-1">
                         {reservation.parent.prenom} · {format(new Date(reservation.created_at), 'dd/MM à HH:mm', { locale: fr })}
                       </p>
                     </div>
@@ -315,8 +315,8 @@ export default function ReservationsList() {
 
             {reservation.statut === 'en_attente' && (
               respondingTo?.reservationId === reservation.id ? (
-                <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="mt-4 p-4 bg-soft rounded-lg border border-hairline">
+                  <label className="block text-sm font-medium text-ink mb-2">
                     Message pour le parent (optionnel)
                   </label>
                   <textarea
@@ -329,9 +329,9 @@ export default function ReservationsList() {
                     }
                     rows={3}
                     maxLength={300}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary resize-none text-sm"
+                    className="w-full px-3 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 resize-none text-sm"
                   />
-                  <p className="text-xs text-gray-500 mt-1 mb-3">
+                  <p className="text-xs text-muted mt-1 mb-3">
                     {responseMessage.length}/300 caractères
                   </p>
                   <div className="flex gap-2">
@@ -339,7 +339,7 @@ export default function ReservationsList() {
                       onClick={confirmResponse}
                       className={`flex-1 py-2 rounded-lg font-semibold transition ${
                         respondingTo.action === 'accept'
-                          ? 'bg-success hover:bg-success/90 text-text-base'
+                          ? 'bg-success hover:bg-success/90 text-ink'
                           : 'bg-error hover:bg-error/90 text-white'
                       }`}
                     >
@@ -350,7 +350,7 @@ export default function ReservationsList() {
                         setRespondingTo(null)
                         setResponseMessage('')
                       }}
-                      className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-400 transition"
+                      className="px-4 py-2 bg-line text-ink rounded-lg font-semibold hover:bg-subtle transition"
                     >
                       Annuler
                     </button>
@@ -360,7 +360,7 @@ export default function ReservationsList() {
                 <div className="flex gap-3 mt-4">
                   <button
                     onClick={() => handleResponse(reservation.id, 'accept')}
-                    className="flex-1 bg-success text-text-base py-2 rounded-lg font-semibold hover:bg-success/90 transition"
+                    className="flex-1 bg-success text-ink py-2 rounded-lg font-semibold hover:bg-success/90 transition"
                   >
                     ✓ Accepter
                   </button>

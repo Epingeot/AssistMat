@@ -180,7 +180,7 @@ export default function ChildrenManager() {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="text-gray-500">Chargement...</div>
+        <div className="text-muted">Chargement...</div>
       </div>
     )
   }
@@ -190,8 +190,8 @@ export default function ChildrenManager() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-gray-800">Mes enfants</h2>
-          <p className="text-sm text-gray-500 mt-1">
+          <h2 className="text-xl font-bold text-ink">Mes enfants</h2>
+          <p className="text-sm text-muted mt-1">
             Gérez les informations de vos enfants pour les réservations
           </p>
         </div>
@@ -208,26 +208,28 @@ export default function ChildrenManager() {
       {/* Add/Edit Form */}
       {showAddForm && (
         <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
-          <h3 className="font-semibold text-gray-800 mb-4">
+          <h3 className="font-semibold text-ink mb-4">
             {editingChild ? 'Modifier un enfant' : 'Ajouter un enfant'}
           </h3>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-ink mb-1">
                   Prénom *
                 </label>
                 <input
                   type="text"
                   value={formData.prenom}
                   onChange={(e) => setFormData({ ...formData, prenom: e.target.value })}
+                  onInvalid={(e) => e.target.setCustomValidity('Veuillez renseigner le prénom')}
+                  onInput={(e) => e.target.setCustomValidity('')}
                   placeholder="Ex: Emma"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-3 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-ink mb-1">
                   Date de naissance
                 </label>
                 <input
@@ -235,25 +237,25 @@ export default function ChildrenManager() {
                   value={formData.date_naissance}
                   onChange={(e) => setFormData({ ...formData, date_naissance: e.target.value })}
                   max={formatDateForDB(getToday())}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-3 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent"
                 />
               </div>
             </div>
 
             {/* RGPD Consent */}
-            <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <div className="bg-white border border-hairline rounded-lg p-4">
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={formData.rgpd_consent_display_name}
                   onChange={(e) => setFormData({ ...formData, rgpd_consent_display_name: e.target.checked })}
-                  className="mt-1 h-4 w-4 accent-primary focus:ring-primary border-gray-300 rounded"
+                  className="mt-1 h-4 w-4 accent-primary focus:ring-primary border-line rounded"
                 />
                 <div>
-                  <div className="font-medium text-gray-900">
+                  <div className="font-medium text-ink">
                     Afficher le prénom sur les plannings
                   </div>
-                  <div className="text-xs text-gray-500 mt-1">
+                  <div className="text-xs text-muted mt-1">
                     En cochant cette case, vous autorisez l'affichage du prénom de votre enfant
                     sur le planning de l'assistante maternelle. Cette information sera visible
                     par l'assistante et potentiellement par d'autres parents. Vous pouvez
@@ -267,7 +269,7 @@ export default function ChildrenManager() {
               <button
                 type="button"
                 onClick={resetForm}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium"
+                className="px-4 py-2 border border-line text-ink rounded-lg hover:bg-soft transition font-medium"
               >
                 Annuler
               </button>
@@ -285,9 +287,9 @@ export default function ChildrenManager() {
 
       {/* Children List */}
       {children.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
+        <div className="text-center py-12 bg-soft rounded-lg border border-hairline">
           <div className="text-4xl mb-3">👶</div>
-          <p className="text-gray-600 mb-4">
+          <p className="text-muted mb-4">
             Vous n'avez pas encore ajouté d'enfant
           </p>
           {!showAddForm && (
@@ -304,7 +306,7 @@ export default function ChildrenManager() {
           {children.map((child) => (
             <div
               key={child.id}
-              className="bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-between hover:shadow-sm transition"
+              className="bg-white border border-hairline rounded-lg p-4 flex items-center justify-between hover:shadow-sm transition"
             >
               <div className="flex items-center gap-4">
                 {/* Avatar */}
@@ -314,13 +316,13 @@ export default function ChildrenManager() {
 
                 {/* Info */}
                 <div>
-                  <div className="font-semibold text-gray-800">{child.prenom}</div>
-                  <div className="text-sm text-gray-500">
+                  <div className="font-semibold text-ink">{child.prenom}</div>
+                  <div className="text-sm text-muted">
                     {child.date_naissance ? (
                       <>
                         {format(parseLocalDate(child.date_naissance), 'd MMMM yyyy', { locale: fr })}
                         {' '}
-                        <span className="text-gray-400">({calculateAge(child.date_naissance)})</span>
+                        <span className="text-subtle">({calculateAge(child.date_naissance)})</span>
                       </>
                     ) : (
                       'Date de naissance non renseignée'
@@ -336,8 +338,8 @@ export default function ChildrenManager() {
                   onClick={() => toggleConsent(child)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
                     child.rgpd_consent_display_name
-                      ? 'bg-accent/20 text-text-base hover:bg-accent/30'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      ? 'bg-accent/20 text-ink hover:bg-accent/30'
+                      : 'bg-chip text-muted hover:bg-chip'
                   }`}
                   title={child.rgpd_consent_display_name
                     ? 'Prénom visible sur les plannings'
@@ -349,7 +351,7 @@ export default function ChildrenManager() {
                 {/* Edit */}
                 <button
                   onClick={() => handleEdit(child)}
-                  className="p-2 text-gray-500 hover:text-primary hover:bg-primary/10 rounded-lg transition"
+                  className="p-2 text-muted hover:text-primary hover:bg-primary/10 rounded-lg transition"
                   title="Modifier"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -360,7 +362,7 @@ export default function ChildrenManager() {
                 {/* Delete */}
                 <button
                   onClick={() => handleDelete(child.id)}
-                  className="p-2 text-gray-500 hover:text-error hover:bg-error/10 rounded-lg transition"
+                  className="p-2 text-muted hover:text-error hover:bg-error/10 rounded-lg transition"
                   title="Supprimer"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -374,8 +376,8 @@ export default function ChildrenManager() {
       )}
 
       {/* RGPD Info */}
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-sm text-gray-600">
-        <div className="font-medium text-gray-700 mb-2">Conformité RGPD</div>
+      <div className="bg-soft border border-hairline rounded-lg p-4 text-sm text-muted">
+        <div className="font-medium text-ink mb-2">Conformité RGPD</div>
         <p>
           Les prénoms de vos enfants peuvent être affichés sur les plannings des assistantes maternelles
           uniquement si vous en avez donné l'autorisation. Vous pouvez modifier ce paramètre à tout moment

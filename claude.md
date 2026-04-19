@@ -64,7 +64,9 @@ When analyzing or modifying code:
 Brand colors are defined in `tailwind.config.js` under `theme.extend.colors`.
 
 ### Rules for all UI work
-- Always use Tailwind color utilities for colors (`bg-primary`, `text-base`, `border-azure`, etc.).
+- Always use Tailwind color utilities for colors (`bg-primary`, `text-ink`, `border-azure`, etc.).
+- Color keys in `tailwind.config.js` must be **bare names** (e.g. `ink`, not `text-ink`). The utility prefix is added by Tailwind — a key of `text-ink` would produce the class `text-text-ink`, not `text-ink`.
+- Avoid the color-key name `base` — it collides with Tailwind's built-in `text-base` font-size utility.
 - Never hardcode hex values directly in components or inline styles.
 - Use **semantic names** (`primary`, `secondary`, `surface`) in components.
 - Use **brand names** (`lime`, `azure`, `magenta`) only for explicit brand moments.
@@ -79,7 +81,9 @@ Brand colors are defined in `tailwind.config.js` under `theme.extend.colors`.
 | `secondary` | #EC52A6   | Accents, badges, highlights           |
 | `accent`    | #C5D300   | Active states, brand pop              |
 | `surface`   | #F4F1E2   | Cards, panels, modals                 |
-| `text-base` | #2D3035   | All body and heading text             |
+| `ink`       | #4B5563   | Headings, body, labels (used as `text-ink`) |
+| `muted`     | #838A97   | Secondary text, captions (used as `text-muted`) |
+| `subtle`    | #9CA3AF   | Icons, placeholders, disabled, decorative hints (used as `text-subtle`) |
 | `success`   | #C5D300   | Available slots, confirmations        |
 | `warning`   | #FFAC33   | Caution, pending states               |
 | `error`     | #F25833   | Errors, destructive actions           |

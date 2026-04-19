@@ -1,16 +1,15 @@
 # Project Tasks & Improvements
 
-## 🔄 Session Context (Last updated: 2026-04-17)
+## 🔄 Session Context (Last updated: 2026-04-18)
 
 **Recent work:**
-- Applied brand color tokens across all UI components (chose Option 1: colored/branded uses only, gray/neutral deferred)
-- Files updated: ScheduleEditor, ParentDashboard, ChildrenManager, SearchBar, AssistanteCard, both ReservationsLists, NotificationContext, AssistanteProfile, AvailabilityCalendar, ReservationModal, LandingPage
-- Established semantic mapping: assistante=primary/azure, child=secondary/magenta, garden=accent/lime, pets=peach, pending/CDD=warning, confirmed=success, errors=error
-- Native checkboxes switched from `text-*` to `accent-*` (only `accent-color` actually fills the checkbox)
-- Gradients on submit buttons replaced with solid `bg-primary` per user pref
-- Documented hex exceptions: react-hot-toast inline styles (App.jsx, NotificationContext.jsx) + Leaflet divIcon HTML (MapView.jsx)
+- Completed gray/neutral cleanup: no `gray-*` utilities remain in `src/`.
+- Added tokens: `line` #D1D5DB, `hairline` #E5E7EB, `soft` #F9FAFB, `chip` #F3F4F6. Text ramp finalized at `ink` #4B5563 / `muted` #838A97 / `subtle` #9CA3AF.
+- Fixed pre-existing config bug: color keys were prefixed (`text-strong` → generated `text-text-strong`). Renamed to bare names. Dev server restart required for tailwind config changes.
+- Auth improvements: error-code-based French translation (`translateAuthError`), toggle clears banners, landing CTAs use `/login?mode=signup`, live password-rules checklist synced with Supabase policy (8/lower/upper/digit).
+- LandingPage footer now `bg-ink`; AvailabilityCalendar "Fermer" reworked to outlined-cancel pattern.
 
-**Branch status:** main, uncommitted changes across ~12 component files. `claude_tasks.md` and `"Resend API key.txt"` still untracked.
+**Branch status:** main, uncommitted changes across component files + `tailwind.config.js` + `CLAUDE.md`. `claude_tasks.md` still untracked.
 
 ---
 
@@ -19,9 +18,11 @@
 - [x] in both assistante and parents reservation list the slots are not showing up - Fixed 2025-12-08 (converted integer jour to day name)
 - [x] in the assistant schedule reserved/pending slots slots are not showing
 - [x] in the reservation list, if the "duree" of a remplacement is less than a month or not a full month value, the duree is not correct (eg if the remplacement is for 15 days, duree = 0 months) - Fixed 2025-12-13 (added formatDuration utility that shows days/months properly)
-- [ ] on the login page, when entering wrong credentials an error message shows at the top of the login window. Clicking "S'inscrire" to switch to signup mode does not clear the message — it should reset when toggling between login and signup.
-- [ ] when adding a child in the parent profile with an empty first name, the browser shows an English validation message "Please fill out this field". All validation messages must be in French (likely caused by a native HTML `required` attribute — replace with custom French validation or set the input's `title`/use `setCustomValidity`).
-- [ ] clicking "Rechercher" on the public search / parent dashboard fails with Postgres error `column am.location does not exist`. The error is raised inside the RPC function `rechercher_assistantes_par_distance`. Investigate: check if the `location` column (PostGIS point) still exists on `assistantes_maternelles`, or if the function uses a wrong table alias / out-of-date reference. Fix in Supabase SQL editor (Database → Functions).
+- [x] on the login page, when entering wrong credentials an error message shows at the top of the login window. Clicking "S'inscrire" to switch to signup mode does not clear the message — it should reset when toggling between login and signup. - Fixed 2026-04-18 (AuthForm toggle now clears error/message; also translated Supabase auth errors to French via `err.code`)
+- [x] when adding a child in the parent profile with an empty first name, the browser shows an English validation message "Please fill out this field". All validation messages must be in French (likely caused by a native HTML `required` attribute — replace with custom French validation or set the input's `title`/use `setCustomValidity`). - Fixed 2026-04-18 (added onInvalid/onInput with setCustomValidity on prénom input)
+- [x] landing page "Inscription" and "Créer un compte gratuit" CTAs both linked to `/login` which always opened in login mode. - Fixed 2026-04-18 (Links now use `/login?mode=signup`; AuthForm reads the `mode` query param to initialize `isLogin`)
+- [ ] signup with an email that already has an account should return an error, but currently no error is shown (form appears to succeed silently). Investigate: check if Supabase `signUp` is returning an `AuthError` with code `user_already_exists`/`email_exists` that we're not handling, or if it's returning a success response (the default "identities" array behavior when email confirmation is required). May need to inspect `data.user.identities.length === 0` to detect this case.
+- [x] clicking "Rechercher" on the public search / parent dashboard fails with Postgres error `column am.location does not exist`. The error is raised inside the RPC function `rechercher_assistantes_par_distance`. Investigate: check if the `location` column (PostGIS point) still exists on `assistantes_maternelles`, or if the function uses a wrong table alias / out-of-date reference. Fix in Supabase SQL editor (Database → Functions). - Fixed 2026-04-18 (Supabase SQL function updated)
 
 ## ✨ Features
 - [x] when an assistant accepts or denies a reservation let them add a message. is it easy to add an in-app messaging system? is it worth it? an better idea to facilitate the reservation flow. probably not necessary beyond that as the parent and assistant will exchange numbers from there on
@@ -46,11 +47,14 @@
 - [ ] add a home link to the Register/login pages to go back to the landing page
 - [x] customize Supabase auth emails with AssistMat branding in French + configure Resend SMTP to send from `noreply@assistmat.com` - Fixed 2026-04-13 (Confirm signup, Reset password, Change email done; Magic Link/Invite/Reauth left default)
 - [ ] improve post-signup UX: after "Inscription réussie ! Vérifiez votre email." the S'inscrire button stays enabled. Disable it after success, and/or redirect to the login page after a few seconds (with a visible countdown/message)
+- [x] on the signup page, state the password requirements under or next to the password field (e.g., "Minimum 6 caractères") so users know what's expected before they submit. Keep the rule in sync with the `minLength` on the input and with Supabase's password policy. - Fixed 2026-04-18 (live 4-item checklist ✓/○; Supabase policy tightened to 8 chars + lower/upper/digit; sync constraint captured in project memory and code comment)
 - [x] Apply brand color tokens from tailwind.config.js across all existing components, replacing any hardcoded hex values or generic Tailwind colors (e.g. blue-500) with semantic tokens (primary, secondary, accent, surface, text-base, success, warning, error, info). - Fixed 2026-04-17 (colored/branded uses only; gray/neutral deferred per follow-up task)
-- [ ] Follow-up to brand color pass: decide how to handle generic gray/neutral Tailwind classes (`bg-gray-*`, `text-gray-*`, `border-gray-*`, `slate/zinc/neutral/stone-*`). Options: leave as-is, map to existing `surface`/`text-base`/`text-muted` tokens, or add a neutral scale token to `tailwind.config.js`. ~400 occurrences across components — requires visual review before bulk replace.
+- [x] Follow-up to brand color pass: decide how to handle generic gray/neutral Tailwind classes (`bg-gray-*`, `text-gray-*`, `border-gray-*`, `slate/zinc/neutral/stone-*`). - Fixed 2026-04-18 (text pass: text-gray-* → text-ink/muted/subtle, plus config-binding fix so keys are bare names; borders/backgrounds pass: added `line`/`hairline`/`soft`/`chip` tokens; LandingPage footer → `bg-ink`; AvailabilityCalendar "Fermer" button reworked to match outlined-cancel pattern. No `gray-*` utilities remain in `src/`.)
+- [x] After config-binding fix on 2026-04-18, re-evaluate whether `ink` (#2D3035) still feels too dark. - Fixed 2026-04-18 (softened ink to #374151 / gray-700 and muted to #6B7280 / gray-500 for a clearer 700/500/400 ramp)
 - [ ] replace the term "reservation" with "mise en relation" throughout the UI (labels, buttons, messages, emails)
 - [ ] rename "Semaines de vacances" to "Semaines d'absence" on the assistante profile/availability, and raise the max value to 20
 - [ ] make the optional criteria non-filtering in search: instead of excluding assistantes that don't match, use them to sort results by number of matching criteria (descending)
+- [ ] WCAG AA contrast pass: `bg-primary` (#95D2DB azure) + `text-white` is ~1.8:1 — fails AA (needs 4.5:1 for normal, 3:1 for large). Used on ~35 buttons/chips app-wide (primary CTAs, active tabs, chat bubbles, etc.). Options: (a) swap to `text-ink` on all primary buttons — 5.2:1, passes AA but changes brand look; (b) darken the `primary` token to a deeper azure that passes AA with white — changes every primary use incl. links/focus rings/borders. Also worth checking `bg-peach` (#DD8573) + white (~2.6:1, borderline) during same pass. Noted 2026-04-18 while fixing contrast regressions on bg-warning and bg-error buttons.
 
 ## 📘 Notes for Claude
 - Always avoid scanning the entire repo.

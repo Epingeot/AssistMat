@@ -51,7 +51,7 @@ export default function SearchBar({ onSearch, initialVille = '', initialCodePost
       {/* Main search fields */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-ink mb-1">
             Ville
           </label>
           <input
@@ -59,12 +59,12 @@ export default function SearchBar({ onSearch, initialVille = '', initialCodePost
             value={ville}
             onChange={(e) => setVille(e.target.value)}
             placeholder="Ex: Paris"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="w-full px-3 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-ink mb-1">
             Code postal
           </label>
           <input
@@ -73,18 +73,18 @@ export default function SearchBar({ onSearch, initialVille = '', initialCodePost
             onChange={(e) => setCodePostal(e.target.value)}
             placeholder="75001"
             pattern="[0-9]{5}"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="w-full px-3 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-ink mb-1">
             Rayon (km)
           </label>
           <select
             value={rayon}
             onChange={(e) => setRayon(Number(e.target.value))}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="w-full px-3 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent"
           >
             <option value={5}>5 km</option>
             <option value={10}>10 km</option>
@@ -104,11 +104,11 @@ export default function SearchBar({ onSearch, initialVille = '', initialCodePost
       </div>
 
       {/* Display options: Start date and availability filter */}
-      <div className="mt-4 pt-4 border-t border-gray-200">
+      <div className="mt-4 pt-4 border-t border-hairline">
         <div className="flex flex-wrap items-center gap-4">
           {/* Start date */}
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-ink">
               Date de début :
             </label>
             <input
@@ -116,7 +116,7 @@ export default function SearchBar({ onSearch, initialVille = '', initialCodePost
               value={dateDebut}
               onChange={(e) => setDateDebut(e.target.value)}
               min={todayStr}
-              className="px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+              className="px-3 py-1.5 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent text-sm"
             />
           </div>
 
@@ -126,8 +126,8 @@ export default function SearchBar({ onSearch, initialVille = '', initialCodePost
             onClick={() => setShowOnlyAvailable(!showOnlyAvailable)}
             className={`flex items-center gap-2 px-3 py-1.5 border-2 rounded-lg text-sm font-medium transition ${
               showOnlyAvailable
-                ? 'border-success bg-success/10 text-text-base'
-                : 'border-gray-300 text-gray-700 hover:border-gray-400'
+                ? 'border-success bg-success/10 text-ink'
+                : 'border-line text-ink hover:border-subtle'
             }`}
           >
             {showOnlyAvailable ? '✓' : ''} Uniquement les disponibles
@@ -136,11 +136,11 @@ export default function SearchBar({ onSearch, initialVille = '', initialCodePost
       </div>
 
       {/* Toggle advanced filters */}
-      <div className="mt-4 pt-4 border-t border-gray-200">
+      <div className="mt-4 pt-4 border-t border-hairline">
         <button
           type="button"
           onClick={() => setShowAdvanced(!showAdvanced)}
-          className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-primary transition"
+          className="flex items-center gap-2 text-sm font-medium text-ink hover:text-primary transition"
         >
           <span className={`transform transition ${showAdvanced ? 'rotate-90' : ''}`}>
             ▶
@@ -164,7 +164,7 @@ export default function SearchBar({ onSearch, initialVille = '', initialCodePost
         <div className="mt-4 space-y-4">
           {/* Days of the week */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-ink mb-2">
               Jours de la semaine
             </label>
             <div className="flex flex-wrap gap-2">
@@ -176,14 +176,14 @@ export default function SearchBar({ onSearch, initialVille = '', initialCodePost
                   className={`px-3 py-2 border-2 rounded-lg text-sm font-medium transition capitalize ${
                     joursRecherches.includes(index)
                       ? 'border-primary bg-primary/10 text-primary'
-                      : 'border-gray-300 text-gray-700 hover:border-gray-400'
+                      : 'border-line text-ink hover:border-subtle'
                   }`}
                 >
                   {JOURS_COURTS[index]}
                 </button>
               ))}
             </div>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-muted mt-1">
               Filtrer par assistantes travaillant ces jours
             </p>
           </div>
@@ -192,7 +192,7 @@ export default function SearchBar({ onSearch, initialVille = '', initialCodePost
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Garden filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-ink mb-2">
                 Jardin
               </label>
               <div className="flex gap-2">
@@ -201,8 +201,8 @@ export default function SearchBar({ onSearch, initialVille = '', initialCodePost
                   onClick={() => setHasGarden(hasGarden === true ? null : true)}
                   className={`px-3 py-2 border-2 rounded-lg text-sm font-medium transition ${
                     hasGarden === true
-                      ? 'border-accent bg-accent/10 text-text-base'
-                      : 'border-gray-300 text-gray-700 hover:border-gray-400'
+                      ? 'border-accent bg-accent/10 text-ink'
+                      : 'border-line text-ink hover:border-subtle'
                   }`}
                 >
                   Avec jardin
@@ -212,7 +212,7 @@ export default function SearchBar({ onSearch, initialVille = '', initialCodePost
 
             {/* Pets filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-ink mb-2">
                 Animaux
               </label>
               <div className="flex gap-2">
@@ -222,7 +222,7 @@ export default function SearchBar({ onSearch, initialVille = '', initialCodePost
                   className={`px-3 py-2 border-2 rounded-lg text-sm font-medium transition ${
                     petsFilter === true
                       ? 'border-peach bg-peach/10 text-peach'
-                      : 'border-gray-300 text-gray-700 hover:border-gray-400'
+                      : 'border-line text-ink hover:border-subtle'
                   }`}
                 >
                   Avec animaux
@@ -233,7 +233,7 @@ export default function SearchBar({ onSearch, initialVille = '', initialCodePost
                   className={`px-3 py-2 border-2 rounded-lg text-sm font-medium transition ${
                     petsFilter === false
                       ? 'border-primary bg-primary/10 text-primary'
-                      : 'border-gray-300 text-gray-700 hover:border-gray-400'
+                      : 'border-line text-ink hover:border-subtle'
                   }`}
                 >
                   Sans animaux
@@ -244,7 +244,7 @@ export default function SearchBar({ onSearch, initialVille = '', initialCodePost
 
           {/* Service options */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-ink mb-2">
               Options de service
             </label>
             <div className="flex flex-wrap gap-2">
@@ -265,7 +265,7 @@ export default function SearchBar({ onSearch, initialVille = '', initialCodePost
                   className={`px-3 py-2 border-2 rounded-lg text-sm font-medium transition ${
                     typesAccueil.includes(type.value)
                       ? 'border-primary bg-primary/10 text-primary'
-                      : 'border-gray-300 text-gray-700 hover:border-gray-400'
+                      : 'border-line text-ink hover:border-subtle'
                   }`}
                 >
                   {type.label}

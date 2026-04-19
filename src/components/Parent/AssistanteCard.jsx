@@ -34,8 +34,8 @@ export default function AssistanteCard({ assistante, onSelect, showContactInfo =
             className="w-16 h-16 rounded-full object-cover border-2 border-primary/30 flex-shrink-0"
           />
         ) : (
-          <div className="w-16 h-16 rounded-full bg-gray-100 border-2 border-gray-200 flex items-center justify-center flex-shrink-0">
-            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-16 h-16 rounded-full bg-chip border-2 border-hairline flex items-center justify-center flex-shrink-0">
+            <svg className="w-8 h-8 text-subtle" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
           </div>
@@ -43,10 +43,10 @@ export default function AssistanteCard({ assistante, onSelect, showContactInfo =
 
         {/* Name and address */}
         <div className="flex-1 min-w-0">
-          <h3 className="text-lg font-bold text-gray-800">
+          <h3 className="text-lg font-bold text-ink">
             {assistante.prenom} {assistante.nom}
           </h3>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted">
             📍 {showContactInfo ? `${assistante.adresse}, ` : ''}{assistante.code_postal} {assistante.ville}
           </p>
         </div>
@@ -58,7 +58,7 @@ export default function AssistanteCard({ assistante, onSelect, showContactInfo =
               <p className="text-2xl font-bold text-primary">
                 {assistante.max_kids}
               </p>
-              <p className="text-xs text-gray-500">enfant{assistante.max_kids > 1 ? 's' : ''} max</p>
+              <p className="text-xs text-muted">enfant{assistante.max_kids > 1 ? 's' : ''} max</p>
             </>
           )}
         </div>
@@ -69,7 +69,7 @@ export default function AssistanteCard({ assistante, onSelect, showContactInfo =
         <div className="mb-3">
           <div className="inline-flex items-center gap-2 px-3 py-2 bg-success/20 border-2 border-success rounded-lg">
             <span className="text-xl">✅</span>
-            <p className="text-sm font-bold text-text-base">Disponible immédiatement !</p>
+            <p className="text-sm font-bold text-ink">Disponible immédiatement !</p>
           </div>
         </div>
       )}
@@ -109,7 +109,7 @@ export default function AssistanteCard({ assistante, onSelect, showContactInfo =
         {scheduleSummary && (
           <div className="flex items-center gap-1">
             <span className="text-lg">🕐</span>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm text-muted">
               ~{Math.round(scheduleSummary.avgMonthlyHours)}h/mois
             </span>
           </div>
@@ -118,7 +118,7 @@ export default function AssistanteCard({ assistante, onSelect, showContactInfo =
         {assistante.distance_km && (
           <div className="flex items-center gap-1">
             <span className="text-lg">🚗</span>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm text-muted">
               {assistante.distance_km.toFixed(1)} km
             </span>
           </div>
@@ -127,7 +127,7 @@ export default function AssistanteCard({ assistante, onSelect, showContactInfo =
         {assistante.max_days_per_week_per_kid && (
           <div className="flex items-center gap-1">
             <span className="text-lg">📅</span>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm text-muted">
               max {assistante.max_days_per_week_per_kid}j/sem/enfant
             </span>
           </div>
@@ -155,7 +155,7 @@ export default function AssistanteCard({ assistante, onSelect, showContactInfo =
       {/* Working days from horaires_travail */}
       {scheduleSummary && scheduleSummary.workingDays.length > 0 && (
         <div className="mb-3">
-          <p className="text-xs text-gray-500 mb-1">Jours de travail :</p>
+          <p className="text-xs text-muted mb-1">Jours de travail :</p>
           <div className="flex gap-1 flex-wrap">
             {scheduleSummary.workingDays.map(jourNum => {
               const h = assistante.horaires_travail.find(ht => ht.jour === jourNum)
@@ -193,13 +193,13 @@ export default function AssistanteCard({ assistante, onSelect, showContactInfo =
       )}
 
       {assistante.description && (
-        <p className="text-sm text-gray-600 line-clamp-2">
+        <p className="text-sm text-muted line-clamp-2">
           {assistante.description}
         </p>
       )}
 
       {assistante.agrement && (
-        <p className="text-xs text-gray-400 mt-2">
+        <p className="text-xs text-subtle mt-2">
           Agrément : {assistante.agrement}
           {assistante.agrement_date && ` (obtenu le ${new Date(assistante.agrement_date).toLocaleDateString('fr-FR')})`}
         </p>
@@ -207,10 +207,10 @@ export default function AssistanteCard({ assistante, onSelect, showContactInfo =
 
       {/* Contact Information */}
       {(assistante.telephone || assistante.email) && (
-        <div className="mt-3 pt-3 border-t border-gray-200">
+        <div className="mt-3 pt-3 border-t border-hairline">
           {showContactInfo ? (
             <>
-              <p className="text-xs font-medium text-gray-700 mb-2">Contact :</p>
+              <p className="text-xs font-medium text-ink mb-2">Contact :</p>
               <div className="space-y-1">
                 {assistante.telephone && (
                   <div className="flex items-center gap-2">
@@ -239,7 +239,7 @@ export default function AssistanteCard({ assistante, onSelect, showContactInfo =
               </div>
             </>
           ) : (
-            <p className="text-xs text-gray-500 italic">
+            <p className="text-xs text-muted italic">
               Connectez-vous pour voir les coordonnées
             </p>
           )}

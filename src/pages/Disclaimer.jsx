@@ -7,14 +7,14 @@ export default function Disclaimer() {
     <div className="min-h-screen bg-surface flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 w-full max-w-3xl">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+          <h1 className="text-3xl font-bold text-ink mb-2">
             Mentions Légales et Avertissement
           </h1>
         </div>
 
         <div className="prose prose-sm md:prose-base max-w-none">
-          <div className="space-y-6 text-gray-700 leading-relaxed">
-            <p className="font-semibold text-gray-900">
+          <div className="space-y-6 text-ink leading-relaxed">
+            <p className="font-semibold text-ink">
               Cette application met uniquement en relation des parents et des assistant(e)s maternel(le)s agréé(e)s.
             </p>
 
@@ -35,7 +35,7 @@ export default function Disclaimer() {
               L'application ne collecte ni ne traite de données sensibles concernant les enfants.
             </p>
 
-            <p className="font-semibold text-gray-900">
+            <p className="font-semibold text-ink">
               En utilisant ce service, vous acceptez nos Conditions d'Utilisation et notre Politique de Confidentialité.
             </p>
           </div>
