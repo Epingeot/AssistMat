@@ -2,49 +2,8 @@ import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { logger } from '../../utils/logger'
-
-// Must match Supabase server policy (Dashboard → Authentication → Providers → Email → Password Requirements).
-// Update both together or users will see mismatched rules vs. actual signup rejections.
-const PASSWORD_MIN_LENGTH = 8
-
-const passwordRules = [
-  { label: `Au moins ${PASSWORD_MIN_LENGTH} caractères`, test: (p) => p.length >= PASSWORD_MIN_LENGTH },
-  { label: 'Une lettre minuscule', test: (p) => /[a-z]/.test(p) },
-  { label: 'Une lettre majuscule', test: (p) => /[A-Z]/.test(p) },
-  { label: 'Un chiffre', test: (p) => /[0-9]/.test(p) },
-]
-
-const translateAuthError = (err) => {
-  if (!err) return 'Une erreur est survenue. Veuillez réessayer.'
-
-  switch (err.code) {
-    case 'invalid_credentials':
-      return 'Email ou mot de passe incorrect.'
-    case 'email_not_confirmed':
-      return 'Email non confirmé. Vérifiez votre boîte de réception.'
-    case 'user_already_exists':
-    case 'email_exists':
-      return 'Un compte existe déjà avec cet email.'
-    case 'weak_password':
-      return "Le mot de passe ne respecte pas les exigences de sécurité."
-    case 'email_address_invalid':
-    case 'validation_failed':
-      return 'Adresse email invalide.'
-    case 'over_email_send_rate_limit':
-    case 'over_request_rate_limit':
-      return 'Trop de tentatives. Veuillez réessayer dans quelques minutes.'
-    case 'signup_disabled':
-      return "Les inscriptions sont désactivées pour le moment."
-  }
-
-  // Non-AuthError fallbacks (network failures, etc. have no code)
-  const msg = (err.message || '').toLowerCase()
-  if (msg.includes('network') || msg.includes('failed to fetch')) {
-    return 'Erreur réseau. Vérifiez votre connexion.'
-  }
-
-  return 'Une erreur est survenue. Veuillez réessayer.'
-}
+import { PASSWORD_MIN_LENGTH, passwordRules } from './passwordPolicy'
+import { translateAuthError } from './authErrors'
 
 export default function AuthForm() {
   const [searchParams] = useSearchParams()
@@ -220,6 +179,16 @@ export default function AuthForm() {
                   )
                 })}
               </ul>
+            )}
+            {isLogin && (
+              <div className="mt-2 text-right">
+                <Link
+                  to="/forgot-password"
+                  className="text-sm text-peach hover:text-peach/80"
+                >
+                  Mot de passe oublié ?
+                </Link>
+              </div>
             )}
           </div>
 

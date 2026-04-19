@@ -67,6 +67,13 @@ export const AuthProvider = ({ children }) => {
             return
           }
 
+          // USER_UPDATED fires after updateUser (e.g. password reset). Ignoring
+          // it prevents a loadProfile() race that can stall the updateUser promise.
+          if (event === 'USER_UPDATED') {
+            logger.log('⏭️ Ignoring USER_UPDATED event')
+            return
+          }
+
           if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
             logger.log('👋 User signed out or deleted')
             setUser(null)
@@ -177,6 +184,14 @@ export const AuthProvider = ({ children }) => {
     
     if (error) throw error
 
+    // Supabase returns a fake-success on duplicate signups (anti-enumeration):
+    // data.user is populated but identities is []. Surface as a real error.
+    if (data?.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+      const dupErr = new Error('User already registered')
+      dupErr.code = 'user_already_exists'
+      throw dupErr
+    }
+
     // Attendre que le trigger crée le profil
     await new Promise(resolve => setTimeout(resolve, 500))
 
@@ -226,12 +241,31 @@ export const AuthProvider = ({ children }) => {
 
   const signOut = async () => {
     logger.log('👋 Signing out')
-    
+
     const { error } = await supabase.auth.signOut()
     if (error) throw error
-    
+
     setUser(null)
     setProfile(null)
+  }
+
+  const requestPasswordReset = async (email) => {
+    logger.log('🔑 Requesting password reset for:', email)
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    })
+
+    if (error) throw error
+  }
+
+  const updatePassword = async (newPassword) => {
+    logger.log('🔑 Updating password')
+
+    const { data, error } = await supabase.auth.updateUser({ password: newPassword })
+
+    if (error) throw error
+    return data
   }
 
   logger.log('🎨 AuthProvider render:', {
@@ -283,7 +317,7 @@ export const AuthProvider = ({ children }) => {
         </div>
       )}
     >
-      <AuthContext.Provider value={{ user, profile, loading, signUp, signIn, signOut }}>
+      <AuthContext.Provider value={{ user, profile, loading, signUp, signIn, signOut, requestPasswordReset, updatePassword }}>
         {children}
       </AuthContext.Provider>
     </ErrorBoundary>

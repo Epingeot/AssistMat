@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { NotificationProvider } from './contexts/NotificationContext'
 import AuthForm from './components/Auth/AuthForm'
+import ForgotPasswordForm from './components/Auth/ForgotPasswordForm'
+import ResetPasswordForm from './components/Auth/ResetPasswordForm'
 import AssistanteDashboard from './pages/AssistanteDashboard'
 import ParentDashboard from './pages/ParentDashboard'
 import LandingPage from './pages/LandingPage'
@@ -73,6 +75,8 @@ function AppRoutes() {
           )
         }
       />
+      <Route path="/forgot-password" element={<ForgotPasswordForm />} />
+      <Route path="/reset-password" element={<ResetPasswordForm />} />
       <Route path="/disclaimer" element={<Disclaimer />} />
 
       {/* Protected routes */}
