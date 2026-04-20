@@ -81,15 +81,18 @@ Brand colors are defined in `tailwind.config.js` under `theme.extend.colors`.
 | `secondary` | #EC52A6   | Accents, badges, highlights           |
 | `accent`    | #C5D300   | Active states, brand pop              |
 | `surface`   | #F4F1E2   | Cards, panels, modals                 |
-| `ink`       | #4B5563   | Headings, body, labels (used as `text-ink`) |
+| `ink`       | #483D32   | Headings, body, labels (used as `text-ink`) |
 | `muted`     | #838A97   | Secondary text, captions (used as `text-muted`) |
 | `subtle`    | #9CA3AF   | Icons, placeholders, disabled, decorative hints (used as `text-subtle`) |
 | `success`   | #C5D300   | Available slots, confirmations        |
 | `warning`   | #FFAC33   | Caution, pending states               |
 | `error`     | #F25833   | Errors, destructive actions           |
 | `info`      | #5672BC   | Informational messages                |
-| `azure`     | #95D2DB   | Childminder identity                  |
-| `magenta`   | #EC52A6   | Child identity                        |
-| `lime`      | #C5D300   | Brand background                      |
+| `azure`     | #95D2DB   | Childminder identity (alias of `primary`) |
+| `magenta`   | #EC52A6   | Child identity (alias of `secondary`) |
+| `lime`      | #C5D300   | Brand background (alias of `accent`/`success`) |
 | `peach`     | #DD8573   | Warmth, skin tone accents             |
-| `cream`     | #F4F1E2   | Soft neutral backgrounds              |
+| `cream`     | #F4F1E2   | Soft neutral backgrounds (alias of `surface`) |
+| `brown`     | #483D32   | Hair, grounding element (alias of `ink`) |
+| `blue`      | #5672BC   | Calming presence, brand moments (alias of `info`) |
+| `pink`      | #FFC9D7   | Highlights, active states             |
