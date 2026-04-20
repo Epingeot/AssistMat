@@ -13,6 +13,9 @@ export default {
         magenta: "#EC52A6",  // child figure, accents
         peach:   "#DD8573",  // skin tone, warmth
         cream:   "#F4F1E2",  // soft neutral, surfaces
+        brown:   "#483D32",  // hair, grounding element
+        blue:    "#5672BC",  // informational, calming presence
+        pink:    "#ffc9d7",  // highlights, active states
 
         // --- Semantic roles (what the color does in the UI) ---
         primary:    "#95D2DB",  // main interactive: buttons, links
@@ -25,7 +28,7 @@ export default {
         // like `text-ink` directly. A key of "text-ink" would produce `text-text-ink`.
         // Also: avoid the name "base" — collides with Tailwind's built-in text-base
         // font-size utility.
-        ink:    "#4B5563",  // headings, body, labels (gray-600)
+        ink:    "#483d32",  // headings, body, labels
         muted:  "#838A97",  // secondary text, captions (midway gray-500/400)
         subtle: "#9CA3AF",  // icons, placeholders, disabled, decorative hints (gray-400)
 
