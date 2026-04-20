@@ -53,6 +53,13 @@ export default function ResetPasswordForm() {
     return (
       <div className="min-h-screen bg-surface flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 w-full max-w-md">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1 text-sm text-muted hover:text-ink mb-4"
+          >
+            <span aria-hidden="true">←</span>
+            Retour à l'accueil
+          </Link>
           <div className="text-center mb-6">
             <h1 className="text-3xl font-bold text-ink mb-2">Lien invalide</h1>
             <p className="text-muted">
@@ -73,6 +80,13 @@ export default function ResetPasswordForm() {
   return (
     <div className="min-h-screen bg-surface flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 w-full max-w-md">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-1 text-sm text-muted hover:text-ink mb-4"
+        >
+          <span aria-hidden="true">←</span>
+          Retour à l'accueil
+        </Link>
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-ink mb-2">Nouveau mot de passe</h1>
           <p className="text-muted">
