@@ -178,7 +178,8 @@ export const AuthProvider = ({ children }) => {
       email,
       password,
       options: {
-        data: { role, nom, prenom }
+        data: { role, nom, prenom },
+        emailRedirectTo: `${window.location.origin}/dashboard`,
       }
     })
     

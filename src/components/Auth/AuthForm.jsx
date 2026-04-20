@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { logger } from '../../utils/logger'
 import { PASSWORD_MIN_LENGTH, passwordRules } from './passwordPolicy'
 import { translateAuthError } from './authErrors'
+import PasswordInput from './PasswordInput'
 
 export default function AuthForm() {
   const [searchParams] = useSearchParams()
@@ -16,6 +17,7 @@ export default function AuthForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [message, setMessage] = useState(null)
+  const [signupSuccess, setSignupSuccess] = useState(false)
 
   const { signIn, signUp } = useAuth()
 
@@ -35,7 +37,7 @@ export default function AuthForm() {
         setMessage('Connexion réussie !')
       } else {
         await signUp(email, password, role, nom, prenom)
-        setMessage('Inscription réussie ! Vérifiez votre email.')
+        setSignupSuccess(true)
       }
     } catch (err) {
       logger.error('🔐 AuthForm: Error:', err)
@@ -66,6 +68,23 @@ export default function AuthForm() {
           </div>
         )}
 
+        {signupSuccess ? (
+          <div className="space-y-4">
+            <div className="bg-success/10 border border-success/30 text-success px-4 py-3 rounded-lg">
+              Inscription réussie ! Cliquez sur le lien dans l'email que nous venons de vous envoyer pour confirmer votre compte et vous connecter.
+            </div>
+            <p className="text-center text-muted text-sm">
+              Pensez à vérifier vos courriers indésirables si vous ne le voyez pas.
+            </p>
+            <Link
+              to="/"
+              className="block text-center text-primary hover:text-primary/80 font-medium"
+            >
+              Retour à l'accueil
+            </Link>
+          </div>
+        ) : (
+          <>
         {message && (
           <div className="bg-success/10 border border-success/30 text-success px-4 py-3 rounded-lg mb-4">
             {message}
@@ -155,14 +174,12 @@ export default function AuthForm() {
             <label className="block text-sm font-medium text-ink mb-2">
               Mot de passe
             </label>
-            <input
-              type="password"
+            <PasswordInput
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={PASSWORD_MIN_LENGTH}
               autoComplete={isLogin ? "current-password" : "new-password"}
-              className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent"
               placeholder="••••••••"
             />
             {!isLogin && (
@@ -172,7 +189,7 @@ export default function AuthForm() {
                   return (
                     <li
                       key={rule.label}
-                      className={ok ? 'text-success' : 'text-muted'}
+                      className={ok ? 'text-success' : 'text-subtle'}
                     >
                       {ok ? '✓' : '○'} {rule.label}
                     </li>
@@ -215,8 +232,10 @@ export default function AuthForm() {
               : 'Déjà un compte ? Se connecter'}
           </button>
         </div>
+          </>
+        )}
 
-        <div className="mt-4 text-center text-sm text-muted">
+        <div className="mt-4 text-center text-sm text-subtle">
           <Link
             to="/disclaimer"
             className="hover:text-ink underline"

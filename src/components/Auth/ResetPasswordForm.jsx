@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { logger } from '../../utils/logger'
 import { PASSWORD_MIN_LENGTH, passwordRules } from './passwordPolicy'
 import { translateAuthError } from './authErrors'
+import PasswordInput from './PasswordInput'
 
 export default function ResetPasswordForm() {
   const navigate = useNavigate()
@@ -97,14 +98,12 @@ export default function ResetPasswordForm() {
               <label className="block text-sm font-medium text-ink mb-2">
                 Nouveau mot de passe
               </label>
-              <input
-                type="password"
+              <PasswordInput
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={PASSWORD_MIN_LENGTH}
                 autoComplete="new-password"
-                className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent"
                 placeholder="••••••••"
               />
               <ul className="mt-2 space-y-0.5 text-xs">
@@ -113,7 +112,7 @@ export default function ResetPasswordForm() {
                   return (
                     <li
                       key={rule.label}
-                      className={ok ? 'text-success' : 'text-muted'}
+                      className={ok ? 'text-success' : 'text-subtle'}
                     >
                       {ok ? '✓' : '○'} {rule.label}
                     </li>
@@ -126,13 +125,11 @@ export default function ResetPasswordForm() {
               <label className="block text-sm font-medium text-ink mb-2">
                 Confirmer le mot de passe
               </label>
-              <input
-                type="password"
+              <PasswordInput
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
                 required
                 autoComplete="new-password"
-                className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent"
                 placeholder="••••••••"
               />
               {confirm.length > 0 && !passwordsMatch && (
