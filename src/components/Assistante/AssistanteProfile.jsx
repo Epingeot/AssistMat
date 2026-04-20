@@ -533,7 +533,7 @@ export default function AssistanteProfile() {
             </div>
             <div>
               <label className="block text-sm font-medium text-ink mb-2">
-                Semaines de vacances
+                Semaines d'absence
               </label>
               <select
                 name="vacation_weeks"
@@ -541,11 +541,11 @@ export default function AssistanteProfile() {
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent"
               >
-                {[0, 1, 2, 3, 4, 5, 6, 7, 8].map(n => (
+                {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20].map(n => (
                   <option key={n} value={n}>{n} semaine{n > 1 ? 's' : ''}</option>
                 ))}
               </select>
-              <p className="text-xs text-muted mt-1">Semaines de congés par an</p>
+              <p className="text-xs text-muted mt-1">Semaines non travaillées par an</p>
             </div>
           </div>
 
