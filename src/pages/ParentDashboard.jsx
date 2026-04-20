@@ -168,7 +168,7 @@ export default function ParentDashboard() {
 
   const handleReservationSuccess = (reservation) => {
     setShowReservationModal(false)
-    toast.success('Demande de réservation envoyée avec succès !')
+    toast.success('Demande envoyée avec succès !')
   }
 
   return (
@@ -226,7 +226,7 @@ export default function ParentDashboard() {
                 : 'bg-white text-ink hover:bg-soft active:bg-chip'
             }`}
           >
-            📅 <span className="hidden sm:inline">Mes </span>Réservations
+            📅 <span className="hidden sm:inline">Mes </span>Demandes
           </button>
         </div>
       </div>
@@ -332,8 +332,8 @@ export default function ParentDashboard() {
       {activeTab === 'reservations' && (
         <ErrorBoundary
           name="Parent Reservations Tab"
-          title="Erreur de réservations"
-          message="Impossible de charger vos réservations."
+          title="Erreur de chargement"
+          message="Impossible de charger vos demandes."
         >
           <div className="max-w-7xl mx-auto px-4 py-8">
             <ReservationsList />

@@ -44,8 +44,7 @@ export default function AvailabilityCalendar({
   const weekStart = externalWeekStart || internalWeekStart
 
   const [schedule, setSchedule] = useState([]) // horaires_travail
-  const [bookedSlots, setBookedSlots] = useState([]) // confirmed reservations for this week
-  const [pendingSlots, setPendingSlots] = useState([]) // pending reservations for this week
+  const [bookedSlots, setBookedSlots] = useState([]) // finalized reservations for this week
   const [loading, setLoading] = useState(true)
   const [vacationWeeks, setVacationWeeks] = useState(5)
   const [maxKids, setMaxKids] = useState(4)
@@ -91,7 +90,8 @@ export default function AvailabilityCalendar({
         setMaxKids(assistante.max_kids || 4)
       }
 
-      // Load all reservations (confirmed and pending) for this assistante
+      // Load finalized reservations only — pending requests (`demande`)
+      // stay out of the planning per the mise-en-relation flow.
       const { data: reservations } = await supabase
         .from('reservations')
         .select(`
@@ -99,7 +99,6 @@ export default function AvailabilityCalendar({
           statut,
           date_debut,
           date_fin,
-          notes,
           child:children!reservations_child_id_fkey(
             prenom,
             rgpd_consent_display_name
@@ -116,22 +115,20 @@ export default function AvailabilityCalendar({
           )
         `)
         .eq('assistante_id', assistanteId)
-        .in('statut', ['confirmee', 'en_attente'])
+        .eq('statut', 'finalisee')
 
       if (reservations) {
         const bookedForWeek = []
-        const pendingForWeek = []
 
         reservations.forEach(reservation => {
           const resStart = new Date(reservation.date_debut)
           const resEnd = reservation.date_fin ? new Date(reservation.date_fin) : null
 
           weekDates.forEach((date, dayIndex) => {
-            // Check if this date falls within the reservation period
             if (date >= resStart && (!resEnd || date <= resEnd)) {
               reservation.reservation_slots?.forEach(slot => {
                 if (slot.jour === dayIndex) {
-                  const slotData = {
+                  bookedForWeek.push({
                     date: formatDateForDB(date),
                     heure_debut: slot.heure_debut,
                     heure_fin: slot.heure_fin,
@@ -139,16 +136,9 @@ export default function AvailabilityCalendar({
                     statut: reservation.statut,
                     child: reservation.child,
                     parent: reservation.parent,
-                    notes: reservation.notes,
                     date_debut: reservation.date_debut,
                     date_fin: reservation.date_fin
-                  }
-
-                  if (reservation.statut === 'confirmee') {
-                    bookedForWeek.push(slotData)
-                  } else {
-                    pendingForWeek.push(slotData)
-                  }
+                  })
                 }
               })
             }
@@ -156,7 +146,6 @@ export default function AvailabilityCalendar({
         })
 
         setBookedSlots(bookedForWeek)
-        setPendingSlots(pendingForWeek)
       }
 
     } catch (err) {
@@ -245,24 +234,6 @@ export default function AvailabilityCalendar({
     )
   }
 
-  // Get all pending slots for a specific time
-  const getPendingSlots = (date, timeStart, timeEnd) => {
-    const dateStr = formatDateForDB(date)
-    return pendingSlots.filter(slot =>
-      slot.date === dateStr &&
-      timeToMinutes(slot.heure_debut) <= timeToMinutes(timeStart) &&
-      timeToMinutes(slot.heure_fin) >= timeToMinutes(timeEnd)
-    )
-  }
-
-  // Get all reservations (booked + pending) for a specific time
-  const getAllReservations = (date, timeStart, timeEnd) => {
-    return [
-      ...getBookedSlots(date, timeStart, timeEnd),
-      ...getPendingSlots(date, timeStart, timeEnd)
-    ]
-  }
-
   // Check if a slot is selected (for select mode)
   const isSelected = (dayIndex, timeStart, timeEnd) => {
     return selectedSlots.some(slot =>
@@ -274,16 +245,16 @@ export default function AvailabilityCalendar({
 
   // Handle slot click
   const handleSlotClick = (dayIndex, timeStart, timeEnd, date) => {
-    const allReservations = getAllReservations(date, timeStart, timeEnd)
+    const reservationsForSlot = getBookedSlots(date, timeStart, timeEnd)
 
     // If there are reservations, show preview modal
-    if (allReservations.length > 0) {
+    if (reservationsForSlot.length > 0) {
       setSelectedSlot({
         date,
         dayIndex,
         timeStart,
         timeEnd,
-        reservations: allReservations
+        reservations: reservationsForSlot
       })
       return
     }
@@ -454,8 +425,7 @@ export default function AvailabilityCalendar({
                     timeToMinutes(timeSlot.end) <= timeToMinutes(workingHours.end)
 
                   const bookedSlotsForTime = getBookedSlots(date, timeSlot.start, timeSlot.end)
-                  const pendingSlotsForTime = getPendingSlots(date, timeSlot.start, timeSlot.end)
-                  const totalReservations = bookedSlotsForTime.length + pendingSlotsForTime.length
+                  const totalReservations = bookedSlotsForTime.length
                   const capacityPercent = totalReservations / maxKids
 
                   const selected = mode === 'select' && isSelected(dayIndex, timeSlot.start, timeSlot.end)
@@ -558,7 +528,7 @@ export default function AvailabilityCalendar({
               <div className="flex justify-between items-start">
                 <div>
                   <h3 className="text-lg font-bold text-ink">
-                    Réservations - {JOURS[selectedSlot.dayIndex]}
+                    Mises en relation - {JOURS[selectedSlot.dayIndex]}
                   </h3>
                   <p className="text-sm text-muted">
                     {format(selectedSlot.date, 'd MMMM yyyy', { locale: fr })}
@@ -592,24 +562,16 @@ export default function AvailabilityCalendar({
                   <div
                     key={idx}
                     onClick={() => mode === 'view' && openReservationDetail(reservation)}
-                    className={`p-4 rounded-lg border-2 ${
-                      reservation.statut === 'confirmee'
-                        ? 'border-success/40 bg-success/10'
-                        : 'border-warning/40 bg-warning/10'
-                    } ${mode === 'view' ? 'cursor-pointer hover:shadow-md transition-shadow' : ''}`}
+                    className={`p-4 rounded-lg border-2 border-success/40 bg-success/10 ${
+                      mode === 'view' ? 'cursor-pointer hover:shadow-md transition-shadow' : ''
+                    }`}
                   >
                     <div className="flex justify-between items-start mb-2">
                       <h4 className="font-semibold text-ink">
                         {idx + 1}. {childName}
                       </h4>
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                          reservation.statut === 'confirmee'
-                            ? 'bg-success/20 text-ink'
-                            : 'bg-warning/20 text-warning'
-                        }`}
-                      >
-                        {reservation.statut === 'confirmee' ? '✅ Confirmée' : '⏳ En attente'}
+                      <span className="px-2 py-1 rounded-full text-xs font-semibold bg-success/20 text-ink">
+                        ✅ Finalisée
                       </span>
                     </div>
 
@@ -685,16 +647,10 @@ export default function AvailabilityCalendar({
               <div className="flex justify-between items-start">
                 <div>
                   <h3 className="text-lg font-bold text-ink">
-                    Détails de la réservation
+                    Détails de la mise en relation
                   </h3>
-                  <span
-                    className={`inline-block mt-1 px-2 py-1 rounded-full text-xs font-semibold ${
-                      selectedReservation.statut === 'confirmee'
-                        ? 'bg-success/20 text-ink'
-                        : 'bg-warning/20 text-warning'
-                    }`}
-                  >
-                    {selectedReservation.statut === 'confirmee' ? '✅ Confirmée' : '⏳ En attente'}
+                  <span className="inline-block mt-1 px-2 py-1 rounded-full text-xs font-semibold bg-success/20 text-ink">
+                    ✅ Finalisée
                   </span>
                 </div>
                 <button
@@ -778,15 +734,6 @@ export default function AvailabilityCalendar({
                 </div>
               </div>
 
-              {/* Notes */}
-              {selectedReservation.notes && (
-                <div>
-                  <h4 className="text-sm font-semibold text-muted uppercase tracking-wide mb-1">Note du parent</h4>
-                  <p className="text-ink bg-soft p-3 rounded-lg text-sm">
-                    {selectedReservation.notes}
-                  </p>
-                </div>
-              )}
             </div>
 
             {/* Modal Footer */}

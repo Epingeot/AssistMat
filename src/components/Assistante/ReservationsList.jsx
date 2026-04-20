@@ -6,14 +6,17 @@ import { fr } from 'date-fns/locale'
 import { logger } from '../../utils/logger'
 import toast from 'react-hot-toast'
 import { JOURS, formatTime, getDayName, parseLocalDate, formatDuration } from '../../utils/scheduling'
+import MessageThread from '../Messaging/MessageThread'
+
+const TERMINAL_STATUSES = ['finalisee', 'refusee', 'annulee']
 
 export default function ReservationsList() {
   const { user } = useAuth()
   const [reservations, setReservations] = useState([])
   const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState('en_attente') // Default to pending - 'all', 'en_attente', 'confirmee', 'annulee'
-  const [respondingTo, setRespondingTo] = useState(null) // {reservationId, action: 'accept' | 'deny'}
-  const [responseMessage, setResponseMessage] = useState('')
+  const [filter, setFilter] = useState('demande') // 'all', 'demande', 'finalisee', 'refusee', 'annulee'
+  const [pendingAction, setPendingAction] = useState(null) // { reservationId, action: 'finalize' | 'refuse' }
+  const [updating, setUpdating] = useState(false)
 
   useEffect(() => {
     loadReservations()
@@ -54,40 +57,31 @@ export default function ReservationsList() {
     }
   }
 
-  const updateStatut = async (reservationId, newStatut, message = '') => {
+  const confirmPendingAction = async () => {
+    if (!pendingAction) return
+    const newStatut = pendingAction.action === 'finalize' ? 'finalisee' : 'refusee'
+    setUpdating(true)
     try {
       const { error } = await supabase
         .from('reservations')
-        .update({
-          statut: newStatut,
-          assistante_response: message.trim() || null,
-          responded_at: new Date().toISOString()
-        })
-        .eq('id', reservationId)
+        .update({ statut: newStatut })
+        .eq('id', pendingAction.reservationId)
 
       if (error) throw error
 
-      toast.success(newStatut === 'confirmee' ? 'Réservation acceptée' : 'Réservation refusée')
-      setRespondingTo(null)
-      setResponseMessage('')
-
-      // Recharger
+      toast.success(
+        newStatut === 'finalisee'
+          ? 'Mise en relation finalisée'
+          : 'Demande refusée'
+      )
+      setPendingAction(null)
       loadReservations()
     } catch (err) {
       logger.error('Error updating status:', err)
       toast.error('Erreur lors de la mise à jour')
+    } finally {
+      setUpdating(false)
     }
-  }
-
-  const handleResponse = (reservationId, action) => {
-    setRespondingTo({ reservationId, action })
-    setResponseMessage('')
-  }
-
-  const confirmResponse = () => {
-    if (!respondingTo) return
-    const newStatut = respondingTo.action === 'accept' ? 'confirmee' : 'annulee'
-    updateStatut(respondingTo.reservationId, newStatut, responseMessage)
   }
 
   const filteredReservations = filter === 'all'
@@ -96,8 +90,9 @@ export default function ReservationsList() {
 
   const counts = {
     all: reservations.length,
-    en_attente: reservations.filter(r => r.statut === 'en_attente').length,
-    confirmee: reservations.filter(r => r.statut === 'confirmee').length,
+    demande: reservations.filter(r => r.statut === 'demande').length,
+    finalisee: reservations.filter(r => r.statut === 'finalisee').length,
+    refusee: reservations.filter(r => r.statut === 'refusee').length,
     annulee: reservations.filter(r => r.statut === 'annulee').length,
   }
 
@@ -110,10 +105,10 @@ export default function ReservationsList() {
       <div className="bg-white rounded-lg shadow-md p-8 text-center">
         <div className="text-6xl mb-4">📅</div>
         <h3 className="text-xl font-semibold text-ink mb-2">
-          Aucune réservation
+          Aucune demande
         </h3>
         <p className="text-muted">
-          Les demandes de réservation apparaîtront ici.
+          Les demandes apparaîtront ici.
         </p>
       </div>
     )
@@ -122,30 +117,40 @@ export default function ReservationsList() {
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold text-ink">
-        Demandes de réservation
+        Demandes
       </h2>
 
       {/* Filtres */}
       <div className="flex gap-2 flex-wrap">
         <button
-          onClick={() => setFilter('en_attente')}
+          onClick={() => setFilter('demande')}
           className={`px-4 py-2 rounded-lg font-semibold transition ${
-            filter === 'en_attente'
+            filter === 'demande'
               ? 'bg-warning text-ink'
               : 'bg-white text-ink hover:bg-soft'
           }`}
         >
-          ⏳ En attente ({counts.en_attente})
+          💬 En cours ({counts.demande})
         </button>
         <button
-          onClick={() => setFilter('confirmee')}
+          onClick={() => setFilter('finalisee')}
           className={`px-4 py-2 rounded-lg font-semibold transition ${
-            filter === 'confirmee'
+            filter === 'finalisee'
               ? 'bg-accent text-ink'
               : 'bg-white text-ink hover:bg-soft'
           }`}
         >
-          ✅ Confirmées ({counts.confirmee})
+          ✅ Finalisées ({counts.finalisee})
+        </button>
+        <button
+          onClick={() => setFilter('refusee')}
+          className={`px-4 py-2 rounded-lg font-semibold transition ${
+            filter === 'refusee'
+              ? 'bg-error text-white'
+              : 'bg-white text-ink hover:bg-soft'
+          }`}
+        >
+          🚫 Refusées ({counts.refusee})
         </button>
         <button
           onClick={() => setFilter('annulee')}
@@ -155,7 +160,7 @@ export default function ReservationsList() {
               : 'bg-white text-ink hover:bg-soft'
           }`}
         >
-          ❌ Refusées ({counts.annulee})
+          ❌ Annulées ({counts.annulee})
         </button>
         <button
           onClick={() => setFilter('all')}
@@ -173,10 +178,11 @@ export default function ReservationsList() {
       {filteredReservations.length === 0 && (
         <div className="bg-white rounded-lg shadow-md p-6 text-center">
           <p className="text-muted">
-            {filter === 'en_attente' && 'Aucune demande en attente'}
-            {filter === 'confirmee' && 'Aucune réservation confirmée'}
-            {filter === 'annulee' && 'Aucune réservation refusée'}
-            {filter === 'all' && 'Aucune réservation'}
+            {filter === 'demande' && 'Aucune demande en cours'}
+            {filter === 'finalisee' && 'Aucune mise en relation finalisée'}
+            {filter === 'refusee' && 'Aucune demande refusée'}
+            {filter === 'annulee' && 'Aucune demande annulée'}
+            {filter === 'all' && 'Aucune demande'}
           </p>
         </div>
       )}
@@ -226,15 +232,16 @@ export default function ReservationsList() {
               </div>
               <span
                 className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                  reservation.statut === 'en_attente'
+                  reservation.statut === 'demande'
                     ? 'bg-warning/20 text-warning'
-                    : reservation.statut === 'confirmee'
+                    : reservation.statut === 'finalisee'
                     ? 'bg-success/20 text-ink'
                     : 'bg-error/20 text-error'
                 }`}
               >
-                {reservation.statut === 'en_attente' && '⏳ En attente'}
-                {reservation.statut === 'confirmee' && '✅ Confirmée'}
+                {reservation.statut === 'demande' && '💬 En cours'}
+                {reservation.statut === 'finalisee' && '✅ Finalisée'}
+                {reservation.statut === 'refusee' && '🚫 Refusée'}
                 {reservation.statut === 'annulee' && '❌ Annulée'}
               </span>
             </div>
@@ -285,97 +292,93 @@ export default function ReservationsList() {
               )}
             </div>
 
-            {/* Chat-style messages */}
-            {(reservation.notes || reservation.assistante_response) && (
-              <div className="mb-4 space-y-2">
-                {/* Parent message - left side (received) */}
-                {reservation.notes && (
-                  <div className="flex justify-start">
-                    <div className="max-w-[80%] p-3 bg-chip text-ink rounded-2xl rounded-bl-md">
-                      <p className="text-sm">{reservation.notes}</p>
-                      <p className="text-xs text-muted mt-1">
-                        {reservation.parent.prenom} · {format(new Date(reservation.created_at), 'dd/MM à HH:mm', { locale: fr })}
-                      </p>
-                    </div>
-                  </div>
-                )}
-                {/* Assistante response - right side (sent by me) */}
-                {reservation.assistante_response && (
-                  <div className="flex justify-end">
-                    <div className="max-w-[80%] p-3 bg-primary text-white rounded-2xl rounded-br-md">
-                      <p className="text-sm">{reservation.assistante_response}</p>
-                      <p className="text-xs text-white/70 mt-1 text-right">
-                        Vous · {format(new Date(reservation.responded_at), 'dd/MM à HH:mm', { locale: fr })}
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+            {/* Conversation thread */}
+            <div className="mb-4">
+              <MessageThread
+                reservationId={reservation.id}
+                currentUserId={user.id}
+                userLabels={{
+                  [user.id]: 'Vous',
+                  [reservation.parent_id]: reservation.parent.prenom
+                }}
+                isLocked={TERMINAL_STATUSES.includes(reservation.statut)}
+                lockedReason="Cette demande est terminée. Le fil est en lecture seule."
+              />
+            </div>
 
-            {reservation.statut === 'en_attente' && (
-              respondingTo?.reservationId === reservation.id ? (
-                <div className="mt-4 p-4 bg-soft rounded-lg border border-hairline">
-                  <label className="block text-sm font-medium text-ink mb-2">
-                    Message pour le parent (optionnel)
-                  </label>
-                  <textarea
-                    value={responseMessage}
-                    onChange={(e) => setResponseMessage(e.target.value)}
-                    placeholder={
-                      respondingTo.action === 'accept'
-                        ? "Ex: Parfait! Appelez-moi pour finaliser les détails..."
-                        : "Ex: Désolée, ces horaires ne correspondent pas à ma disponibilité..."
-                    }
-                    rows={3}
-                    maxLength={300}
-                    className="w-full px-3 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 resize-none text-sm"
-                  />
-                  <p className="text-xs text-muted mt-1 mb-3">
-                    {responseMessage.length}/300 caractères
-                  </p>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={confirmResponse}
-                      className={`flex-1 py-2 rounded-lg font-semibold transition ${
-                        respondingTo.action === 'accept'
-                          ? 'bg-success hover:bg-success/90 text-ink'
-                          : 'bg-error hover:bg-error/90 text-white'
-                      }`}
-                    >
-                      {respondingTo.action === 'accept' ? '✓ Confirmer acceptation' : '✗ Confirmer refus'}
-                    </button>
-                    <button
-                      onClick={() => {
-                        setRespondingTo(null)
-                        setResponseMessage('')
-                      }}
-                      className="px-4 py-2 bg-line text-ink rounded-lg font-semibold hover:bg-subtle transition"
-                    >
-                      Annuler
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex gap-3 mt-4">
-                  <button
-                    onClick={() => handleResponse(reservation.id, 'accept')}
-                    className="flex-1 bg-success text-ink py-2 rounded-lg font-semibold hover:bg-success/90 transition"
-                  >
-                    ✓ Accepter
-                  </button>
-                  <button
-                    onClick={() => handleResponse(reservation.id, 'deny')}
-                    className="flex-1 bg-error text-white py-2 rounded-lg font-semibold hover:bg-error/90 transition"
-                  >
-                    ✗ Refuser
-                  </button>
-                </div>
-              )
+            {reservation.statut === 'demande' && (
+              <div className="flex gap-3 mt-4 pt-4 border-t border-hairline">
+                <button
+                  onClick={() => setPendingAction({ reservationId: reservation.id, action: 'finalize' })}
+                  className="flex-1 bg-success text-ink py-2 rounded-lg font-semibold hover:bg-success/90 transition"
+                >
+                  ✅ Finaliser
+                </button>
+                <button
+                  onClick={() => setPendingAction({ reservationId: reservation.id, action: 'refuse' })}
+                  className="flex-1 bg-error text-white py-2 rounded-lg font-semibold hover:bg-error/90 transition"
+                >
+                  🚫 Refuser
+                </button>
+              </div>
             )}
           </div>
         )
       })}
+
+      {/* Confirmation modal for Finaliser / Refuser */}
+      {pendingAction && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={() => !updating && setPendingAction(null)}
+        >
+          <div
+            className="bg-white rounded-lg shadow-xl max-w-md w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-4 border-b border-hairline bg-soft">
+              <h3 className="text-lg font-bold text-ink">
+                {pendingAction.action === 'finalize'
+                  ? 'Finaliser la mise en relation'
+                  : 'Refuser la demande'}
+              </h3>
+            </div>
+
+            <div className="p-5">
+              <p className="text-sm text-ink">
+                {pendingAction.action === 'finalize'
+                  ? 'La mise en relation sera ajoutée à votre planning et le parent verra vos coordonnées.'
+                  : 'Cette action est définitive. Le fil de discussion sera fermé.'}
+              </p>
+            </div>
+
+            <div className="p-4 border-t border-hairline bg-soft flex justify-end gap-3">
+              <button
+                onClick={() => setPendingAction(null)}
+                disabled={updating}
+                className="px-4 py-2 text-ink bg-white border border-line rounded-lg hover:bg-soft transition disabled:opacity-50"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={confirmPendingAction}
+                disabled={updating}
+                className={`px-4 py-2 rounded-lg font-semibold transition disabled:opacity-50 ${
+                  pendingAction.action === 'finalize'
+                    ? 'bg-success text-ink hover:bg-success/90'
+                    : 'bg-error text-white hover:bg-error/90'
+                }`}
+              >
+                {updating
+                  ? 'Enregistrement...'
+                  : pendingAction.action === 'finalize'
+                  ? '✅ Finaliser'
+                  : '🚫 Refuser'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

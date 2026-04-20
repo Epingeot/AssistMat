@@ -171,8 +171,8 @@ export default function AssistanteDashboard() {
         {activeTab === 'reservations' && (
           <ErrorBoundary
             name="Assistante Reservations Tab"
-            title="Erreur de réservations"
-            message="Impossible de charger les demandes de réservation."
+            title="Erreur de chargement"
+            message="Impossible de charger les demandes."
           >
             <ReservationsList />
           </ErrorBoundary>

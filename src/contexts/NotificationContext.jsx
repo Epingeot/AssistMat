@@ -33,6 +33,7 @@ export const NotificationProvider = ({ children }) => {
   const { user, profile } = useAuth()
   const [unreadCount, setUnreadCount] = useState(0)
   const subscriptionRef = useRef(null)
+  const messagesSubscriptionRef = useRef(null)
 
   // Track the assistante_id for filtering (needed for assistantes)
   const [assistanteId, setAssistanteId] = useState(null)
@@ -71,11 +72,15 @@ export const NotificationProvider = ({ children }) => {
 
   // Set up real-time subscription
   useEffect(() => {
-    // Clean up any existing subscription
+    // Clean up any existing subscriptions
     if (subscriptionRef.current) {
       logger.log('🔔 Cleaning up previous subscription')
       supabase.removeChannel(subscriptionRef.current)
       subscriptionRef.current = null
+    }
+    if (messagesSubscriptionRef.current) {
+      supabase.removeChannel(messagesSubscriptionRef.current)
+      messagesSubscriptionRef.current = null
     }
 
     // Don't subscribe if not logged in or profile not loaded
@@ -92,7 +97,7 @@ export const NotificationProvider = ({ children }) => {
 
     logger.log('🔔 Setting up real-time subscription for:', profile.role)
 
-    // Create the subscription channel
+    // Reservation status changes
     const channel = supabase
       .channel('reservation-notifications')
       .on(
@@ -110,12 +115,42 @@ export const NotificationProvider = ({ children }) => {
 
     subscriptionRef.current = channel
 
+    // New messages on reservation threads.
+    // RLS filters to messages on reservations the viewer is a party to,
+    // so we just need to ignore our own inserts.
+    const messagesChannel = supabase
+      .channel('request-messages-notifications')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'request_messages'
+        },
+        (payload) => {
+          if (payload.new?.sender_id === user.id) return
+          logger.log('🔔 New message received')
+          setUnreadCount((prev) => prev + 1)
+          toast('Nouveau message sur une demande', {
+            duration: 5000,
+            icon: '💬'
+          })
+        }
+      )
+      .subscribe()
+
+    messagesSubscriptionRef.current = messagesChannel
+
     // Cleanup on unmount or when dependencies change
     return () => {
       if (subscriptionRef.current) {
         logger.log('🔔 Removing subscription channel')
         supabase.removeChannel(subscriptionRef.current)
         subscriptionRef.current = null
+      }
+      if (messagesSubscriptionRef.current) {
+        supabase.removeChannel(messagesSubscriptionRef.current)
+        messagesSubscriptionRef.current = null
       }
     }
   }, [user, profile, assistanteId])
@@ -147,13 +182,13 @@ export const NotificationProvider = ({ children }) => {
       return // Not for us
     }
 
-    if (eventType === 'INSERT' && newRecord.statut === 'en_attente') {
+    if (eventType === 'INSERT' && newRecord.statut === 'demande') {
       // New reservation request
       logger.log('🔔 New reservation request for assistante')
       setUnreadCount(prev => prev + 1)
 
       toast.success(
-        'Nouvelle demande de réservation !',
+        'Nouvelle demande de mise en relation !',
         {
           duration: 6000,
           icon: '📩',
@@ -164,7 +199,7 @@ export const NotificationProvider = ({ children }) => {
       if (oldRecord?.statut !== 'annulee' && newRecord?.statut === 'annulee') {
         logger.log('🔔 Reservation cancelled by parent')
         toast(
-          'Une réservation a été annulée par le parent',
+          'Une demande a été annulée par le parent',
           {
             duration: 5000,
             icon: '❌',
@@ -176,8 +211,8 @@ export const NotificationProvider = ({ children }) => {
 
   /**
    * Handle notifications for parents
-   * - Reservation accepted (UPDATE statut to 'confirmee')
-   * - Reservation rejected (UPDATE statut to 'annulee' by assistante)
+   * - Mise en relation finalized by assistante (UPDATE statut to 'finalisee')
+   * - Demande refused by assistante (UPDATE statut to 'refusee')
    */
   const handleParentNotification = (eventType, newRecord, oldRecord) => {
     // Check if this reservation belongs to this parent
@@ -185,25 +220,24 @@ export const NotificationProvider = ({ children }) => {
       return // Not for us
     }
 
-    if (eventType === 'UPDATE' && oldRecord?.statut === 'en_attente') {
-      // Status changed from pending
-      if (newRecord?.statut === 'confirmee') {
-        logger.log('🔔 Reservation accepted')
+    if (eventType === 'UPDATE' && oldRecord?.statut === 'demande') {
+      if (newRecord?.statut === 'finalisee') {
+        logger.log('🔔 Mise en relation finalized')
         setUnreadCount(prev => prev + 1)
 
         toast.success(
-          'Votre réservation a été acceptée !',
+          'Votre mise en relation a été finalisée !',
           {
             duration: 6000,
             icon: '✅',
           }
         )
-      } else if (newRecord?.statut === 'annulee') {
-        logger.log('🔔 Reservation rejected')
+      } else if (newRecord?.statut === 'refusee') {
+        logger.log('🔔 Demande refused by assistante')
         setUnreadCount(prev => prev + 1)
 
         toast(
-          'Votre réservation a été refusée',
+          'Votre demande a été refusée',
           {
             duration: 6000,
             icon: '😔',

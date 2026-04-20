@@ -6,12 +6,17 @@ import { fr } from 'date-fns/locale'
 import { logger } from '../../utils/logger'
 import toast from 'react-hot-toast'
 import { JOURS, formatTime, getDayName, parseLocalDate, formatDuration } from '../../utils/scheduling'
+import MessageThread from '../Messaging/MessageThread'
+
+const TERMINAL_STATUSES = ['finalisee', 'refusee', 'annulee']
 
 export default function ReservationsList() {
   const { user } = useAuth()
   const [reservations, setReservations] = useState([])
   const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState('all') // 'all', 'en_attente', 'confirmee', 'annulee'
+  const [filter, setFilter] = useState('all') // 'all', 'demande', 'finalisee', 'refusee', 'annulee'
+  const [cancelTarget, setCancelTarget] = useState(null) // reservationId pending cancellation
+  const [cancelling, setCancelling] = useState(false)
 
   useEffect(() => {
     if (user) {
@@ -48,21 +53,24 @@ export default function ReservationsList() {
     }
   }
 
-  const cancelReservation = async (reservationId) => {
-    if (!confirm('Êtes-vous sûr de vouloir annuler cette réservation ?')) return
-
+  const confirmCancel = async () => {
+    if (!cancelTarget) return
+    setCancelling(true)
     try {
       const { error } = await supabase
         .from('reservations')
         .update({ statut: 'annulee' })
-        .eq('id', reservationId)
+        .eq('id', cancelTarget)
 
       if (error) throw error
-      
+
+      setCancelTarget(null)
       await loadReservations()
     } catch (err) {
       logger.error('Error canceling reservation:', err)
       toast.error('Erreur lors de l\'annulation')
+    } finally {
+      setCancelling(false)
     }
   }
 
@@ -83,10 +91,10 @@ export default function ReservationsList() {
       <div className="bg-white rounded-lg shadow-md p-8 text-center">
         <div className="text-6xl mb-4">📅</div>
         <h3 className="text-xl font-semibold text-ink mb-2">
-          Aucune réservation
+          Aucune demande
         </h3>
         <p className="text-muted">
-          Vos demandes de réservation apparaîtront ici.
+          Vos demandes apparaîtront ici.
         </p>
       </div>
     )
@@ -94,8 +102,9 @@ export default function ReservationsList() {
 
   const counts = {
     all: reservations.length,
-    en_attente: reservations.filter(r => r.statut === 'en_attente').length,
-    confirmee: reservations.filter(r => r.statut === 'confirmee').length,
+    demande: reservations.filter(r => r.statut === 'demande').length,
+    finalisee: reservations.filter(r => r.statut === 'finalisee').length,
+    refusee: reservations.filter(r => r.statut === 'refusee').length,
     annulee: reservations.filter(r => r.statut === 'annulee').length,
   }
 
@@ -103,7 +112,7 @@ export default function ReservationsList() {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-ink">
-          Mes réservations
+          Mes demandes
         </h2>
       </div>
 
@@ -120,24 +129,34 @@ export default function ReservationsList() {
           Toutes ({counts.all})
         </button>
         <button
-          onClick={() => setFilter('en_attente')}
+          onClick={() => setFilter('demande')}
           className={`px-4 py-2 rounded-lg font-semibold transition ${
-            filter === 'en_attente'
+            filter === 'demande'
               ? 'bg-warning text-ink'
               : 'bg-white text-ink hover:bg-soft'
           }`}
         >
-          ⏳ En attente ({counts.en_attente})
+          💬 En cours ({counts.demande})
         </button>
         <button
-          onClick={() => setFilter('confirmee')}
+          onClick={() => setFilter('finalisee')}
           className={`px-4 py-2 rounded-lg font-semibold transition ${
-            filter === 'confirmee'
+            filter === 'finalisee'
               ? 'bg-accent text-ink'
               : 'bg-white text-ink hover:bg-soft'
           }`}
         >
-          ✅ Confirmées ({counts.confirmee})
+          ✅ Finalisées ({counts.finalisee})
+        </button>
+        <button
+          onClick={() => setFilter('refusee')}
+          className={`px-4 py-2 rounded-lg font-semibold transition ${
+            filter === 'refusee'
+              ? 'bg-error text-white'
+              : 'bg-white text-ink hover:bg-soft'
+          }`}
+        >
+          🚫 Refusées ({counts.refusee})
         </button>
         <button
           onClick={() => setFilter('annulee')}
@@ -175,8 +194,8 @@ export default function ReservationsList() {
             <div
               key={reservation.id}
               className={`bg-white rounded-lg shadow-md p-6 border-l-4 ${
-                reservation.statut === 'en_attente' ? 'border-warning' :
-                reservation.statut === 'confirmee' ? 'border-success' :
+                reservation.statut === 'demande' ? 'border-warning' :
+                reservation.statut === 'finalisee' ? 'border-success' :
                 'border-error'
               }`}
             >
@@ -188,8 +207,8 @@ export default function ReservationsList() {
                   <p className="text-sm text-muted">
                     {reservation.assistante.adresse}, {reservation.assistante.ville}
                   </p>
-                  {/* Show contact info when reservation is confirmed */}
-                  {reservation.statut === 'confirmee' && (reservation.assistante.telephone || reservation.assistante.email) && (
+                  {/* Contact info is revealed only once the mise en relation is finalized. */}
+                  {reservation.statut === 'finalisee' && (reservation.assistante.telephone || reservation.assistante.email) && (
                     <div className="mt-2 text-sm">
                       {reservation.assistante.telephone && (
                         <a href={`tel:${reservation.assistante.telephone}`} className="text-primary hover:underline mr-3">
@@ -214,15 +233,16 @@ export default function ReservationsList() {
                 </div>
                 <span
                   className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                    reservation.statut === 'en_attente'
+                    reservation.statut === 'demande'
                       ? 'bg-warning/20 text-warning'
-                      : reservation.statut === 'confirmee'
+                      : reservation.statut === 'finalisee'
                       ? 'bg-success/20 text-ink'
                       : 'bg-error/20 text-error'
                   }`}
                 >
-                  {reservation.statut === 'en_attente' && '⏳ En attente'}
-                  {reservation.statut === 'confirmee' && '✅ Confirmée'}
+                  {reservation.statut === 'demande' && '💬 En cours'}
+                  {reservation.statut === 'finalisee' && '✅ Finalisée'}
+                  {reservation.statut === 'refusee' && '🚫 Refusée'}
                   {reservation.statut === 'annulee' && '❌ Annulée'}
                 </span>
               </div>
@@ -273,38 +293,24 @@ export default function ReservationsList() {
                 )}
               </div>
 
-              {/* Chat-style messages */}
-              {(reservation.notes || reservation.assistante_response) && (
-                <div className="mb-4 space-y-2">
-                  {/* Parent message - right side (sent by me) */}
-                  {reservation.notes && (
-                    <div className="flex justify-end">
-                      <div className="max-w-[80%] p-3 bg-primary text-white rounded-2xl rounded-br-md">
-                        <p className="text-sm">{reservation.notes}</p>
-                        <p className="text-xs text-white/70 mt-1 text-right">
-                          Vous · {format(new Date(reservation.created_at), 'dd/MM à HH:mm', { locale: fr })}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                  {/* Assistante response - left side (received) */}
-                  {reservation.assistante_response && (
-                    <div className="flex justify-start">
-                      <div className="max-w-[80%] p-3 bg-chip text-ink rounded-2xl rounded-bl-md">
-                        <p className="text-sm">{reservation.assistante_response}</p>
-                        <p className="text-xs text-muted mt-1">
-                          {reservation.assistante.profile.prenom} · {format(new Date(reservation.responded_at), 'dd/MM à HH:mm', { locale: fr })}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
+              {/* Conversation thread */}
+              <div className="mb-4">
+                <MessageThread
+                  reservationId={reservation.id}
+                  currentUserId={user.id}
+                  userLabels={{
+                    [user.id]: 'Vous',
+                    [reservation.assistante.user_id]: reservation.assistante.profile.prenom
+                  }}
+                  isLocked={TERMINAL_STATUSES.includes(reservation.statut)}
+                  lockedReason="Cette demande est terminée. Le fil est en lecture seule."
+                />
+              </div>
 
-              {reservation.statut === 'en_attente' && (
+              {reservation.statut === 'demande' && (
                 <div className="flex justify-end pt-4 border-t">
                   <button
-                    onClick={() => cancelReservation(reservation.id)}
+                    onClick={() => setCancelTarget(reservation.id)}
                     className="px-4 py-2 bg-error text-white rounded-lg hover:bg-error/90 transition font-semibold"
                   >
                     Annuler la demande
@@ -315,6 +321,48 @@ export default function ReservationsList() {
           )
         })}
       </div>
+
+      {/* Confirmation modal for cancellation */}
+      {cancelTarget && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={() => !cancelling && setCancelTarget(null)}
+        >
+          <div
+            className="bg-white rounded-lg shadow-xl max-w-md w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-4 border-b border-hairline bg-soft">
+              <h3 className="text-lg font-bold text-ink">
+                Annuler la demande
+              </h3>
+            </div>
+
+            <div className="p-5">
+              <p className="text-sm text-ink">
+                Cette action est définitive. Le fil de discussion sera fermé.
+              </p>
+            </div>
+
+            <div className="p-4 border-t border-hairline bg-soft flex justify-end gap-3">
+              <button
+                onClick={() => setCancelTarget(null)}
+                disabled={cancelling}
+                className="px-4 py-2 text-ink bg-white border border-line rounded-lg hover:bg-soft transition disabled:opacity-50"
+              >
+                Retour
+              </button>
+              <button
+                onClick={confirmCancel}
+                disabled={cancelling}
+                className="px-4 py-2 bg-error text-white rounded-lg font-semibold hover:bg-error/90 transition disabled:opacity-50"
+              >
+                {cancelling ? 'Annulation...' : '❌ Annuler la demande'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

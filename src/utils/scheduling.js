@@ -389,7 +389,7 @@ export async function calculateAvailability(assistanteId, maxKids, horaires, sup
       )
     `)
     .eq('assistante_id', assistanteId)
-    .eq('statut', 'confirmee')
+    .eq('statut', 'finalisee')
 
   if (error) {
     console.error('Error fetching reservations for availability:', error)

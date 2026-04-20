@@ -192,7 +192,7 @@ export default function ChildrenManager() {
         <div>
           <h2 className="text-xl font-bold text-ink">Mes enfants</h2>
           <p className="text-sm text-muted mt-1">
-            Gérez les informations de vos enfants pour les réservations
+            Gérez les informations de vos enfants pour les demandes
           </p>
         </div>
         {!showAddForm && (

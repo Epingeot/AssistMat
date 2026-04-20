@@ -151,7 +151,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
         // Sign up as parent
         const { error } = await signUp(authEmail, authPassword, 'parent', authNom, authPrenom)
         if (error) throw error
-        toast.success('Compte cree ! Vous pouvez maintenant reserver.')
+        toast.success('Compte cree ! Vous pouvez maintenant entrer en contact avec l\'assistante maternelle.')
       }
       // After successful auth, loadData will be called by the useEffect
     } catch (err) {
@@ -296,8 +296,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
           date_debut: dateDebut,
           date_fin: isRemplacement && dateFin ? dateFin : null,
           is_remplacement: isRemplacement,
-          statut: 'en_attente',
-          notes: notes.trim() || null
+          statut: 'demande'
         }])
         .select()
         .single()
@@ -317,6 +316,19 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
         .insert(slotsData)
 
       if (slotsError) throw slotsError
+
+      // Post the parent's note (if any) as the first message on the thread
+      const initialNote = notes.trim()
+      if (initialNote) {
+        const { error: messageError } = await supabase
+          .from('request_messages')
+          .insert({
+            reservation_id: reservation.id,
+            sender_id: user.id,
+            body: initialNote
+          })
+        if (messageError) logger.error('Error posting initial note:', messageError)
+      }
 
       onSuccess(reservation)
     } catch (err) {
@@ -354,7 +366,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
             <div className="flex justify-between items-start mb-6">
               <div>
                 <h2 className="text-xl font-bold text-ink">
-                  Reserver chez {assistante.prenom} {assistante.nom}
+                  Envoyer une demande à {assistante.prenom} {assistante.nom}
                 </h2>
                 <p className="text-muted text-sm mt-1">
                   {assistante.code_postal} {assistante.ville}
@@ -371,7 +383,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
             {/* Auth required message */}
             <div className="bg-primary/10 border border-primary/30 rounded-lg p-4 mb-6">
               <p className="text-ink font-medium">
-                Connectez-vous pour envoyer une demande de reservation
+                Connectez-vous pour envoyer une demande de mise en contact
               </p>
               <p className="text-sm text-primary mt-1">
                 Creez un compte gratuit ou connectez-vous pour contacter cette assistante maternelle.
@@ -511,7 +523,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
           <div className="flex justify-between items-start mb-6">
             <div>
               <h2 className="text-2xl font-bold text-ink">
-                Reserver chez {assistante.prenom} {assistante.nom}
+                Envoyer une demande à {assistante.prenom} {assistante.nom}
               </h2>
               <p className="text-muted text-sm mt-1">
                 {assistante.adresse}, {assistante.ville}
@@ -541,7 +553,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
                 </span>
               </div>
               <div>
-                <span className="text-muted">Vacances :</span>
+                <span className="text-muted">Absence :</span>
                 <span className="ml-1 font-semibold text-primary">
                   {assistante.vacation_weeks || 5} sem/an
                 </span>
@@ -558,7 +570,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
               {children.length === 0 && !showAddChild ? (
                 <div className="bg-warning/10 border border-warning/30 rounded-lg p-4">
                   <p className="text-sm text-warning mb-3">
-                    Vous devez d'abord ajouter un enfant pour pouvoir réserver.
+                    Vous devez d'abord ajouter un enfant pour pouvoir envoyer une demande.
                   </p>
                   <button
                     type="button"
@@ -860,7 +872,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
                     <p className="text-muted">
                       Moyenne mensuelle
                       <span className="text-xs text-muted block">
-                        (avec {assistante.vacation_weeks || 5} sem. de vacances)
+                        (avec {assistante.vacation_weeks || 5} sem. d'absence sur l'année)
                       </span>
                     </p>
                     <p className="text-xl font-bold text-ink">

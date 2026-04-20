@@ -57,6 +57,7 @@
 - [ ] make the optional criteria non-filtering in search: instead of excluding assistantes that don't match, use them to sort results by number of matching criteria (descending)
 - [ ] make the "AssistMat" logo/title in the dashboard navbar (both parent and assistante) a link back to the landing page ("/"). Currently it's a static `<h1>` — wrap in a `<Link to="/">` and add `cursor-pointer hover:opacity-80` (or similar) to signal interactivity.
 - [ ] WCAG AA contrast pass: `bg-primary` (#95D2DB azure) + `text-white` is ~1.8:1 — fails AA (needs 4.5:1 for normal, 3:1 for large). Used on ~35 buttons/chips app-wide (primary CTAs, active tabs, chat bubbles, etc.). Options: (a) swap to `text-ink` on all primary buttons — 5.2:1, passes AA but changes brand look; (b) darken the `primary` token to a deeper azure that passes AA with white — changes every primary use incl. links/focus rings/borders. Also worth checking `bg-peach` (#DD8573) + white (~2.6:1, borderline) during same pass. Noted 2026-04-18 while fixing contrast regressions on bg-warning and bg-error buttons.
+- [ ] replace native `confirm()` in `src/components/Parent/ChildrenManager.jsx:121` ("Êtes-vous sûr de vouloir supprimer cet enfant ?") with an in-app modal matching the Finaliser/Refuser/Annuler pattern used in the Reservations lists. Native browser confirms look off-brand (plain dark popup). Noted 2026-04-20 while reworking the mise-en-relation dialogs.
 
 ## 📘 Notes for Claude
 - Always avoid scanning the entire repo.

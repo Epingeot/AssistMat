@@ -27,7 +27,7 @@ export default function Disclaimer() {
             </p>
 
             <p>
-              Les réservations effectuées via l'application sont indicatives et non contractuelles.
+              Les mises en relation effectuées via l'application sont indicatives et non contractuelles.
               Le contrat de travail, les déclarations Pajemploi et toutes les obligations légales doivent être établis directement entre les parents et l'assistant(e) maternel(le).
             </p>
 

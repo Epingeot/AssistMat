@@ -123,9 +123,9 @@ export default function LandingPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h4 className="text-xl font-semibold text-ink mb-3">Reservation simple</h4>
+              <h4 className="text-xl font-semibold text-ink mb-3">Mise en relation simple</h4>
               <p className="text-muted">
-                Consultez les disponibilités en temps réel et envoyez une demande de réservation en quelques clics.
+                Consultez les disponibilités en temps réel et envoyez une demande de mise en relation en quelques clics.
               </p>
             </div>
 
@@ -147,7 +147,7 @@ export default function LandingPage() {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-20 px-4 bg-soft">
+      <section className="py-20 px-4 bg-chip">
         <div className="max-w-6xl mx-auto">
           <h3 className="text-3xl font-bold text-center text-ink mb-12">
             Comment ça marche ?
@@ -186,9 +186,9 @@ export default function LandingPage() {
                 <div className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold text-lg mb-4">
                   3
                 </div>
-                <h4 className="text-xl font-semibold text-ink mb-3">Reservez</h4>
+                <h4 className="text-xl font-semibold text-ink mb-3">Faites une demande</h4>
                 <p className="text-muted">
-                  Envoyez une demande de réservation et attendez la confirmation de l'assistante.
+                  Envoyez une demande, échangez avec l'assistante, et finalisez ensemble la mise en relation.
                 </p>
               </div>
             </div>
