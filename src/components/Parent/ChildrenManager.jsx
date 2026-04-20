@@ -221,8 +221,6 @@ export default function ChildrenManager() {
                   type="text"
                   value={formData.prenom}
                   onChange={(e) => setFormData({ ...formData, prenom: e.target.value })}
-                  onInvalid={(e) => e.target.setCustomValidity('Veuillez renseigner le prénom')}
-                  onInput={(e) => e.target.setCustomValidity('')}
                   placeholder="Ex: Emma"
                   required
                   className="w-full px-3 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent"
