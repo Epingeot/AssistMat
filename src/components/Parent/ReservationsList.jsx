@@ -7,6 +7,7 @@ import { logger } from '../../utils/logger'
 import toast from 'react-hot-toast'
 import { JOURS, formatTime, getDayName, parseLocalDate, formatDuration } from '../../utils/scheduling'
 import MessageThread from '../Messaging/MessageThread'
+import ReservationModal from './ReservationModal'
 
 const TERMINAL_STATUSES = ['finalisee', 'refusee', 'annulee']
 
@@ -17,6 +18,7 @@ export default function ReservationsList() {
   const [filter, setFilter] = useState('demande') // 'demande', 'finalisee', 'closed' (refusee + annulee)
   const [cancelTarget, setCancelTarget] = useState(null) // reservationId pending cancellation
   const [cancelling, setCancelling] = useState(false)
+  const [editTarget, setEditTarget] = useState(null) // full reservation object being edited
 
   useEffect(() => {
     if (user) {
@@ -195,24 +197,32 @@ export default function ReservationsList() {
                   <h3 className="text-lg font-bold text-ink">
                     {reservation.assistante.profile.prenom} {reservation.assistante.profile.nom}
                   </h3>
-                  <p className="text-sm text-muted">
-                    {reservation.assistante.adresse}, {reservation.assistante.ville}
-                  </p>
-                  {/* Contact info is revealed only once the mise en relation is finalized. */}
-                  {reservation.statut === 'finalisee' && (reservation.assistante.telephone || reservation.assistante.email) && (
-                    <div className="mt-2 text-sm">
-                      {reservation.assistante.telephone && (
-                        <a href={`tel:${reservation.assistante.telephone}`} className="text-primary hover:underline mr-3">
-                          📞 {reservation.assistante.telephone}
-                        </a>
-                      )}
-                      {reservation.assistante.email && (
-                        <a href={`mailto:${reservation.assistante.email}`} className="text-primary hover:underline">
-                          ✉️ {reservation.assistante.email}
-                        </a>
-                      )}
-                    </div>
-                  )}
+                  {(() => {
+                    const contactVisible = reservation.contact_shared || reservation.statut === 'finalisee'
+                    return (
+                      <>
+                        <p className="text-sm text-muted">
+                          {contactVisible
+                            ? `${reservation.assistante.adresse}, ${reservation.assistante.code_postal} ${reservation.assistante.ville}`
+                            : `${reservation.assistante.code_postal} ${reservation.assistante.ville}`}
+                        </p>
+                        {contactVisible && (reservation.assistante.telephone || reservation.assistante.email) && (
+                          <div className="mt-2 text-sm">
+                            {reservation.assistante.telephone && (
+                              <a href={`tel:${reservation.assistante.telephone}`} className="text-muted hover:underline mr-3">
+                                📞 {reservation.assistante.telephone}
+                              </a>
+                            )}
+                            {reservation.assistante.email && (
+                              <a href={`mailto:${reservation.assistante.email}`} className="text-muted hover:underline">
+                                ✉️ {reservation.assistante.email}
+                              </a>
+                            )}
+                          </div>
+                        )}
+                      </>
+                    )
+                  })()}
                   {isRemplacement && (
                     <p className="text-xs text-accent mt-1">Remplacement</p>
                   )}
@@ -299,7 +309,13 @@ export default function ReservationsList() {
               </div>
 
               {reservation.statut === 'demande' && (
-                <div className="flex justify-end pt-4 border-t">
+                <div className="flex justify-end gap-2 pt-4 border-t">
+                  <button
+                    onClick={() => setEditTarget(reservation)}
+                    className="px-4 py-2 bg-white border border-primary text-primary rounded-lg hover:bg-primary/10 transition font-semibold"
+                  >
+                    Modifier
+                  </button>
                   <button
                     onClick={() => setCancelTarget(reservation.id)}
                     className="px-4 py-2 bg-error text-white rounded-lg hover:bg-error/90 transition font-semibold"
@@ -353,6 +369,24 @@ export default function ReservationsList() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Edit modal — reuses ReservationModal in edit mode */}
+      {editTarget && (
+        <ReservationModal
+          assistante={{
+            ...editTarget.assistante,
+            prenom: editTarget.assistante.profile?.prenom,
+            nom: editTarget.assistante.profile?.nom,
+          }}
+          reservation={editTarget}
+          onClose={() => setEditTarget(null)}
+          onSuccess={() => {
+            setEditTarget(null)
+            toast.success('Demande modifiée')
+            loadReservations()
+          }}
+        />
       )}
     </div>
   )

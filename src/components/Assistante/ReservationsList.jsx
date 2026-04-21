@@ -20,6 +20,7 @@ export default function ReservationsList() {
   const [filter, setFilter] = useState('demande') // 'demande', 'finalisee', 'closed' (refusee + annulee)
   const [pendingAction, setPendingAction] = useState(null) // { reservationId, action: 'finalize' | 'refuse' }
   const [updating, setUpdating] = useState(false)
+  const [sharingId, setSharingId] = useState(null) // reservationId currently being shared (for disabling the checkbox)
 
   const workingDayNums = Object.keys(workingHours).map(Number).sort((a, b) => a - b)
 
@@ -202,6 +203,36 @@ export default function ReservationsList() {
       toast.error('Erreur lors de la mise à jour')
     } finally {
       setUpdating(false)
+    }
+  }
+
+  const shareContact = async (reservationId) => {
+    setSharingId(reservationId)
+    try {
+      const { error: updErr } = await supabase
+        .from('reservations')
+        .update({ contact_shared: true })
+        .eq('id', reservationId)
+      if (updErr) throw updErr
+
+      const { error: msgErr } = await supabase
+        .from('request_messages')
+        .insert({
+          reservation_id: reservationId,
+          sender_id: user.id,
+          body: "J'ai partagé mes coordonnées avec vous.",
+        })
+      if (msgErr) throw msgErr
+
+      setReservations(prev => prev.map(r =>
+        r.id === reservationId ? { ...r, contact_shared: true } : r
+      ))
+      toast.success('Coordonnées partagées')
+    } catch (err) {
+      logger.error('Error sharing contact:', err)
+      toast.error('Erreur lors du partage des coordonnées')
+    } finally {
+      setSharingId(null)
     }
   }
 
@@ -410,32 +441,49 @@ export default function ReservationsList() {
             </div>
 
             {reservation.statut === 'demande' && (
-              <div className="flex gap-3 mt-4 pt-4 border-t border-hairline">
-                <button
-                  onClick={() => setPendingAction({
-                    reservationId: reservation.id,
-                    action: 'finalize',
-                    dateDebut: reservation.date_debut || '',
-                    dateFin: reservation.date_fin || '',
-                    isRemplacement: !!reservation.is_remplacement,
-                    slots: (reservation.slots || [])
-                      .map(s => ({
-                        jour: s.jour,
-                        heure_debut: normalizeTime(s.heure_debut),
-                        heure_fin: normalizeTime(s.heure_fin),
-                      }))
-                      .sort((a, b) => a.jour - b.jour || a.heure_debut.localeCompare(b.heure_debut)),
-                  })}
-                  className="flex-1 bg-success text-white py-2 rounded-lg font-semibold hover:bg-success/90 transition"
-                >
-                  ✅ Finaliser
-                </button>
-                <button
-                  onClick={() => setPendingAction({ reservationId: reservation.id, action: 'refuse' })}
-                  className="flex-1 bg-error text-white py-2 rounded-lg font-semibold hover:bg-error/90 transition"
-                >
-                  🚫 Refuser
-                </button>
+              <div className="mt-4 pt-4 border-t border-hairline space-y-3">
+                <label className="inline-flex items-center gap-2 cursor-pointer text-sm">
+                  <input
+                    type="checkbox"
+                    checked={!!reservation.contact_shared}
+                    disabled={!!reservation.contact_shared || sharingId === reservation.id}
+                    onChange={(e) => { if (e.target.checked) shareContact(reservation.id) }}
+                    className="w-4 h-4 accent-primary cursor-pointer disabled:cursor-not-allowed"
+                  />
+                  <span className={reservation.contact_shared ? 'text-success font-semibold' : 'text-ink'}>
+                    {reservation.contact_shared
+                      ? '✅ Coordonnées partagées avec le parent'
+                      : 'Partager mes coordonnées (adresse, téléphone, email) avec le parent'}
+                  </span>
+                </label>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setPendingAction({
+                      reservationId: reservation.id,
+                      action: 'finalize',
+                      dateDebut: reservation.date_debut || '',
+                      dateFin: reservation.date_fin || '',
+                      isRemplacement: !!reservation.is_remplacement,
+                      slots: (reservation.slots || [])
+                        .map(s => ({
+                          jour: s.jour,
+                          heure_debut: normalizeTime(s.heure_debut),
+                          heure_fin: normalizeTime(s.heure_fin),
+                        }))
+                        .sort((a, b) => a.jour - b.jour || a.heure_debut.localeCompare(b.heure_debut)),
+                    })}
+                    className="flex-1 bg-success text-white py-2 rounded-lg font-semibold hover:bg-success/90 transition"
+                  >
+                    ✅ Finaliser
+                  </button>
+                  <button
+                    onClick={() => setPendingAction({ reservationId: reservation.id, action: 'refuse' })}
+                    className="flex-1 bg-error text-white py-2 rounded-lg font-semibold hover:bg-error/90 transition"
+                  >
+                    🚫 Refuser
+                  </button>
+                </div>
               </div>
             )}
           </div>

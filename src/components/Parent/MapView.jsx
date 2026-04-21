@@ -113,7 +113,7 @@ function isAvailableAtDate(assistante, dateStr) {
   })
 }
 
-export default function MapView({ assistantes, searchCenter, onSelectAssistante, dateDebut, showContactInfo = true }) {
+export default function MapView({ assistantes, searchCenter, onSelectAssistante, dateDebut }) {
   // Centre par défaut : Paris
   const defaultCenter = [48.8566, 2.3522]
 
@@ -168,9 +168,6 @@ export default function MapView({ assistantes, searchCenter, onSelectAssistante,
                   )}
 
                   <p className="font-bold text-center">{assistante.prenom} {assistante.nom}</p>
-                  {showContactInfo && (
-                    <div className="text-muted text-xs">{assistante.adresse}</div>
-                  )}
                   <div className="text-muted text-xs">{assistante.code_postal} {assistante.ville}</div>
 
                   {assistante.max_kids && (

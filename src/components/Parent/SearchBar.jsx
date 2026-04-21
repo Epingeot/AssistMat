@@ -126,7 +126,7 @@ export default function SearchBar({ onSearch, initialVille = '', initialCodePost
             onClick={() => setShowOnlyAvailable(!showOnlyAvailable)}
             className={`flex items-center gap-2 px-3 py-1.5 border-2 rounded-lg text-sm font-medium transition ${
               showOnlyAvailable
-                ? 'border-success bg-success/10 text-ink'
+                ? 'border-success bg-success/10 text-success'
                 : 'border-line text-ink hover:border-subtle'
             }`}
           >

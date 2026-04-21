@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { addMonths, format } from 'date-fns'
@@ -18,15 +19,37 @@ import {
   formatDuration
 } from '../../utils/scheduling'
 
-export default function ReservationModal({ assistante, onClose, onSuccess }) {
+export default function ReservationModal({ assistante, reservation, onClose, onSuccess }) {
   const { user, signIn, signUp } = useAuth()
+  const isEditMode = !!reservation
+
+  const normalizeTime = (time) => {
+    if (!time) return time
+    return time.substring(0, 5)
+  }
 
   // Form state
-  const [dateDebut, setDateDebut] = useState('')
-  const [dateFin, setDateFin] = useState('')
-  const [selectedChild, setSelectedChild] = useState('')
-  const [selectedSlots, setSelectedSlots] = useState([]) // Array of {jour, heure_debut, heure_fin}
-  const [isRemplacement, setIsRemplacement] = useState(false) // CDD vs CDI
+  const [dateDebut, setDateDebut] = useState(
+    isEditMode ? reservation.date_debut : ''
+  )
+  const [dateFin, setDateFin] = useState(
+    isEditMode && reservation.date_fin ? reservation.date_fin : ''
+  )
+  const [selectedChild, setSelectedChild] = useState(
+    isEditMode ? reservation.child_id : ''
+  )
+  const [selectedSlots, setSelectedSlots] = useState(
+    isEditMode && reservation.slots
+      ? reservation.slots.map(s => ({
+          jour: s.jour,
+          heure_debut: normalizeTime(s.heure_debut),
+          heure_fin: normalizeTime(s.heure_fin)
+        }))
+      : []
+  ) // Array of {jour, heure_debut, heure_fin}
+  const [isRemplacement, setIsRemplacement] = useState(
+    isEditMode ? !!reservation.is_remplacement : false
+  ) // CDD vs CDI
   const [notes, setNotes] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -59,8 +82,9 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
     }
   }, [user])
 
-  // Auto-populate start date with earliest availability
+  // Auto-populate start date with earliest availability (skip in edit mode — keep existing date)
   useEffect(() => {
+    if (isEditMode) return
     if (assistante.availability?.earliestDate && !dateDebut) {
       // Format the Date object for the input
       const formattedDate = formatDateForDB(assistante.availability.earliestDate)
@@ -189,13 +213,6 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
     }
   }
 
-  // Normalize time to HH:MM format (remove seconds if present)
-  const normalizeTime = (time) => {
-    if (!time) return time
-    // Handle "HH:MM:SS" format from database
-    return time.substring(0, 5)
-  }
-
   // Get schedule for a day (with normalized times)
   const getScheduleForDay = (jour) => {
     const found = schedule.find(s => s.jour === jour)
@@ -250,9 +267,30 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
     }, 0)
   }
 
+  // In edit mode, detect whether any field differs from the original reservation
+  const hasChanges = () => {
+    if (!isEditMode) return true
+    if (dateDebut !== reservation.date_debut) return true
+    const origDateFin = reservation.date_fin || ''
+    if ((dateFin || '') !== origDateFin) return true
+    if (!!isRemplacement !== !!reservation.is_remplacement) return true
+
+    const origSlots = (reservation.slots || [])
+      .map(s => `${s.jour}|${normalizeTime(s.heure_debut)}|${normalizeTime(s.heure_fin)}`)
+      .sort()
+    const curSlots = selectedSlots
+      .map(s => `${s.jour}|${s.heure_debut}|${s.heure_fin}`)
+      .sort()
+    if (origSlots.length !== curSlots.length) return true
+    for (let i = 0; i < origSlots.length; i++) {
+      if (origSlots[i] !== curSlots[i]) return true
+    }
+    return false
+  }
+
   // Validation
   const validateForm = () => {
-    if (!selectedChild) {
+    if (!isEditMode && !selectedChild) {
       return "Veuillez sélectionner un enfant"
     }
     if (!dateDebut) {
@@ -279,6 +317,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
     const validationError = validateForm()
     if (validationError) {
       setError(validationError)
+      toast.error(validationError)
       return
     }
 
@@ -286,8 +325,64 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
     setError(null)
 
     try {
+      if (isEditMode) {
+        // Update existing reservation
+        const { error: updateError } = await supabase
+          .from('reservations')
+          .update({
+            date_debut: dateDebut,
+            date_fin: isRemplacement && dateFin ? dateFin : null,
+            is_remplacement: isRemplacement
+          })
+          .eq('id', reservation.id)
+
+        if (updateError) throw updateError
+
+        // Replace slots: delete existing, insert new set.
+        // Chain .select() so we can verify rows were actually removed — otherwise
+        // an RLS-blocked DELETE returns zero rows without an error, and the INSERT
+        // below would stack new slots on top of the originals.
+        const { data: deletedSlots, error: deleteError } = await supabase
+          .from('reservation_slots')
+          .delete()
+          .eq('reservation_id', reservation.id)
+          .select('id')
+
+        if (deleteError) throw deleteError
+        const hadSlots = (reservation.slots || []).length > 0
+        if (hadSlots && (!deletedSlots || deletedSlots.length === 0)) {
+          throw new Error("Impossible de remplacer les créneaux (permissions insuffisantes).")
+        }
+
+        const slotsData = selectedSlots.map(slot => ({
+          reservation_id: reservation.id,
+          jour: slot.jour,
+          heure_debut: slot.heure_debut,
+          heure_fin: slot.heure_fin
+        }))
+
+        const { error: slotsError } = await supabase
+          .from('reservation_slots')
+          .insert(slotsData)
+
+        if (slotsError) throw slotsError
+
+        // Post a thread message so the assistante sees the change
+        const { error: messageError } = await supabase
+          .from('request_messages')
+          .insert({
+            reservation_id: reservation.id,
+            sender_id: user.id,
+            body: "J'ai modifié ma demande — merci de vérifier les nouvelles dates et créneaux."
+          })
+        if (messageError) logger.error('Error posting edit notification:', messageError)
+
+        onSuccess({ ...reservation, date_debut: dateDebut, date_fin: isRemplacement && dateFin ? dateFin : null, is_remplacement: isRemplacement })
+        return
+      }
+
       // Create reservation
-      const { data: reservation, error: reservationError } = await supabase
+      const { data: newReservation, error: reservationError } = await supabase
         .from('reservations')
         .insert([{
           parent_id: user.id,
@@ -305,7 +400,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
 
       // Create reservation slots
       const slotsData = selectedSlots.map(slot => ({
-        reservation_id: reservation.id,
+        reservation_id: newReservation.id,
         jour: slot.jour,
         heure_debut: slot.heure_debut,
         heure_fin: slot.heure_fin
@@ -323,17 +418,18 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
         const { error: messageError } = await supabase
           .from('request_messages')
           .insert({
-            reservation_id: reservation.id,
+            reservation_id: newReservation.id,
             sender_id: user.id,
             body: initialNote
           })
         if (messageError) logger.error('Error posting initial note:', messageError)
       }
 
-      onSuccess(reservation)
+      onSuccess(newReservation)
     } catch (err) {
       logger.error('Reservation error:', err)
       setError(err.message)
+      toast.error(err.message || 'Erreur lors de l\'enregistrement')
     } finally {
       setLoading(false)
     }
@@ -347,18 +443,19 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
   const avgMonthlyHours = calculateAvgHoursPerMonth(weeklyHours, assistante.vacation_weeks || 5)
 
   if (loadingData) {
-    return (
+    return createPortal(
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]">
         <div className="bg-white rounded-lg p-8">
           <div className="text-center text-muted">Chargement...</div>
         </div>
-      </div>
+      </div>,
+      document.body
     )
   }
 
   // If user is not authenticated, show login/signup form
   if (!user) {
-    return (
+    return createPortal(
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]">
         <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
           <div className="p-6">
@@ -511,11 +608,12 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
             </button>
           </div>
         </div>
-      </div>
+      </div>,
+      document.body
     )
   }
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]">
       <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
@@ -523,10 +621,14 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
           <div className="flex justify-between items-start mb-6">
             <div>
               <h2 className="text-2xl font-bold text-ink">
-                Envoyer une demande à {assistante.prenom} {assistante.nom}
+                {isEditMode
+                  ? `Modifier la demande à ${assistante.prenom} ${assistante.nom}`
+                  : `Envoyer une demande à ${assistante.prenom} ${assistante.nom}`}
               </h2>
               <p className="text-muted text-sm mt-1">
-                {assistante.adresse}, {assistante.ville}
+                {isEditMode && (reservation.contact_shared || reservation.statut === 'finalisee')
+                  ? `${assistante.adresse}, ${assistante.code_postal} ${assistante.ville}`
+                  : `${assistante.code_postal} ${assistante.ville}`}
               </p>
             </div>
             <button
@@ -562,7 +664,8 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Child selection */}
+            {/* Child selection — hidden in edit mode (child is immutable) */}
+            {!isEditMode && (
             <div>
               <label className="block text-sm font-medium text-ink mb-2">
                 Enfant concerné *
@@ -627,6 +730,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
                 </div>
               )}
             </div>
+            )}
 
             {/* Remplacement checkbox */}
             <div className="bg-warning/10 border border-warning/30 rounded-lg p-4">
@@ -661,7 +765,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
                   type="date"
                   value={dateDebut}
                   onChange={(e) => setDateDebut(e.target.value)}
-                  min={today}
+                  min={isEditMode ? undefined : today}
                   required
                   className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40"
                 />
@@ -675,7 +779,7 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
                     type="date"
                     value={dateFin}
                     onChange={(e) => setDateFin(e.target.value)}
-                    min={dateDebut || today}
+                    min={isEditMode ? undefined : (dateDebut || today)}
                     required
                     className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40"
                   />
@@ -839,23 +943,25 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
               </div>
             </div>
 
-            {/* Notes/Message */}
-            <div>
-              <label className="block text-sm font-medium text-ink mb-2">
-                Message pour l'assistante (optionnel)
-              </label>
-              <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Ex: Besoin de places pour jumeaux, horaires flexibles, allergies particulières..."
-                rows={4}
-                maxLength={500}
-                className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent resize-none"
-              />
-              <p className="text-xs text-muted mt-1">
-                {notes.length}/500 caractères
-              </p>
-            </div>
+            {/* Notes/Message — hidden in edit mode (follow-up messages go in the thread) */}
+            {!isEditMode && (
+              <div>
+                <label className="block text-sm font-medium text-ink mb-2">
+                  Message pour l'assistante (optionnel)
+                </label>
+                <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Ex: Besoin de places pour jumeaux, horaires flexibles, allergies particulières..."
+                  rows={4}
+                  maxLength={500}
+                  className="w-full px-4 py-2 border border-line rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent resize-none"
+                />
+                <p className="text-xs text-muted mt-1">
+                  {notes.length}/500 caractères
+                </p>
+              </div>
+            )}
 
             {/* Summary */}
             {selectedSlots.length > 0 && (
@@ -899,19 +1005,24 @@ export default function ReservationModal({ assistante, onClose, onSuccess }) {
               </button>
               <button
                 type="submit"
-                disabled={loading || children.length === 0}
+                disabled={loading || (!isEditMode && children.length === 0) || (isEditMode && !hasChanges())}
                 className="flex-1 bg-primary text-white py-3 rounded-lg font-semibold hover:bg-primary/90 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Envoi...' : 'Envoyer la demande'}
+                {loading
+                  ? (isEditMode ? 'Enregistrement...' : 'Envoi...')
+                  : (isEditMode ? 'Enregistrer les modifications' : 'Envoyer la demande')}
               </button>
             </div>
           </form>
 
-          <p className="text-xs text-muted mt-4 text-center">
-            Votre demande sera envoyée à l'assistante maternelle qui pourra l'accepter ou la refuser.
-          </p>
+          {!isEditMode && (
+            <p className="text-xs text-muted mt-4 text-center">
+              Votre demande sera envoyée à l'assistante maternelle qui pourra l'accepter ou la refuser.
+            </p>
+          )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

@@ -4,7 +4,8 @@
       "Bash(find:*)",
       "Bash(findstr:*)",
       "Bash(npm run build:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(npx vite *)"
     ],
     "deny": [],
     "ask": []

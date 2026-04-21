@@ -248,7 +248,6 @@ export default function PublicSearchPage() {
                     key={assistante.id}
                     assistante={assistante}
                     onSelect={handleSelectAssistante}
-                    showContactInfo={!!user} // Only show contact info if logged in
                   />
                 ))}
               </div>
@@ -276,7 +275,6 @@ export default function PublicSearchPage() {
                     searchCenter={searchCenter}
                     onSelectAssistante={handleSelectAssistante}
                     dateDebut={currentDateDebut}
-                    showContactInfo={!!user}
                   />
                 </ErrorBoundary>
               </div>
