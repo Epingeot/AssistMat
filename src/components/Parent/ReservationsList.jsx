@@ -14,7 +14,7 @@ export default function ReservationsList() {
   const { user } = useAuth()
   const [reservations, setReservations] = useState([])
   const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState('all') // 'all', 'demande', 'finalisee', 'refusee', 'annulee'
+  const [filter, setFilter] = useState('demande') // 'demande', 'finalisee', 'closed' (refusee + annulee)
   const [cancelTarget, setCancelTarget] = useState(null) // reservationId pending cancellation
   const [cancelling, setCancelling] = useState(false)
 
@@ -74,9 +74,11 @@ export default function ReservationsList() {
     }
   }
 
-  const filteredReservations = filter === 'all' 
-    ? reservations 
-    : reservations.filter(r => r.statut === filter)
+  const isClosed = (r) => r.statut === 'refusee' || r.statut === 'annulee'
+
+  const filteredReservations = filter === 'closed'
+      ? reservations.filter(isClosed)
+      : reservations.filter(r => r.statut === filter)
 
   if (loading) {
     return (
@@ -101,11 +103,9 @@ export default function ReservationsList() {
   }
 
   const counts = {
-    all: reservations.length,
     demande: reservations.filter(r => r.statut === 'demande').length,
     finalisee: reservations.filter(r => r.statut === 'finalisee').length,
-    refusee: reservations.filter(r => r.statut === 'refusee').length,
-    annulee: reservations.filter(r => r.statut === 'annulee').length,
+    closed: reservations.filter(isClosed).length,
   }
 
   return (
@@ -119,20 +119,10 @@ export default function ReservationsList() {
       {/* Filtres */}
       <div className="flex gap-2 flex-wrap">
         <button
-          onClick={() => setFilter('all')}
-          className={`px-4 py-2 rounded-lg font-semibold transition ${
-            filter === 'all'
-              ? 'bg-primary text-white'
-              : 'bg-white text-ink hover:bg-soft'
-          }`}
-        >
-          Toutes ({counts.all})
-        </button>
-        <button
           onClick={() => setFilter('demande')}
           className={`px-4 py-2 rounded-lg font-semibold transition ${
             filter === 'demande'
-              ? 'bg-warning text-ink'
+              ? 'bg-primary text-white'
               : 'bg-white text-ink hover:bg-soft'
           }`}
         >
@@ -149,26 +139,28 @@ export default function ReservationsList() {
           ✅ Finalisées ({counts.finalisee})
         </button>
         <button
-          onClick={() => setFilter('refusee')}
+          onClick={() => setFilter('closed')}
           className={`px-4 py-2 rounded-lg font-semibold transition ${
-            filter === 'refusee'
+            filter === 'closed'
               ? 'bg-error text-white'
               : 'bg-white text-ink hover:bg-soft'
           }`}
         >
-          🚫 Refusées ({counts.refusee})
-        </button>
-        <button
-          onClick={() => setFilter('annulee')}
-          className={`px-4 py-2 rounded-lg font-semibold transition ${
-            filter === 'annulee'
-              ? 'bg-error text-white'
-              : 'bg-white text-ink hover:bg-soft'
-          }`}
-        >
-          ❌ Annulées ({counts.annulee})
+          🚫 Annulées / Refusées ({counts.closed})
         </button>
       </div>
+
+      {/* Empty state for filtered results */}
+      {filteredReservations.length === 0 && (
+        <div className="bg-white rounded-lg shadow-md p-6 text-center">
+          <p className="text-muted">
+            {filter === 'demande' && 'Aucune demande en cours'}
+            {filter === 'finalisee' && 'Aucune mise en relation finalisée'}
+            {filter === 'closed' && 'Aucune demande refusée ou annulée'}
+            {filter === 'all' && 'Aucune demande'}
+          </p>
+        </div>
+      )}
 
       {/* Liste des réservations */}
       <div className="space-y-4">
@@ -294,7 +286,7 @@ export default function ReservationsList() {
               </div>
 
               {/* Conversation thread */}
-              <div className="mb-4">
+              <div className="mb-4 pt-4 border-t border-hairline">
                 <MessageThread
                   reservationId={reservation.id}
                   currentUserId={user.id}
