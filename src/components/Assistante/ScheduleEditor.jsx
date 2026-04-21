@@ -156,7 +156,7 @@ export default function ScheduleEditor({ schedule, vacationWeeks = 5, onChange }
               <p className="text-muted">
                 Moyenne mensuelle
                 <span className="text-xs text-muted block">
-                  (avec {vacationWeeks} sem. de vacances)
+                  (avec {vacationWeeks} sem. d'absence sur l'année)
                 </span>
               </p>
               <p className="text-xl font-bold text-peach">
