@@ -22,6 +22,8 @@ export default function ChildrenManager() {
     rgpd_consent_display_name: false
   })
   const [saving, setSaving] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState(null) // child pending deletion
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     if (user) {
@@ -117,23 +119,24 @@ export default function ChildrenManager() {
     setShowAddForm(true)
   }
 
-  const handleDelete = async (childId) => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer cet enfant ? Cette action est irréversible.')) {
-      return
-    }
-
+  const confirmDelete = async () => {
+    if (!deleteTarget) return
+    setDeleting(true)
     try {
       const { error } = await supabase
         .from('children')
         .delete()
-        .eq('id', childId)
+        .eq('id', deleteTarget.id)
 
       if (error) throw error
       toast.success('Enfant supprimé')
+      setDeleteTarget(null)
       loadChildren()
     } catch (err) {
       console.error('Error deleting child:', err)
       toast.error('Erreur lors de la suppression')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -359,7 +362,7 @@ export default function ChildrenManager() {
 
                 {/* Delete */}
                 <button
-                  onClick={() => handleDelete(child.id)}
+                  onClick={() => setDeleteTarget(child)}
                   className="p-2 text-muted hover:text-error hover:bg-error/10 rounded-lg transition"
                   title="Supprimer"
                 >
@@ -382,6 +385,48 @@ export default function ChildrenManager() {
           en cliquant sur le bouton "Visible" ou "Masqué" à côté de chaque enfant.
         </p>
       </div>
+
+      {/* Confirmation modal for child deletion */}
+      {deleteTarget && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={() => !deleting && setDeleteTarget(null)}
+        >
+          <div
+            className="bg-white rounded-lg shadow-xl max-w-md w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-4 border-b border-hairline bg-soft">
+              <h3 className="text-lg font-bold text-ink">
+                Supprimer {deleteTarget.prenom}
+              </h3>
+            </div>
+
+            <div className="p-5">
+              <p className="text-sm text-ink">
+                Êtes-vous sûr de vouloir supprimer cet enfant ? Cette action est irréversible.
+              </p>
+            </div>
+
+            <div className="p-4 border-t border-hairline bg-soft flex justify-end gap-3">
+              <button
+                onClick={() => setDeleteTarget(null)}
+                disabled={deleting}
+                className="px-4 py-2 text-ink bg-white border border-line rounded-lg hover:bg-soft transition disabled:opacity-50"
+              >
+                Retour
+              </button>
+              <button
+                onClick={confirmDelete}
+                disabled={deleting}
+                className="px-4 py-2 bg-error text-white rounded-lg font-semibold hover:bg-error/90 transition disabled:opacity-50"
+              >
+                {deleting ? 'Suppression...' : 'Supprimer'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
