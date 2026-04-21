@@ -17,7 +17,7 @@ export default function ReservationsList() {
   const [reservations, setReservations] = useState([])
   const [workingHours, setWorkingHours] = useState({}) // { [jour]: { heure_debut, heure_fin } }
   const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState('demande') // 'all', 'demande', 'finalisee', 'closed' (refusee + annulee)
+  const [filter, setFilter] = useState('demande') // 'demande', 'finalisee', 'closed' (refusee + annulee)
   const [pendingAction, setPendingAction] = useState(null) // { reservationId, action: 'finalize' | 'refuse' }
   const [updating, setUpdating] = useState(false)
 
@@ -207,14 +207,11 @@ export default function ReservationsList() {
 
   const isClosed = (r) => r.statut === 'refusee' || r.statut === 'annulee'
 
-  const filteredReservations = filter === 'all'
-    ? reservations
-    : filter === 'closed'
+  const filteredReservations = filter === 'closed'
       ? reservations.filter(isClosed)
       : reservations.filter(r => r.statut === filter)
 
   const counts = {
-    all: reservations.length,
     demande: reservations.filter(r => r.statut === 'demande').length,
     finalisee: reservations.filter(r => r.statut === 'finalisee').length,
     closed: reservations.filter(isClosed).length,
@@ -285,7 +282,6 @@ export default function ReservationsList() {
             {filter === 'demande' && 'Aucune demande en cours'}
             {filter === 'finalisee' && 'Aucune mise en relation finalisée'}
             {filter === 'closed' && 'Aucune demande refusée ou annulée'}
-            {filter === 'all' && 'Aucune demande'}
           </p>
         </div>
       )}

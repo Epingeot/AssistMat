@@ -157,7 +157,6 @@ export default function ReservationsList() {
             {filter === 'demande' && 'Aucune demande en cours'}
             {filter === 'finalisee' && 'Aucune mise en relation finalisée'}
             {filter === 'closed' && 'Aucune demande refusée ou annulée'}
-            {filter === 'all' && 'Aucune demande'}
           </p>
         </div>
       )}
