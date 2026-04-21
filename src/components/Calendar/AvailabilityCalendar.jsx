@@ -528,7 +528,7 @@ export default function AvailabilityCalendar({
               <div className="flex justify-between items-start">
                 <div>
                   <h3 className="text-lg font-bold text-ink">
-                    Mises en relation - {JOURS[selectedSlot.dayIndex]}
+                    Demandes Finalisées - {JOURS[selectedSlot.dayIndex]}
                   </h3>
                   <p className="text-sm text-muted">
                     {format(selectedSlot.date, 'd MMMM yyyy', { locale: fr })}
