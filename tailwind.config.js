@@ -15,7 +15,8 @@ export default {
         cream:   "#F4F1E2",  // soft neutral, surfaces
         brown:   "#483D32",  // hair, grounding element
         blue:    "#5672BC",  // informational, calming presence
-        pink:    "#ffc9d7",  // highlights, active states
+        pink:    "#FFC9D7",  // highlights, active states
+        red:     "#EE676F",  // errors, destructive actions
 
         // --- Semantic roles (what the color does in the UI) ---
         primary:    "#95D2DB",  // main interactive: buttons, links
