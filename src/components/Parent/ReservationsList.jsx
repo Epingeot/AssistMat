@@ -132,7 +132,7 @@ export default function ReservationsList() {
           onClick={() => setFilter('finalisee')}
           className={`px-4 py-2 rounded-lg font-semibold transition ${
             filter === 'finalisee'
-              ? 'bg-accent text-ink'
+              ? 'bg-success text-white'
               : 'bg-white text-ink hover:bg-soft'
           }`}
         >
@@ -185,7 +185,7 @@ export default function ReservationsList() {
             <div
               key={reservation.id}
               className={`bg-white rounded-lg shadow-md p-6 border-l-4 ${
-                reservation.statut === 'demande' ? 'border-warning' :
+                reservation.statut === 'demande' ? 'border-primary' :
                 reservation.statut === 'finalisee' ? 'border-success' :
                 'border-error'
               }`}
@@ -225,9 +225,9 @@ export default function ReservationsList() {
                 <span
                   className={`px-3 py-1 rounded-full text-sm font-semibold ${
                     reservation.statut === 'demande'
-                      ? 'bg-warning/20 text-warning'
+                      ? 'bg-primary/20 text-primary'
                       : reservation.statut === 'finalisee'
-                      ? 'bg-success/20 text-ink'
+                      ? 'bg-success/20 text-success'
                       : 'bg-error/20 text-error'
                   }`}
                 >
