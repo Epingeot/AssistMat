@@ -220,7 +220,7 @@ export default function ReservationsList() {
         .insert({
           reservation_id: reservationId,
           sender_id: user.id,
-          body: "J'ai partagé mes coordonnées avec vous.",
+          body: "Je vous ai partagé mes coordonnées. Vous les retrouverez en haut de la demande — n'hésitez pas à me contacter directement pour échanger sur les détails !",
         })
       if (msgErr) throw msgErr
 

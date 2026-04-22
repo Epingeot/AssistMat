@@ -23,7 +23,7 @@ export default function AssistanteDashboard() {
     // Get assistante profile with required fields
     const { data: assistante } = await supabase
       .from('assistantes_maternelles')
-      .select('id, adresse, ville, max_kids')
+      .select('id, code_postal, ville, max_kids')
       .eq('user_id', user.id)
       .maybeSingle()
 
@@ -35,7 +35,7 @@ export default function AssistanteDashboard() {
     setAssistanteId(assistante.id)
 
     // Check required fields
-    const hasRequiredFields = assistante.adresse && assistante.ville && assistante.max_kids
+    const hasRequiredFields = assistante.code_postal && assistante.ville && assistante.max_kids
 
     if (!hasRequiredFields) {
       setActiveTab('profil')

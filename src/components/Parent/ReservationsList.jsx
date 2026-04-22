@@ -30,12 +30,15 @@ export default function ReservationsList() {
     try {
       setLoading(true)
 
+      // Narrow the assistante join: sensitive columns (adresse/telephone/email)
+      // are fetched separately via get_reservation_contact, gated on contact_shared
+      // or finalisee. The table-level GRANT will eventually block direct access.
       const { data, error } = await supabase
         .from('reservations')
         .select(`
           *,
           assistante:assistantes_maternelles!reservations_assistante_id_fkey(
-            *,
+            id, user_id, ville, code_postal, max_kids, vacation_weeks,
             profile:profiles!assistantes_maternelles_user_id_fkey(nom, prenom)
           ),
           child:children!reservations_child_id_fkey(id, prenom),
@@ -46,8 +49,22 @@ export default function ReservationsList() {
 
       if (error) throw error
 
-      logger.log('Reservations loaded:', data)
-      setReservations(data || [])
+      // Merge contact info for reservations where the gate passes.
+      const enriched = await Promise.all((data || []).map(async (r) => {
+        const canSeeContact = r.contact_shared || r.statut === 'finalisee'
+        if (!canSeeContact) return r
+        const { data: contactRows, error: contactErr } = await supabase
+          .rpc('get_reservation_contact', { p_reservation_id: r.id })
+        if (contactErr) {
+          logger.error('Error loading contact for reservation', r.id, contactErr)
+          return r
+        }
+        const contact = contactRows?.[0] || {}
+        return { ...r, assistante: { ...r.assistante, ...contact } }
+      }))
+
+      logger.log('Reservations loaded:', enriched)
+      setReservations(enriched)
     } catch (err) {
       logger.error('Error loading reservations:', err)
     } finally {

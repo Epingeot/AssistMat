@@ -50,15 +50,26 @@ export default function AssistanteProfile() {
 
   const loadAssistanteProfile = async () => {
     setLoading(true)
-    
+
     try {
-      const { data: assistante, error } = await supabase
-        .from('assistantes_maternelles')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle()
+      const [
+        { data: assistanteRow, error },
+        { data: contactRows, error: contactErr },
+      ] = await Promise.all([
+        supabase
+          .from('assistantes_maternelles')
+          .select('id, user_id, ville, code_postal, description, agrement, agrement_date, photo_url, has_garden, has_pets, pets_description, max_kids, max_days_per_week_per_kid, vacation_weeks, accepts_periscolaire, accepts_remplacements')
+          .eq('user_id', user.id)
+          .maybeSingle(),
+        supabase.rpc('get_my_assistante_contact'),
+      ])
 
       if (error) throw error
+      if (contactErr) throw contactErr
+
+      const assistante = assistanteRow
+        ? { ...assistanteRow, ...(contactRows?.[0] || {}) }
+        : null
 
       if (assistante) {
         setAssistanteData(assistante)
@@ -257,7 +268,7 @@ export default function AssistanteProfile() {
         const { data: newAssistante, error: insertError } = await supabase
           .from('assistantes_maternelles')
           .insert([assistantePayload])
-          .select()
+          .select('id, user_id, ville, code_postal, description, agrement, agrement_date, photo_url, has_garden, has_pets, pets_description, max_kids, max_days_per_week_per_kid, vacation_weeks, accepts_periscolaire, accepts_remplacements')
           .single()
 
         if (insertError) throw insertError
