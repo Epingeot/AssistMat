@@ -1,29 +1,12 @@
-import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 
-export default function LandingPage() {
+export default function AssistanteLandingPage() {
   const navigate = useNavigate()
-  const { user, profile } = useAuth()
-  const [searchCity, setSearchCity] = useState('')
+  const { user } = useAuth()
 
-  // If user is already logged in, redirect to dashboard
   const handleDashboardClick = () => {
     navigate('/dashboard')
-  }
-
-  const handleSearch = (e) => {
-    e.preventDefault()
-    // Navigate to search page with city or postal code as query param
-    // Check if input looks like a postal code (5 digits)
-    const isPostalCode = /^\d{5}$/.test(searchCity.trim())
-    if (isPostalCode) {
-      navigate(`/search?codePostal=${encodeURIComponent(searchCity.trim())}`)
-    } else if (searchCity) {
-      navigate(`/search?ville=${encodeURIComponent(searchCity.trim())}`)
-    } else {
-      navigate('/search')
-    }
   }
 
   return (
@@ -63,43 +46,33 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-peach to-secondary text-white py-20 px-4">
+      <section className="bg-gradient-to-br from-azure to-info text-white py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            Trouvez l'assistante maternelle idéale
+            Gagnez en visibilité auprès des parents
           </h2>
           <p className="text-xl md:text-2xl mb-10 opacity-90">
-            Recherchez, comparez et réservez en quelques clics
+            Créez votre profil, affichez vos disponibilités et recevez des demandes de mise en relation.
           </p>
 
-          {/* Search Bar */}
-          <form onSubmit={handleSearch} className="max-w-xl mx-auto">
-            <div className="flex flex-col sm:flex-row gap-3">
-              <input
-                type="text"
-                value={searchCity}
-                onChange={(e) => setSearchCity(e.target.value)}
-                placeholder="Entrez votre ville ou code postal..."
-                className="flex-1 px-5 py-4 rounded-lg text-ink text-lg focus:ring-4 focus:ring-primary/50 outline-none"
-              />
-              <button
-                type="submit"
-                className="px-8 py-4 bg-accent text-ink rounded-lg font-bold text-lg hover:bg-accent/90 transition shadow-lg"
-              >
-                Rechercher
-              </button>
-            </div>
-          </form>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              to="/login?mode=signup"
+              className="px-8 py-4 bg-accent text-ink rounded-lg font-bold text-lg hover:bg-accent/90 transition shadow-lg"
+            >
+              Créer mon profil
+            </Link>
+            <Link
+              to="/login"
+              className="px-8 py-4 bg-white/20 text-white rounded-lg font-bold text-lg hover:bg-white/30 transition border-2 border-white/50"
+            >
+              Se connecter
+            </Link>
+          </div>
 
           <p className="mt-6 text-sm opacity-75">
-            Plus de 100 assistantes maternelles disponibles près de chez vous
+            Inscription gratuite, sans engagement
           </p>
-          <Link
-            to="/pro"
-            className="inline-block mt-6 px-5 py-2 bg-white/15 text-white text-sm font-medium rounded-full border border-white/40 hover:bg-white/25 transition"
-          >
-            Vous êtes assistante maternelle&nbsp;? →
-          </Link>
         </div>
       </section>
 
@@ -107,47 +80,47 @@ export default function LandingPage() {
       <section className="py-20 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
           <h3 className="text-3xl font-bold text-center text-ink mb-12">
-            Pourquoi choisir AssistMat ?
+            Pourquoi rejoindre AssistMat&nbsp;?
           </h3>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {/* Feature 1 */}
+            {/* Feature 1 — Visibility */}
             <div className="text-center p-6">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
               </div>
-              <h4 className="text-xl font-semibold text-ink mb-3">Avis et notes</h4>
+              <h4 className="text-xl font-semibold text-ink mb-3">Plus de visibilité</h4>
               <p className="text-muted">
-                Consultez les avis et notes laissés par d'autres parents pour choisir en toute confiance.
+                Apparaissez dans les résultats des parents qui cherchent près de chez vous.
               </p>
             </div>
 
-            {/* Feature 2 */}
+            {/* Feature 2 — Planning */}
             <div className="text-center p-6">
               <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h4 className="text-xl font-semibold text-ink mb-3">Mise en relation simple</h4>
+              <h4 className="text-xl font-semibold text-ink mb-3">Planning clair</h4>
               <p className="text-muted">
-                Consultez les disponibilités en temps réel et envoyez une demande de mise en relation en quelques clics.
+                Renseignez vos horaires, vos absences et votre capacité d'accueil&nbsp;: votre disponibilité s'affiche automatiquement.
               </p>
             </div>
 
-            {/* Feature 3 */}
+            {/* Feature 3 — Demandes */}
             <div className="text-center p-6">
               <div className="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                 </svg>
               </div>
-              <h4 className="text-xl font-semibold text-ink mb-3">Recherche locale</h4>
+              <h4 className="text-xl font-semibold text-ink mb-3">Demandes centralisées</h4>
               <p className="text-muted">
-                Trouvez des assistantes maternelles près de chez vous grâce à notre carte interactive.
+                Recevez les demandes de mise en relation, échangez avec les parents et finalisez directement depuis votre espace.
               </p>
             </div>
           </div>
@@ -158,7 +131,7 @@ export default function LandingPage() {
       <section className="py-20 px-4 bg-chip">
         <div className="max-w-6xl mx-auto">
           <h3 className="text-3xl font-bold text-center text-ink mb-12">
-            Comment ça marche ?
+            Comment ça marche&nbsp;?
           </h3>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -168,9 +141,9 @@ export default function LandingPage() {
                 <div className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold text-lg mb-4">
                   1
                 </div>
-                <h4 className="text-xl font-semibold text-ink mb-3">Recherchez</h4>
+                <h4 className="text-xl font-semibold text-ink mb-3">Créez votre profil</h4>
                 <p className="text-muted">
-                  Entrez votre ville et trouvez des assistantes maternelles disponibles près de chez vous.
+                  Adresse, agrément, capacité d'accueil, options&nbsp;: présentez-vous aux parents en quelques minutes.
                 </p>
               </div>
             </div>
@@ -181,9 +154,9 @@ export default function LandingPage() {
                 <div className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold text-lg mb-4">
                   2
                 </div>
-                <h4 className="text-xl font-semibold text-ink mb-3">Comparez</h4>
+                <h4 className="text-xl font-semibold text-ink mb-3">Tenez votre planning à jour</h4>
                 <p className="text-muted">
-                  Consultez les profils, les disponibilités et choisissez l'assistante idéale.
+                  Horaires de travail, semaines d'absence&nbsp;: votre calendrier reflète vos vraies disponibilités.
                 </p>
               </div>
             </div>
@@ -194,9 +167,9 @@ export default function LandingPage() {
                 <div className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold text-lg mb-4">
                   3
                 </div>
-                <h4 className="text-xl font-semibold text-ink mb-3">Faites une demande</h4>
+                <h4 className="text-xl font-semibold text-ink mb-3">Recevez les demandes</h4>
                 <p className="text-muted">
-                  Envoyez une demande, échangez avec l'assistante, et finalisez ensemble la mise en relation.
+                  Les parents vous contactent via la plateforme. Vous échangez, vous acceptez, la mise en relation est finalisée.
                 </p>
               </div>
             </div>
@@ -204,75 +177,48 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Testimonials Section - TODO: Uncomment when we have real testimonials
-      <section className="py-20 px-4 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <h3 className="text-3xl font-bold text-center text-ink mb-12">
-            Ce que disent nos utilisateurs
-          </h3>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-soft rounded-lg p-6">
-              <div className="flex items-center mb-4">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <svg key={star} className="w-5 h-5 text-warning" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
-                ))}
-              </div>
-              <p className="text-muted italic mb-4">
-                "Testimonial text here"
-              </p>
-              <p className="font-semibold text-ink">Name</p>
-              <p className="text-sm text-muted">Role / Location</p>
-            </div>
-          </div>
-        </div>
-      </section>
-      */}
-
       {/* CTA Section */}
-      <section className="py-20 px-4 bg-gradient-to-br from-peach to-secondary text-white">
+      <section className="py-20 px-4 bg-gradient-to-br from-azure to-info text-white">
         <div className="max-w-4xl mx-auto text-center">
           <h3 className="text-3xl md:text-4xl font-bold mb-6">
-            Prêt à trouver votre assistante maternelle ?
+            Prête à rejoindre AssistMat&nbsp;?
           </h3>
           <p className="text-xl mb-8 opacity-90">
-            Rejoignez des milliers de familles qui font confiance à AssistMat
+            Créez votre profil gratuitement et recevez vos premières demandes.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              to="/search"
+              to="/login?mode=signup"
               className="px-8 py-4 bg-accent text-ink rounded-lg font-bold text-lg hover:bg-accent/90 transition shadow-lg"
             >
-              Commencer la recherche
+              Créer mon profil
             </Link>
             {!user && (
               <Link
-                to="/login?mode=signup"
+                to="/login"
                 className="px-8 py-4 bg-white/20 text-white rounded-lg font-bold text-lg hover:bg-white/30 transition border-2 border-white/50"
               >
-                Créer un compte gratuit
+                Se connecter
               </Link>
             )}
           </div>
         </div>
       </section>
-      
+
       {/* Footer */}
       <footer className="bg-ink text-subtle">
-        {/* Pro audience row */}
+        {/* Parent audience row */}
         <div className="border-b border-white/10 py-5 px-4">
           <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-white text-center sm:text-left text-sm">
-              <span className="font-semibold">Vous êtes assistante maternelle&nbsp;?</span>{' '}
-              <span className="text-subtle">Créez votre profil et recevez des demandes.</span>
+              <span className="font-semibold">Vous êtes parent&nbsp;?</span>{' '}
+              <span className="text-subtle">Trouvez une assistante maternelle près de chez vous.</span>
             </p>
             <Link
-              to="/pro"
-              className="shrink-0 px-5 py-2 bg-primary text-ink rounded-lg font-semibold text-sm hover:bg-primary/90 transition"
+              to="/"
+              className="shrink-0 px-5 py-2 bg-secondary text-white rounded-lg font-semibold text-sm hover:bg-secondary/90 transition"
             >
-              Découvrir l'espace pro →
+              Découvrir l'espace parents →
             </Link>
           </div>
         </div>

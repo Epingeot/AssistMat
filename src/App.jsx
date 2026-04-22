@@ -7,6 +7,7 @@ import ResetPasswordForm from './components/Auth/ResetPasswordForm'
 import AssistanteDashboard from './pages/AssistanteDashboard'
 import ParentDashboard from './pages/ParentDashboard'
 import LandingPage from './pages/LandingPage'
+import AssistanteLandingPage from './pages/AssistanteLandingPage'
 import PublicSearchPage from './pages/PublicSearchPage'
 import Disclaimer from './pages/Disclaimer'
 import { logger } from './utils/logger'
@@ -58,6 +59,7 @@ function AppRoutes() {
     <Routes>
       {/* Public routes */}
       <Route path="/" element={<LandingPage />} />
+      <Route path="/pro" element={<AssistanteLandingPage />} />
       <Route path="/search" element={<PublicSearchPage />} />
       <Route
         path="/login"
